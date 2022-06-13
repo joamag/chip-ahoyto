@@ -3,7 +3,10 @@ use getrandom::getrandom;
 #[cfg(feature = "web")]
 use wasm_bindgen::prelude::*;
 
+/// The width of the screen in pixels.
 pub const SCREEN_PIXEL_WIDTH: usize = 64;
+
+/// The height of the screen in pixels.
 pub const SCREEN_PIXEL_HEIGHT: usize = 32;
 
 const NUM_KEYS: usize = 16;
