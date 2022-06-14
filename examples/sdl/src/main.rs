@@ -2,10 +2,13 @@ use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
 use sdl2::{
     event::Event, image::LoadSurface, keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface,
 };
-use std::{fs::File, io::Read};
+use std::{cmp::min, fs::File, io::Read};
 
 const PIXEL_SET: [u8; 3] = [80, 203, 147];
-const SYSTEM_HZ: u32 = 240;
+
+const LOGIC_HZ: u32 = 240;
+const VISUAL_HZ: u32 = 20;
+
 const SCREEN_SCALE: f32 = 15.0;
 
 // The base title to be used in the window.
@@ -14,7 +17,28 @@ const TITLE: &str = "CHIP-Ahoyto";
 // The title that is going to be presented initially to the user.
 const TITLE_INITIAL: &str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
 
+pub struct State {
+    system: Chip8,
+    rom_loaded: bool,
+    logic_interval: u32,
+    visual_interval: u32,
+    next_logic_time: u32,
+    next_visual_time: u32,
+}
+
 fn main() {
+    // builds the CHIP-8 machine, this is the instance that
+    // is going to logically represent the CHIP-8
+    let mut state = State {
+        system: Chip8::new(),
+        rom_loaded: false,
+        logic_interval: 1000 / LOGIC_HZ,
+        visual_interval: 1000 / VISUAL_HZ,
+        next_logic_time: 0,
+        next_visual_time: 0,
+    };
+
+    // initializes the SDL sub-system
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
     let mut timer_subsystem = sdl.timer().unwrap();
@@ -60,13 +84,6 @@ fn main() {
     canvas.copy(&background, None, None).unwrap();
     canvas.present();
 
-    // builds the CHIP-8 machine, this is the instance that
-    // is going to logically represent the CHIP-8
-    let mut chip8 = Chip8::new();
-    let mut game_loaded = false;
-
-    let tick_interval = 1000 / SYSTEM_HZ;
-    let mut last_update_time = 0;
     let mut event_pump = sdl.event_pump().unwrap();
 
     'main: loop {
@@ -80,10 +97,11 @@ fn main() {
 
                 Event::DropFile { filename, .. } => {
                     let rom = read_file(&filename);
-                    chip8 = Chip8::new();
-                    chip8.load_rom(&rom);
-                    chip8.reset();
-                    game_loaded = true;
+
+                    state.system.reset();
+                    state.system.load_rom(&rom);
+
+                    state.rom_loaded = true;
                     canvas
                         .window_mut()
                         .set_title(&format!("{} [Currently playing: {}]", TITLE, filename))
@@ -94,41 +112,42 @@ fn main() {
                 Event::KeyDown {
                     keycode: Some(keycode),
                     ..
-                } if game_loaded => key_to_btn(keycode).map(|btn| chip8.key_press(btn)),
+                } if state.rom_loaded => key_to_btn(keycode).map(|btn| state.system.key_press(btn)),
 
                 Event::KeyUp {
                     keycode: Some(keycode),
                     ..
-                } if game_loaded => key_to_btn(keycode).map(|btn| chip8.key_lift(btn)),
+                } if state.rom_loaded => key_to_btn(keycode).map(|btn| state.system.key_lift(btn)),
 
                 _ => None,
             };
         }
 
-        // in case the game is not loaded we must delay next execution
+        // in case the ROM is not loaded we must delay next execution
         // a little bit to avoid extreme CPU usage
-        if !game_loaded {
+        if !state.rom_loaded {
             timer_subsystem.delay(17);
             continue;
         }
 
-        let current_time = timer_subsystem.ticks();
-        let delta_t = current_time - last_update_time;
-        if tick_interval > delta_t {
+        if timer_subsystem.ticks() >= state.next_logic_time {
             // runs the tick operation in the CHIP-8 system,
             // effectively changing the logic state of the machine
-            chip8.clock();
-            chip8.clock_dt();
-            chip8.clock_st();
+            state.system.clock();
+            state.system.clock_dt();
+            state.system.clock_st();
 
-            // @todo not sure if the delay should come here
-            timer_subsystem.delay(tick_interval - delta_t);
+            // updates the next update time reference to the current
+            // time so that it can be used from game loop control
+            state.next_logic_time = timer_subsystem.ticks() + state.logic_interval;
+        }
 
+        if timer_subsystem.ticks() >= state.next_visual_time {
             // @todo this looks to be very slow!
             // we should use a callback on pixel buffer change
             // to make this a faster thing
             let mut rgb_pixels = vec![];
-            for p in chip8.pixels() {
+            for p in state.system.pixels() {
                 rgb_pixels.extend_from_slice(&[
                     p * PIXEL_SET[0],
                     p * PIXEL_SET[1],
@@ -143,11 +162,17 @@ fn main() {
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
             canvas.present();
+
+            // updates the next update time reference to the current
+            // time so that it can be used from game loop control
+            state.next_visual_time = timer_subsystem.ticks() + state.visual_interval;
         }
 
-        // updates the last update time reference to the current
-        // time so that it can be used from game loop control
-        last_update_time = current_time;
+        let current_time = timer_subsystem.ticks();
+        let pending_logic = state.next_logic_time.saturating_sub(current_time);
+        let pending_visual = state.next_visual_time.saturating_sub(current_time);
+
+        timer_subsystem.delay(min(pending_logic, pending_visual));
     }
 }
 
