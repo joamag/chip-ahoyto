@@ -5,7 +5,7 @@ use std::{fs::File, io::Read};
 const PIXEL_SET: [u8; 3] = [80, 203, 147];
 const SYSTEM_HZ: u32 = 240;
 const SCREEN_SCALE: f32 = 15.0;
-const TITLE: &str = "Drag and drop the ROM file to play";
+const TITLE: &str = "CHIP-Ahoyto - Drag and drop the ROM file to play";
 
 fn main() {
     let sdl = sdl2::init().unwrap();
