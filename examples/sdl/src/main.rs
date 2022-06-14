@@ -2,15 +2,13 @@ use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
 use sdl2::{
     event::Event, image::LoadSurface, keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface,
 };
-use std::{cmp::min, fs::File, io::Read};
+use std::{fs::File, io::Read};
 
-const COLORS: [[u8; 3]; 2] = [
-    [255, 255, 255],
-    [80, 203, 147]
-];
+const COLORS: [[u8; 3]; 2] = [[255, 255, 255], [80, 203, 147]];
 
 const LOGIC_HZ: u32 = 240;
 const VISUAL_HZ: u32 = 20;
+const IDLE_HZ: u32 = 60;
 
 const SCREEN_SCALE: f32 = 15.0;
 
@@ -23,10 +21,10 @@ const TITLE_INITIAL: &str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
 pub struct State {
     system: Chip8,
     rom_loaded: bool,
-    logic_interval: u32,
-    visual_interval: u32,
-    next_logic_time: u32,
-    next_visual_time: u32,
+    logic_frequency: u32,
+    visual_frequency: u32,
+    idle_frequency: u32,
+    next_tick_time: u32,
     pixel_color: [u8; 3],
 }
 
@@ -36,11 +34,11 @@ fn main() {
     let mut state = State {
         system: Chip8::new(),
         rom_loaded: false,
-        logic_interval: 1000 / LOGIC_HZ,
-        visual_interval: 1000 / VISUAL_HZ,
-        next_logic_time: 0,
-        next_visual_time: 0,
-        pixel_color: COLORS[0]
+        logic_frequency: LOGIC_HZ,
+        visual_frequency: VISUAL_HZ,
+        idle_frequency: IDLE_HZ,
+        next_tick_time: 0,
+        pixel_color: COLORS[0],
     };
 
     // initializes the SDL sub-system
@@ -131,26 +129,24 @@ fn main() {
         // in case the ROM is not loaded we must delay next execution
         // a little bit to avoid extreme CPU usage
         if !state.rom_loaded {
-            timer_subsystem.delay(17);
+            timer_subsystem.delay(1000 / state.idle_frequency);
             continue;
         }
 
-        if timer_subsystem.ticks() >= state.next_logic_time {
-            // runs the tick operation in the CHIP-8 system,
-            // effectively changing the logic state of the machine
-            state.system.clock();
-            state.system.clock_dt();
-            state.system.clock_st();
+        if timer_subsystem.ticks() >= state.next_tick_time {
+            // calculates the ratio between the logic and the visual frequency
+            // to make sure that the proper number of updates are performed
+            let logic_visual_ratio = state.logic_frequency / state.visual_frequency;
+            for _ in 0..logic_visual_ratio {
+                // runs the tick operation in the CHIP-8 system,
+                // effectively changing the logic state of the machine
+                state.system.clock();
+                state.system.clock_dt();
+                state.system.clock_st();
+            }
 
-            // updates the next update time reference to the current
-            // time so that it can be used from game loop control
-            state.next_logic_time = timer_subsystem.ticks() + state.logic_interval;
-        }
-
-        if timer_subsystem.ticks() >= state.next_visual_time {
-            // @todo this looks to be very slow!
-            // we should use a callback on pixel buffer change
-            // to make this a faster thing
+            // re-creates a vector of pixels from the system pixels
+            // buffer, this is considered a pretty expensive operation
             let mut rgb_pixels = vec![];
             for p in state.system.pixels() {
                 rgb_pixels.extend_from_slice(&[
@@ -170,14 +166,12 @@ fn main() {
 
             // updates the next update time reference to the current
             // time so that it can be used from game loop control
-            state.next_visual_time = timer_subsystem.ticks() + state.visual_interval;
+            state.next_tick_time = timer_subsystem.ticks() + (1000 / state.visual_frequency);
         }
 
         let current_time = timer_subsystem.ticks();
-        let pending_logic = state.next_logic_time.saturating_sub(current_time);
-        let pending_visual = state.next_visual_time.saturating_sub(current_time);
-
-        timer_subsystem.delay(min(pending_logic, pending_visual));
+        let pending_time = state.next_tick_time.saturating_sub(current_time);
+        timer_subsystem.delay(pending_time);
     }
 }
 
