@@ -1,1 +1,1 @@
-mod chip8;
+pub mod chip8;
