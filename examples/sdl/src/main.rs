@@ -27,8 +27,8 @@ fn main() {
 
     // updates the icon of the window to reflect the image
     // and style of the emulator
-    let surface_ref = Surface::from_file("./resources/icon.png").unwrap();
-    window.set_icon(surface_ref);
+    let surface = Surface::from_file("./resources/icon.png").unwrap();
+    window.set_icon(&surface);
 
     let mut canvas = window.into_canvas().build().unwrap();
     canvas.set_scale(SCREEN_SCALE, SCREEN_SCALE).unwrap();
@@ -44,6 +44,15 @@ fn main() {
         )
         .unwrap();
 
+    // creates a texture for the surface and presents it to
+    // to the screen creating a call to action to drag and
+    // drop the image into the screen
+    let background = texture_creator.create_texture_from_surface(&surface).unwrap();
+    canvas.copy(&background, None, None).unwrap();
+    canvas.present();
+
+    // builds the CHIP-8 machine, this is the instance that
+    // is going to logically represent the CHIP-8
     let mut chip8 = Chip8::new();
     let mut game_loaded = false;
 
@@ -119,8 +128,7 @@ fn main() {
             canvas.copy(&texture, None, None).unwrap();
             canvas.present();
 
-            println!("CENAS");
-
+            // prints some information about the current CHIP-8 state
             println!("{}", chip8);
         }
         last_update_time = current_time;
