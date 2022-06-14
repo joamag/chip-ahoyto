@@ -1,4 +1,4 @@
-use jc_chip8::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
+use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
 use sdl2::{event::Event, keyboard::Keycode, pixels::PixelFormatEnum};
 use std::{fs::File, io::Read};
 

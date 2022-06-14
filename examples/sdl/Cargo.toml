@@ -1,16 +1,17 @@
 [package]
-name = "desktop"
-version = "1.0.0"
+name = "chip-ahoyto-sdl"
+version = "0.1.0"
 authors = ["João Magalhães <joamag@gmail.com>"]
+description = "CHIP-8 Emulator SDL (Desktop) Application"
+license = "Apache-2.0"
+keywords = ["chip-8", "emulator", "rust", "sdl"]
 edition = "2018"
-description = "CHIP-8 Emulator SDL (Desktop Application"
-license = "MIT"
 
-[dependencies.jc-chip8]
+[dependencies.chip-ahoyto]
 path = "../.."
 
 [dependencies.sdl2]
-version = "0.35"
+version = "0.34"
 features = ["bundled", "static-link"]
 
 [profile.release]

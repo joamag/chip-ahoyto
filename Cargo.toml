@@ -1,9 +1,8 @@
 [package]
-name = "chip-ahoyoto"
+name = "chip-ahoyto"
 version = "0.1.0"
 authors = ["João Magalhães <joamag@gmail.com>"]
-description = "Chip-8 Emulator in Rust"
-repository = "https://github.com/joao-conde/jc-chip8"
+description = "CHIP-8 Emulator in Rust"
 license = "Apache"
 keywords = ["chip-8", "emulator", "rust"]
 edition = "2018"
