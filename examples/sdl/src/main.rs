@@ -1,6 +1,6 @@
 use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
 use sdl2::{event::Event, keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface};
-use std::{fs::File, io::Read};
+use std::{fs::File, io::Read, path::Path};
 
 const PIXEL_SET: [u8; 3] = [80, 203, 147];
 const SYSTEM_HZ: u32 = 240;
@@ -12,6 +12,8 @@ fn main() {
     let video_subsystem = sdl.video().unwrap();
     let mut timer_subsystem = sdl.timer().unwrap();
 
+    // creates the system window that is going to be used to
+    // show the emulator and sets it to the central are o screen
     let window = video_subsystem
         .window(
             TITLE,
@@ -25,9 +27,10 @@ fn main() {
 
     // updates the icon of the window to reflect the image
     // and style of the emulator
-    let surface_ref = Surface::from_file("./resources/icon.png");
+    let path = Path::new("./resources/icon.png");
+    let surface_ref = Surface::from_file(path);
     window.set_icon(surface_ref);
-    
+
     let mut canvas = window.into_canvas().build().unwrap();
     canvas.set_scale(SCREEN_SCALE, SCREEN_SCALE).unwrap();
     canvas.clear();
@@ -48,6 +51,7 @@ fn main() {
     let tick_interval = 1000 / SYSTEM_HZ;
     let mut last_update_time = 0;
     let mut event_pump = sdl.event_pump().unwrap();
+
     'main: loop {
         while let Some(event) = event_pump.poll_event() {
             match event {
