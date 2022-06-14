@@ -127,9 +127,6 @@ fn main() {
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
             canvas.present();
-
-            // prints some information about the current CHIP-8 state
-            println!("{}", chip8);
         }
         last_update_time = current_time;
     }
