@@ -12,7 +12,6 @@ path = "../.."
 
 [dependencies.sdl2]
 version = "0.35"
-default-features = false
 features = ["ttf", "image", "gfx", "mixer", "static-link", "use-vcpkg"]
 
 [package.metadata.vcpkg]
