@@ -93,6 +93,7 @@ fn main() {
         while let Some(event) = event_pump.poll_event() {
             match event {
                 Event::Quit { .. } => break 'main,
+
                 Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
