@@ -7,7 +7,7 @@ use std::{fs::File, io::Read};
 const COLORS: [[u8; 3]; 2] = [[255, 255, 255], [80, 203, 147]];
 
 const LOGIC_HZ: u32 = 240;
-const VISUAL_HZ: u32 = 20;
+const VISUAL_HZ: u32 = 60;
 const IDLE_HZ: u32 = 60;
 
 const SCREEN_SCALE: f32 = 15.0;

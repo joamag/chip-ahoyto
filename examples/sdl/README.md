@@ -24,3 +24,10 @@ Keys available:
 `A S D F`
 
 `Z X C V`
+
+## ROMs
+
+You can find some good quality game and tools roms here:
+
+* [https://github.com/kripod/chip8-roms](https://github.com/kripod/chip8-roms)
+* [https://github.com/loktar00/chip8](https://github.com/loktar00/chip8)
