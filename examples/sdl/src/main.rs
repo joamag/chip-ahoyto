@@ -1,11 +1,18 @@
 use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
-use sdl2::{event::Event, keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface, image::LoadSurface};
+use sdl2::{
+    event::Event, image::LoadSurface, keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface,
+};
 use std::{fs::File, io::Read};
 
 const PIXEL_SET: [u8; 3] = [80, 203, 147];
 const SYSTEM_HZ: u32 = 240;
 const SCREEN_SCALE: f32 = 15.0;
-const TITLE: &str = "CHIP-Ahoyto - Drag and drop the ROM file to play";
+
+// The base title to be used in the window.
+const TITLE: &str = "CHIP-Ahoyto";
+
+// The title that is going to be presented initially to the user.
+const TITLE_INITIAL: &str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
 
 fn main() {
     let sdl = sdl2::init().unwrap();
@@ -16,7 +23,7 @@ fn main() {
     // show the emulator and sets it to the central are o screen
     let mut window = video_subsystem
         .window(
-            TITLE,
+            TITLE_INITIAL,
             SCREEN_SCALE as u32 * SCREEN_PIXEL_WIDTH as u32,
             SCREEN_SCALE as u32 * SCREEN_PIXEL_HEIGHT as u32,
         )
@@ -47,7 +54,9 @@ fn main() {
     // creates a texture for the surface and presents it to
     // to the screen creating a call to action to drag and
     // drop the image into the screen
-    let background = texture_creator.create_texture_from_surface(&surface).unwrap();
+    let background = texture_creator
+        .create_texture_from_surface(&surface)
+        .unwrap();
     canvas.copy(&background, None, None).unwrap();
     canvas.present();
 
@@ -96,9 +105,16 @@ fn main() {
             };
         }
 
+        // in case the game is not loaded we must delay next execution
+        // a little bit to avoid extreme CPU usage
+        if !game_loaded {
+            timer_subsystem.delay(17);
+            continue;
+        }
+
         let current_time = timer_subsystem.ticks();
         let delta_t = current_time - last_update_time;
-        if game_loaded && tick_interval > delta_t {
+        if tick_interval > delta_t {
             // runs the tick operation in the CHIP-8 system,
             // effectively changing the logic state of the machine
             chip8.clock();
@@ -128,6 +144,9 @@ fn main() {
             canvas.copy(&texture, None, None).unwrap();
             canvas.present();
         }
+
+        // updates the last update time reference to the current
+        // time so that it can be used from game loop control
         last_update_time = current_time;
     }
 }
