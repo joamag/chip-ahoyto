@@ -10,6 +10,8 @@ const LOGIC_HZ: u32 = 240;
 const VISUAL_HZ: u32 = 60;
 const IDLE_HZ: u32 = 60;
 
+const LOGIC_DELTA: u32 = 60;
+
 const SCREEN_SCALE: f32 = 15.0;
 
 // The base title to be used in the window.
@@ -99,6 +101,22 @@ fn main() {
                     ..
                 } => break 'main,
 
+                Event::KeyDown {
+                    keycode: Some(Keycode::Plus),
+                    ..
+                } => {
+                    state.logic_frequency += LOGIC_DELTA;
+                    None
+                }
+
+                Event::KeyDown {
+                    keycode: Some(Keycode::Minus),
+                    ..
+                } => {
+                    state.logic_frequency -= LOGIC_DELTA;
+                    None
+                }
+
                 Event::DropFile { filename, .. } => {
                     let rom = read_file(&filename);
 
@@ -106,6 +124,7 @@ fn main() {
                     state.system.load_rom(&rom);
 
                     state.rom_loaded = true;
+
                     canvas
                         .window_mut()
                         .set_title(&format!("{} [Currently playing: {}]", TITLE, filename))
