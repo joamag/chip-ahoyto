@@ -3,7 +3,7 @@ name = "desktop"
 version = "1.0.0"
 authors = ["João Magalhães <joamag@gmail.com>"]
 edition = "2018"
-description = "CHIP-8 Emulator Desktop Application"
+description = "CHIP-8 Emulator SDL (Desktop Application"
 license = "MIT"
 
 [dependencies.jc-chip8]
