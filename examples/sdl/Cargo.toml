@@ -11,13 +11,17 @@ edition = "2018"
 path = "../.."
 
 [dependencies.sdl2]
-version = "0.34"
-features = ["image", "bundled", "static-link", "use-vcpkg"]
+version = "0.35"
+default-features = false
+features = ["ttf", "image", "gfx", "mixer", "static-link", "use-vcpkg"]
 
 [package.metadata.vcpkg]
 dependencies = ["sdl2", "sdl2-image[libjpeg-turbo,tiff,libwebp]", "sdl2-ttf", "sdl2-gfx", "sdl2-mixer"]
 git = "https://github.com/microsoft/vcpkg"
 rev = "72fa4d4630c0971eadea7d0a70045351ab13be9d"
+
+[package.metadata.vcpkg.target]
+x86_64-pc-windows-msvc = { triplet = "x64-windows-static-md" }
 
 [profile.release]
 debug = false
