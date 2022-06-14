@@ -82,12 +82,18 @@ fn main() {
         let current_time = timer_subsystem.ticks();
         let delta_t = current_time - last_update_time;
         if game_loaded && tick_interval > delta_t {
+            // runs the tick operation in the CHIP-8 system,
+            // effectively changing the logic state of the machine
             chip8.clock();
             chip8.clock_dt();
             chip8.clock_st();
 
+            // @todo not sure if the delay should come here
             timer_subsystem.delay(tick_interval - delta_t);
 
+            // @todo this looks to be very slow!
+            // we should use a callback on pixel buffer change
+            // to make this a faster thing
             let mut rgb_pixels = vec![];
             for p in chip8.pixels() {
                 rgb_pixels.extend_from_slice(&[
@@ -97,6 +103,8 @@ fn main() {
                 ])
             }
 
+            // creates a texture based on the RGB pixel buffer
+            // and copies that to the canvas for presentation
             texture
                 .update(None, &rgb_pixels, SCREEN_PIXEL_WIDTH as usize * 3)
                 .unwrap();
