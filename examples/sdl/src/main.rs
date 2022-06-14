@@ -1,5 +1,5 @@
 use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
-use sdl2::{event::Event, keyboard::Keycode, pixels::PixelFormatEnum};
+use sdl2::{event::Event, keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface};
 use std::{fs::File, io::Read};
 
 const PIXEL_SET: [u8; 3] = [80, 203, 147];
@@ -23,6 +23,11 @@ fn main() {
         .build()
         .unwrap();
 
+    // updates the icon of the window to reflect the image
+    // and style of the emulator
+    let surface_ref = Surface::from_file("./resources/icon.png");
+    window.set_icon(surface_ref);
+    
     let mut canvas = window.into_canvas().build().unwrap();
     canvas.set_scale(SCREEN_SCALE, SCREEN_SCALE).unwrap();
     canvas.clear();
@@ -110,6 +115,10 @@ fn main() {
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
             canvas.present();
+
+            println!("CENAS");
+
+            println!("{}", chip8);
         }
         last_update_time = current_time;
     }

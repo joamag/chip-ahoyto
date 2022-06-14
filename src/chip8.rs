@@ -302,6 +302,6 @@ impl Default for Chip8 {
 
 impl Display for Chip8 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "pc: {}", self.pc)
+        write!(f, "PC: {:#0x?}\nSP: {:#0x?}", self.pc, self.sp)
     }
 }
