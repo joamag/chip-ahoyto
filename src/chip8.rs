@@ -297,3 +297,7 @@ impl Default for Chip8 {
         Chip8::new()
     }
 }
+
+impl Display for Chip8 {
+
+}
