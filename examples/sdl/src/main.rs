@@ -4,7 +4,10 @@ use sdl2::{
 };
 use std::{cmp::min, fs::File, io::Read};
 
-const PIXEL_SET: [u8; 3] = [80, 203, 147];
+const COLORS: [[u8; 3]; 2] = [
+    [255, 255, 255],
+    [80, 203, 147]
+];
 
 const LOGIC_HZ: u32 = 240;
 const VISUAL_HZ: u32 = 20;
@@ -24,6 +27,7 @@ pub struct State {
     visual_interval: u32,
     next_logic_time: u32,
     next_visual_time: u32,
+    pixel_color: [u8; 3],
 }
 
 fn main() {
@@ -36,6 +40,7 @@ fn main() {
         visual_interval: 1000 / VISUAL_HZ,
         next_logic_time: 0,
         next_visual_time: 0,
+        pixel_color: COLORS[0]
     };
 
     // initializes the SDL sub-system
@@ -149,9 +154,9 @@ fn main() {
             let mut rgb_pixels = vec![];
             for p in state.system.pixels() {
                 rgb_pixels.extend_from_slice(&[
-                    p * PIXEL_SET[0],
-                    p * PIXEL_SET[1],
-                    p * PIXEL_SET[2],
+                    p * state.pixel_color[0],
+                    p * state.pixel_color[1],
+                    p * state.pixel_color[2],
                 ])
             }
 
