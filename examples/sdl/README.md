@@ -6,7 +6,7 @@ Utilizes the [`chip-ahoyto`](../../) crate and the [SDL crate](https://github.co
 
 ```bash
 cargo install cargo-vcpkg
-cargo vcpkg build --release
+cargo vcpkg build
 cargo build --release
 cargo run --release
 ```
