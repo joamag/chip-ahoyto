@@ -11,7 +11,11 @@ pub const SCREEN_PIXEL_WIDTH: usize = 64;
 /// The height of the screen in pixels.
 pub const SCREEN_PIXEL_HEIGHT: usize = 32;
 
+/// The number of keys to be allocated to the machine.
 const NUM_KEYS: usize = 16;
+
+/// The total number of CPU registers that are going to be used
+/// this value should follow the typical convention.
 const NUM_REGISTERS: usize = 16;
 
 /// The size of the stack, this value is actually a convention
