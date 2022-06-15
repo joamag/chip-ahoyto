@@ -153,7 +153,9 @@ fn main() {
             continue;
         }
 
-        if timer_subsystem.ticks() >= state.next_tick_time {
+        let current_time = timer_subsystem.ticks();
+
+        if current_time >= state.next_tick_time {
             // calculates the ratio between the logic and the visual frequency
             // to make sure that the proper number of updates are performed
             let logic_visual_ratio = state.logic_frequency / state.visual_frequency;
@@ -186,7 +188,7 @@ fn main() {
 
             // updates the next update time reference to the current
             // time so that it can be used from game loop control
-            state.next_tick_time = timer_subsystem.ticks() + (1000 / state.visual_frequency);
+            state.next_tick_time = current_time + (1000 / state.visual_frequency);
         }
 
         let current_time = timer_subsystem.ticks();
