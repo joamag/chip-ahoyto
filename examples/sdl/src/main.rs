@@ -151,6 +151,7 @@ fn main() {
     canvas.present();
 
     // creates a new audio device and prints the specs for it
+    // making sure that a proper beep callback is set
     let desired_spec = AudioSpecDesired {
         freq: Some(44100),
         channels: Some(1),
