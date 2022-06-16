@@ -250,7 +250,7 @@ impl Chip8 {
         self.registers[0xf] = (self.registers[x] > self.registers[y]) as u8;
         self.registers[x].saturating_sub(self.registers[y])
     }
-    
+
     #[inline(always)]
     fn call_subroutine(&mut self, addr: u16) {
         self.stack[self.sp as usize] = self.pc;

@@ -1,5 +1,4 @@
-use chip_ahoyto::chip8::Chip8;
-use std::{fs::File, io::Read};
+use chip_ahoyto::{chip8::Chip8, util::read_file};
 use time::Instant;
 
 const CYCLE_COUNT: u64 = 10_000_000_000;
@@ -26,11 +25,4 @@ fn main() {
     let mega_second = cycles_second / 1000.0 / 1000.0;
 
     println!("Took {} seconds or {:.2} MHz CPU", duration_s, mega_second);
-}
-
-fn read_file(path: &str) -> Vec<u8> {
-    let mut file = File::open(path).unwrap();
-    let mut data = Vec::new();
-    file.read_to_end(&mut data).unwrap();
-    data
 }

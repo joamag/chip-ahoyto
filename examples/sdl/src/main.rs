@@ -1,10 +1,12 @@
-use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
+use chip_ahoyto::{
+    chip8::Chip8, chip8::SCREEN_PIXEL_HEIGHT, chip8::SCREEN_PIXEL_WIDTH, util::read_file,
+};
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
     keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
     surface::Surface, ttf::Hinting,
 };
-use std::{fs::File, io::Read, path::Path};
+use std::path::Path;
 
 // handle the annoying Rect i32
 macro_rules! rect(
@@ -377,11 +379,4 @@ fn key_to_btn(keycode: Keycode) -> Option<u8> {
         Keycode::V => Some(0x0F),
         _ => None,
     }
-}
-
-fn read_file(path: &str) -> Vec<u8> {
-    let mut file = File::open(path).unwrap();
-    let mut data = Vec::new();
-    file.read_to_end(&mut data).unwrap();
-    data
 }
