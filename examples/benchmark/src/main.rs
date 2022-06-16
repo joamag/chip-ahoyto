@@ -1,10 +1,11 @@
 use chip_ahoyto::{chip8::Chip8, util::read_file};
 use time::Instant;
 
-const CYCLE_COUNT: u64 = 10_000_000_000;
+const CYCLE_COUNT: u64 = 1_000_000_000;
 
 fn main() {
-    let rom = read_file("./resources/pong.ch8");
+    let rom_path = "./resources/pong.ch8";
+    let rom = read_file(rom_path);
 
     let mut chip8 = Chip8::new();
     chip8.reset_hard();
@@ -14,7 +15,7 @@ fn main() {
 
     let cycles = CYCLE_COUNT;
 
-    println!("Running {} cycles", cycles);
+    println!("Running {} cycles for {}", cycles, rom_path);
 
     for _ in 0..CYCLE_COUNT {
         chip8.tick();
