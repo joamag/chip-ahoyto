@@ -12,7 +12,7 @@ const IDLE_HZ: u32 = 60;
 
 const LOGIC_DELTA: u32 = 60;
 
-const SCREEN_SCALE: f32 = 15.0;
+const SCREEN_SCALE: f32 = 10.0;
 
 // The base title to be used in the window.
 const TITLE: &str = "CHIP-Ahoyto";
@@ -47,6 +47,7 @@ fn main() {
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
     let mut timer_subsystem = sdl.timer().unwrap();
+    let mut event_pump = sdl.event_pump().unwrap();
 
     // creates the system window that is going to be used to
     // show the emulator and sets it to the central are o screen
@@ -88,8 +89,6 @@ fn main() {
         .unwrap();
     canvas.copy(&background, None, None).unwrap();
     canvas.present();
-
-    let mut event_pump = sdl.event_pump().unwrap();
 
     'main: loop {
         while let Some(event) = event_pump.poll_event() {
@@ -147,9 +146,15 @@ fn main() {
         }
 
         // in case the ROM is not loaded we must delay next execution
-        // a little bit to avoid extreme CPU usage
+        // a little bit to avoid extreme CPU usage, at the same the
+        // background must be copied to allow resizing of window to
+        // be properly handled
         if !state.rom_loaded {
+            canvas.copy(&background, None, None).unwrap();
+            canvas.present();
+
             timer_subsystem.delay(1000 / state.idle_frequency);
+
             continue;
         }
 
