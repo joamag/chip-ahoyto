@@ -32,22 +32,22 @@ const ROM_START: usize = 0x200;
 /// Buffer that contains the base CHIP-8 font set that
 /// is going to be used to draw the font in the screen
 static FONT_SET: [u8; 80] = [
-    0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+    0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
-    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-    0xF0, 0x80, 0xF0, 0x80, 0x80, // F
+    0xf0, 0x10, 0xf0, 0x80, 0xf0, // 2
+    0xf0, 0x10, 0xf0, 0x10, 0xf0, // 3
+    0x90, 0x90, 0xf0, 0x10, 0x10, // 4
+    0xf0, 0x80, 0xf0, 0x10, 0xf0, // 5
+    0xf0, 0x80, 0xf0, 0x90, 0xf0, // 6
+    0xf0, 0x10, 0x20, 0x40, 0x40, // 7
+    0xf0, 0x90, 0xf0, 0x90, 0xf0, // 8
+    0xf0, 0x90, 0xf0, 0x10, 0xf0, // 9
+    0xf0, 0x90, 0xf0, 0x90, 0x90, // A
+    0xe0, 0x90, 0xe0, 0x90, 0xe0, // B
+    0xf0, 0x80, 0x80, 0x80, 0xf0, // C
+    0xe0, 0x90, 0x90, 0x90, 0xe0, // D
+    0xf0, 0x80, 0xf0, 0x80, 0xf0, // E
+    0xf0, 0x80, 0xf0, 0x80, 0x80, // F
 ];
 
 #[cfg_attr(feature = "web", wasm_bindgen)]
@@ -150,18 +150,18 @@ impl Chip8 {
 
 impl Chip8 {
     fn process_opcode(&mut self, opcode: u16) {
-        let id = opcode & 0xF000;
-        let addr = opcode & 0x0FFF;
-        let nibble = (opcode & 0x000F) as u8;
-        let x = (opcode >> 8 & 0xF) as usize;
-        let y = (opcode >> 4 & 0xF) as usize;
-        let byte = (opcode & 0x00FF) as u8;
+        let id = opcode & 0xf000;
+        let addr = opcode & 0x0fff;
+        let nibble = (opcode & 0x000f) as u8;
+        let x = (opcode >> 8 & 0xf) as usize;
+        let y = (opcode >> 4 & 0xf) as usize;
+        let byte = (opcode & 0x00ff) as u8;
 
         match id {
             0x0000 => match byte {
-                0xE0 => self.vram = [0u8; SCREEN_PIXEL_WIDTH * SCREEN_PIXEL_HEIGHT],
-                0xEE => self.return_subroutine(),
-                _ => panic!("unknown opcode 0x{:04X}", opcode),
+                0xe0 => self.vram = [0u8; SCREEN_PIXEL_WIDTH * SCREEN_PIXEL_HEIGHT],
+                0xee => self.return_subroutine(),
+                _ => panic!("unknown opcode 0x{:04x}", opcode),
             },
             0x1000 => self.pc = addr,
             0x2000 => self.call_subroutine(addr),
@@ -179,29 +179,29 @@ impl Chip8 {
                 0x5 => self.registers[x] = self.sub(x, y),
                 0x6 => self.shift_right(x),
                 0x7 => self.registers[x] = self.sub(y, x),
-                0xE => self.shift_left(x),
+                0xe => self.shift_left(x),
                 _ => panic!("unknown opcode 0x{:04X}", opcode),
             },
             0x9000 => self.skip_if(self.registers[x] != self.registers[y]),
-            0xA000 => self.i = addr,
-            0xB000 => self.pc = addr + self.registers[0] as u16,
-            0xC000 => self.registers[x] = byte & Chip8::rand(),
-            0xD000 => self.draw_sprite(
+            0xa000 => self.i = addr,
+            0xb000 => self.pc = addr + self.registers[0] as u16,
+            0xc000 => self.registers[x] = byte & Chip8::rand(),
+            0xd000 => self.draw_sprite(
                 self.registers[x] as usize,
                 self.registers[y] as usize,
                 nibble as usize,
             ),
-            0xE000 => match byte {
-                0x9E => self.skip_if(self.keys[self.registers[x] as usize]),
-                0xA1 => self.skip_if(!self.keys[self.registers[x] as usize]),
+            0xe000 => match byte {
+                0x9e => self.skip_if(self.keys[self.registers[x] as usize]),
+                0xa1 => self.skip_if(!self.keys[self.registers[x] as usize]),
                 _ => panic!("unknown opcode 0x{:04X}", opcode),
             },
-            0xF000 => match byte {
+            0xf000 => match byte {
                 0x07 => self.registers[x] = self.dt,
-                0x0A => self.wait_for_key(x),
+                0x0a => self.wait_for_key(x),
                 0x15 => self.dt = self.registers[x],
                 0x18 => self.st = self.registers[x],
-                0x1E => self.i += self.registers[x] as u16,
+                0x1e => self.i += self.registers[x] as u16,
                 0x29 => self.i = self.registers[x] as u16 * 5,
                 0x33 => self.store_bcd(x),
                 0x55 => self.ram[self.i as usize..=self.i as usize + x]
@@ -227,13 +227,13 @@ impl Chip8 {
     #[inline(always)]
     fn add(&mut self, x: usize, y: usize) {
         let (sum, overflow) = self.registers[x].overflowing_add(self.registers[y]);
-        self.registers[0xF] = overflow as u8;
+        self.registers[0xf] = overflow as u8;
         self.registers[x] = sum;
     }
 
     #[inline(always)]
     fn sub(&mut self, x: usize, y: usize) -> u8 {
-        self.registers[0xF] = (self.registers[x] > self.registers[y]) as u8;
+        self.registers[0xf] = (self.registers[x] > self.registers[y]) as u8;
         self.registers[x].saturating_sub(self.registers[y])
     }
     
@@ -252,13 +252,13 @@ impl Chip8 {
 
     #[inline(always)]
     fn shift_right(&mut self, x: usize) {
-        self.registers[0xF] = self.registers[x] & 0x01;
+        self.registers[0xf] = self.registers[x] & 0x01;
         self.registers[x] >>= 1;
     }
 
     #[inline(always)]
     fn shift_left(&mut self, x: usize) {
-        self.registers[0xF] = (self.registers[x] & 0x80) >> 7;
+        self.registers[0xf] = (self.registers[x] & 0x80) >> 7;
         self.registers[x] <<= 1;
     }
 
@@ -285,7 +285,7 @@ impl Chip8 {
 
     #[inline(always)]
     fn draw_sprite(&mut self, x0: usize, y0: usize, height: usize) {
-        self.registers[0xF] = 0;
+        self.registers[0xf] = 0;
         for y in 0..height {
             let sprite_line = self.ram[self.i as usize + y];
             for x in 0..8 {
@@ -294,7 +294,7 @@ impl Chip8 {
                 let addr = yf * SCREEN_PIXEL_WIDTH + xf;
                 if (sprite_line & (0x80 >> x)) != 0 {
                     if self.vram[addr] == 1 {
-                        self.registers[0xF] = 1;
+                        self.registers[0xf] = 1;
                     }
                     self.vram[addr] ^= 1
                 }
