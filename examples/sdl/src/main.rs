@@ -119,6 +119,7 @@ fn main() {
         )
         .resizable()
         .position_centered()
+        .opengl()
         .build()
         .unwrap();
 
