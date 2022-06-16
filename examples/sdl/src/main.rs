@@ -1,9 +1,17 @@
 use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
-    keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface,
+    keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
+    surface::Surface, ttf::Hinting,
 };
 use std::{fs::File, io::Read, path::Path};
+
+// handle the annoying Rect i32
+macro_rules! rect(
+    ($x:expr, $y:expr, $w:expr, $h:expr) => (
+        Rect::new($x as i32, $y as i32, $w as u32, $h as u32)
+    )
+);
 
 const COLORS: [[u8; 3]; 6] = [
     [255, 255, 255],
@@ -108,6 +116,10 @@ fn main() {
     let mut timer_subsystem = sdl.timer().unwrap();
     let audio_subsystem = sdl.audio().unwrap();
     let mut event_pump = sdl.event_pump().unwrap();
+
+    // initialized the fonts context to be used
+    // in the loading of fonts
+    let ttf_context = sdl2::ttf::init().unwrap();
 
     // creates the system window that is going to be used to
     // show the emulator and sets it to the central are o screen
@@ -310,6 +322,28 @@ fn main() {
                 .update(None, &rgb_pixels, SCREEN_PIXEL_WIDTH as usize * 3)
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
+
+            let mut font = ttf_context
+                .load_font("./resources/OpenSans-Bold.ttf", 14)
+                .unwrap();
+            font.set_hinting(Hinting::None);
+
+            let surface = font
+                .render(format!("{} Hz", state.logic_frequency).as_str())
+                .blended(Color::RGBA(255, 0, 0, 255))
+                .unwrap();
+            let texture = texture_creator
+                .create_texture_from_surface(&surface)
+                .unwrap();
+
+            canvas.set_draw_color(Color::RGBA(195, 217, 255, 255));
+
+            let TextureQuery { width, height, .. } = texture.query();
+
+            canvas
+                .copy(&texture, None, Some(rect!(0, 0, width, height)))
+                .unwrap();
+
             canvas.present();
 
             // updates the next update time reference to the current
