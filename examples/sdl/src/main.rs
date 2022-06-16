@@ -121,6 +121,13 @@ fn main() {
     // in the loading of fonts
     let ttf_context = sdl2::ttf::init().unwrap();
 
+    // loads the font that is going to be used in the drawing
+    // process cycle if necessary
+    let mut font = ttf_context
+        .load_font("./resources/OpenSans-Bold.ttf", 14)
+        .unwrap();
+    font.set_hinting(Hinting::None);
+
     // creates the system window that is going to be used to
     // show the emulator and sets it to the central are o screen
     let mut window = video_subsystem
@@ -323,11 +330,8 @@ fn main() {
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
 
-            let mut font = ttf_context
-                .load_font("./resources/OpenSans-Bold.ttf", 14)
-                .unwrap();
-            font.set_hinting(Hinting::None);
-
+            // draws the diagnostics information to the canvas so that
+            // it can become visible
             let surface = font
                 .render(format!("PC: {:#0x?}", state.system.pc()).as_str())
                 .blended(Color::RGBA(80, 203, 147, 255))
@@ -335,9 +339,7 @@ fn main() {
             let texture = texture_creator
                 .create_texture_from_surface(&surface)
                 .unwrap();
-
             let TextureQuery { width, height, .. } = texture.query();
-
             canvas
                 .copy(&texture, None, Some(rect!(0, 0, width, height)))
                 .unwrap();
