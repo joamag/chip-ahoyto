@@ -1,0 +1,16 @@
+[package]
+name = "chip-ahoyto-benchmark"
+version = "0.1.0"
+authors = ["João Magalhães <joamag@gmail.com>"]
+description = "CHIP-8 Benchmark application"
+license = "Apache-2.0"
+keywords = ["chip-8", "emulator", "rust", "benchmark"]
+edition = "2018"
+
+[dependencies.chip-ahoyto]
+path = "../.."
+
+[profile.release]
+debug = false
+lto = true
+opt-level = 3

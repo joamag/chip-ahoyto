@@ -120,6 +120,12 @@ impl Chip8 {
         self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(rom);
     }
 
+    pub fn tick(&mut self) {
+        self.clock();
+        self.clock_dt();
+        self.clock_st();
+    }
+
     pub fn clock(&mut self) {
         let opcode = self.fetch_opcode();
         self.process_opcode(opcode);

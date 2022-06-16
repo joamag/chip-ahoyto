@@ -272,9 +272,7 @@ fn main() {
             for _ in 0..logic_visual_ratio {
                 // runs the tick operation in the CHIP-8 system,
                 // effectively changing the logic state of the machine
-                state.system.clock();
-                state.system.clock_dt();
-                state.system.clock_st();
+                state.system.tick();
                 beep |= state.system.beep();
             }
 
@@ -348,7 +346,7 @@ fn key_to_btn(keycode: Keycode) -> Option<u8> {
 
 fn read_file(path: &str) -> Vec<u8> {
     let mut file = File::open(path).unwrap();
-    let mut rom = Vec::new();
-    file.read_to_end(&mut rom).unwrap();
-    rom
+    let mut data = Vec::new();
+    file.read_to_end(&mut data).unwrap();
+    data
 }
