@@ -329,14 +329,12 @@ fn main() {
             font.set_hinting(Hinting::None);
 
             let surface = font
-                .render(format!("{} Hz", state.logic_frequency).as_str())
-                .blended(Color::RGBA(255, 0, 0, 255))
+                .render(format!("PC: {:#0x?}", state.system.pc()).as_str())
+                .blended(Color::RGBA(80, 203, 147, 255))
                 .unwrap();
             let texture = texture_creator
                 .create_texture_from_surface(&surface)
                 .unwrap();
-
-            canvas.set_draw_color(Color::RGBA(195, 217, 255, 255));
 
             let TextureQuery { width, height, .. } = texture.query();
 

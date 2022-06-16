@@ -116,6 +116,14 @@ impl Chip8 {
         self.beep
     }
 
+    pub fn pc(&self) -> u16 {
+        self.pc
+    }
+
+    pub fn sp(&self) -> u8 {
+        self.sp
+    }
+
     pub fn load_rom(&mut self, rom: &[u8]) {
         self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(rom);
     }
