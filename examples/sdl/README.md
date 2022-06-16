@@ -22,6 +22,13 @@ Keys available:
 `A S D F`
 `Z X C V`
 
+Controls available:
+
+* `+` Increments the logical (CPU) frequency
+* `-` Decrements the logical (CPU) frequency
+* `O` Resets the machine
+* `P` Changes the pixel color of the system
+
 ## ROMs
 
 You can find some good quality game and tools roms here:

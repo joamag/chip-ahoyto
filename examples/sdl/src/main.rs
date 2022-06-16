@@ -5,7 +5,14 @@ use sdl2::{
 };
 use std::{fs::File, io::Read, path::Path};
 
-const COLORS: [[u8; 3]; 2] = [[255, 255, 255], [80, 203, 147]];
+const COLORS: [[u8; 3]; 6] = [
+    [255, 255, 255],
+    [80, 203, 147],
+    [74, 246, 38],
+    [255, 0, 0],
+    [0, 255, 0],
+    [0, 0, 255],
+];
 
 const LOGIC_HZ: u32 = 360;
 const VISUAL_HZ: u32 = 60;
@@ -68,6 +75,7 @@ pub struct State {
     next_tick_time: u32,
     beep_ticks: u32,
     pixel_color: [u8; 3],
+    pixel_color_index: u32,
     title: String,
 }
 
@@ -90,6 +98,7 @@ fn main() {
         next_tick_time: 0,
         beep_ticks: 0,
         pixel_color: COLORS[0],
+        pixel_color_index: 0,
         title: String::from(TITLE_INITIAL),
     };
 
@@ -181,11 +190,28 @@ fn main() {
                     None
                 }
 
+                Event::KeyDown {
+                    keycode: Some(Keycode::O),
+                    ..
+                } => {
+                    state.system.reset();
+                    None
+                }
+
+                Event::KeyDown {
+                    keycode: Some(Keycode::P),
+                    ..
+                } => {
+                    state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
+                    state.pixel_color = COLORS[state.pixel_color_index as usize];
+                    None
+                }
+
                 Event::DropFile { filename, .. } => {
                     let rom = read_file(&filename);
                     let filebase = Path::new(&filename).file_name().unwrap().to_str().unwrap();
 
-                    state.system.reset();
+                    state.system.reset_hard();
                     state.system.load_rom(&rom);
 
                     state.rom_loaded = true;

@@ -103,6 +103,11 @@ impl Chip8 {
         self.load_font(&FONT_SET);
     }
 
+    pub fn reset_hard(&mut self) {
+        self.ram = [0u8; RAM_SIZE];
+        self.reset();
+    }
+
     pub fn pixels(&self) -> Vec<u8> {
         self.vram.to_vec()
     }
