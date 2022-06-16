@@ -13,3 +13,10 @@ crate-type = ["cdylib", "rlib"]
 [dependencies.getrandom]
 version = "0.2"
 features = ["js"]
+
+[workspace]
+members = [
+    ".",
+    "examples/benchmark",
+    "examples/sdl",
+]
