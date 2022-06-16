@@ -15,14 +15,14 @@ Drag and drop your ROM to play.
 
 ## Controls
 
-Keys available:
+**Keys available:**
 
 `1 2 3 4`
 `Q W E R`
 `A S D F`
 `Z X C V`
 
-Controls available:
+**Controls available:**
 
 * `+` Increments the logical (CPU) frequency
 * `-` Decrements the logical (CPU) frequency
