@@ -216,6 +216,7 @@ impl Chip8 {
         }
     }
 
+    #[inline(always)]
     fn fetch_opcode(&mut self) -> u16 {
         let opcode =
             (self.ram[self.pc as usize] as u16) << 8 | self.ram[self.pc as usize + 1] as u16;
@@ -223,48 +224,57 @@ impl Chip8 {
         opcode
     }
 
+    #[inline(always)]
     fn add(&mut self, x: usize, y: usize) {
         let (sum, overflow) = self.registers[x].overflowing_add(self.registers[y]);
         self.registers[0xF] = overflow as u8;
         self.registers[x] = sum;
     }
 
+    #[inline(always)]
     fn sub(&mut self, x: usize, y: usize) -> u8 {
         self.registers[0xF] = (self.registers[x] > self.registers[y]) as u8;
         self.registers[x].saturating_sub(self.registers[y])
     }
-
+    
+    #[inline(always)]
     fn call_subroutine(&mut self, addr: u16) {
         self.stack[self.sp as usize] = self.pc;
         self.sp += 1;
         self.pc = addr;
     }
 
+    #[inline(always)]
     fn return_subroutine(&mut self) {
         self.sp -= 1;
         self.pc = self.stack[self.sp as usize];
     }
 
+    #[inline(always)]
     fn shift_right(&mut self, x: usize) {
         self.registers[0xF] = self.registers[x] & 0x01;
         self.registers[x] >>= 1;
     }
 
+    #[inline(always)]
     fn shift_left(&mut self, x: usize) {
         self.registers[0xF] = (self.registers[x] & 0x80) >> 7;
         self.registers[x] <<= 1;
     }
 
+    #[inline(always)]
     fn store_bcd(&mut self, x: usize) {
         self.ram[self.i as usize] = self.registers[x] / 100;
         self.ram[self.i as usize + 1] = (self.registers[x] / 10) % 10;
         self.ram[self.i as usize + 2] = self.registers[x] % 10;
     }
 
+    #[inline(always)]
     fn skip_if(&mut self, skip: bool) {
         self.pc += if skip { 2 } else { 0 };
     }
 
+    #[inline(always)]
     fn wait_for_key(&mut self, x: usize) {
         if self.keys[self.last_key as usize] {
             self.registers[x] = self.last_key;
@@ -273,6 +283,7 @@ impl Chip8 {
         }
     }
 
+    #[inline(always)]
     fn draw_sprite(&mut self, x0: usize, y0: usize, height: usize) {
         self.registers[0xF] = 0;
         for y in 0..height {
