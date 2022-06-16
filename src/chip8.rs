@@ -180,7 +180,7 @@ impl Chip8 {
                 0x6 => self.shift_right(x),
                 0x7 => self.registers[x] = self.sub(y, x),
                 0xe => self.shift_left(x),
-                _ => panic!("unknown opcode 0x{:04X}", opcode),
+                _ => panic!("unknown opcode 0x{:04x}", opcode),
             },
             0x9000 => self.skip_if(self.registers[x] != self.registers[y]),
             0xa000 => self.i = addr,
@@ -194,7 +194,7 @@ impl Chip8 {
             0xe000 => match byte {
                 0x9e => self.skip_if(self.keys[self.registers[x] as usize]),
                 0xa1 => self.skip_if(!self.keys[self.registers[x] as usize]),
-                _ => panic!("unknown opcode 0x{:04X}", opcode),
+                _ => panic!("unknown opcode 0x{:04x}", opcode),
             },
             0xf000 => match byte {
                 0x07 => self.registers[x] = self.dt,
@@ -210,9 +210,9 @@ impl Chip8 {
                     self.registers[0..=x]
                         .clone_from_slice(&self.ram[self.i as usize..=self.i as usize + x]);
                 }
-                _ => panic!("unknown opcode 0x{:04X}", opcode),
+                _ => panic!("unknown opcode 0x{:04x}", opcode),
             },
-            _ => panic!("unknown opcode 0x{:04X}", opcode),
+            _ => panic!("unknown opcode 0x{:04x}", opcode),
         }
     }
 
