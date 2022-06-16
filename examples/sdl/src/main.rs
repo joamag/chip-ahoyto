@@ -1,14 +1,17 @@
 use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
 use sdl2::{
-    event::Event, image::LoadSurface, keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface,
+    audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
+    keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface,
 };
-use std::{fs::File, io::Read};
+use std::{fs::File, io::Read, path::Path};
 
 const COLORS: [[u8; 3]; 2] = [[255, 255, 255], [80, 203, 147]];
 
-const LOGIC_HZ: u32 = 240;
+const LOGIC_HZ: u32 = 360;
 const VISUAL_HZ: u32 = 60;
 const IDLE_HZ: u32 = 60;
+
+const BEEP_DURATION: f32 = 0.1;
 
 const LOGIC_DELTA: u32 = 60;
 
@@ -20,14 +23,58 @@ const TITLE: &str = "CHIP-Ahoyto";
 // The title that is going to be presented initially to the user.
 const TITLE_INITIAL: &str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
 
+pub struct BeepCallback {
+    phase_inc: f32,
+    phase: f32,
+    volume: f32,
+}
+
+impl AudioCallback for BeepCallback {
+    type Channel = f32;
+
+    fn callback(&mut self, out: &mut [f32]) {
+        for x in out.iter_mut() {
+            if self.phase >= 0.0 && self.phase <= 0.5 {
+                *x = self.volume;
+            } else {
+                *x = -self.volume;
+            }
+            self.phase = (self.phase + self.phase_inc) % 1.0;
+        }
+    }
+}
+
+impl BeepCallback {
+    pub fn set_phase_inc(&mut self, phase_inc: f32) {
+        self.phase_inc = phase_inc;
+    }
+
+    pub fn set_phase(&mut self, phase: f32) {
+        self.phase = phase;
+    }
+
+    pub fn set_volume(&mut self, volume: f32) {
+        self.volume = volume;
+    }
+}
+
 pub struct State {
     system: Chip8,
     rom_loaded: bool,
     logic_frequency: u32,
     visual_frequency: u32,
     idle_frequency: u32,
+    beep_duration: f32,
     next_tick_time: u32,
+    beep_ticks: u32,
     pixel_color: [u8; 3],
+    title: String,
+}
+
+impl State {
+    pub fn set_title(&mut self, title: &String) {
+        self.title = title.to_string();
+    }
 }
 
 fn main() {
@@ -39,21 +86,25 @@ fn main() {
         logic_frequency: LOGIC_HZ,
         visual_frequency: VISUAL_HZ,
         idle_frequency: IDLE_HZ,
+        beep_duration: BEEP_DURATION,
         next_tick_time: 0,
+        beep_ticks: 0,
         pixel_color: COLORS[0],
+        title: String::from(TITLE_INITIAL),
     };
 
     // initializes the SDL sub-system
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
     let mut timer_subsystem = sdl.timer().unwrap();
+    let audio_subsystem = sdl.audio().unwrap();
     let mut event_pump = sdl.event_pump().unwrap();
 
     // creates the system window that is going to be used to
     // show the emulator and sets it to the central are o screen
     let mut window = video_subsystem
         .window(
-            TITLE_INITIAL,
+            TITLE,
             SCREEN_SCALE as u32 * SCREEN_PIXEL_WIDTH as u32,
             SCREEN_SCALE as u32 * SCREEN_PIXEL_HEIGHT as u32,
         )
@@ -90,6 +141,20 @@ fn main() {
     canvas.copy(&background, None, None).unwrap();
     canvas.present();
 
+    // creates a new audio device and prints the specs for it
+    let desired_spec = AudioSpecDesired {
+        freq: Some(44100),
+        channels: Some(1),
+        samples: None,
+    };
+    let device = audio_subsystem
+        .open_playback(None, &desired_spec, |spec| BeepCallback {
+            phase_inc: 440.0 / spec.freq as f32,
+            phase: 0.0,
+            volume: 0.5,
+        })
+        .unwrap();
+
     'main: loop {
         while let Some(event) = event_pump.poll_event() {
             match event {
@@ -104,7 +169,7 @@ fn main() {
                     keycode: Some(Keycode::Plus),
                     ..
                 } => {
-                    state.logic_frequency += LOGIC_DELTA;
+                    state.logic_frequency = state.logic_frequency.saturating_add(LOGIC_DELTA);
                     None
                 }
 
@@ -112,22 +177,21 @@ fn main() {
                     keycode: Some(Keycode::Minus),
                     ..
                 } => {
-                    state.logic_frequency -= LOGIC_DELTA;
+                    state.logic_frequency = state.logic_frequency.saturating_sub(LOGIC_DELTA);
                     None
                 }
 
                 Event::DropFile { filename, .. } => {
                     let rom = read_file(&filename);
+                    let filebase = Path::new(&filename).file_name().unwrap().to_str().unwrap();
 
                     state.system.reset();
                     state.system.load_rom(&rom);
 
                     state.rom_loaded = true;
 
-                    canvas
-                        .window_mut()
-                        .set_title(&format!("{} [Currently playing: {}]", TITLE, filename))
-                        .unwrap();
+                    state.set_title(&format!("{} [Currently playing: {}]", TITLE, filebase));
+
                     None
                 }
 
@@ -145,6 +209,16 @@ fn main() {
             };
         }
 
+        // updates the window tittle according to the specs of the machine
+        // and the provided base title
+        canvas
+            .window_mut()
+            .set_title(&format!(
+                "{} [{} hz, {} fps]",
+                state.title, state.logic_frequency, state.visual_frequency
+            ))
+            .unwrap();
+
         // in case the ROM is not loaded we must delay next execution
         // a little bit to avoid extreme CPU usage, at the same the
         // background must be copied to allow resizing of window to
@@ -161,6 +235,10 @@ fn main() {
         let current_time = timer_subsystem.ticks();
 
         if current_time >= state.next_tick_time {
+            // allocates space for the variable that is going to control
+            // if a new beep was requested by the CHIP-8 logic cycles
+            let mut beep = false;
+
             // calculates the ratio between the logic and the visual frequency
             // to make sure that the proper number of updates are performed
             let logic_visual_ratio = state.logic_frequency / state.visual_frequency;
@@ -170,6 +248,23 @@ fn main() {
                 state.system.clock();
                 state.system.clock_dt();
                 state.system.clock_st();
+                beep |= state.system.beep();
+            }
+
+            // in case a beep has been requested in the logical loop
+            // then the audio device is activated for the number of
+            // visual ticks associated with the beep duration (in seconds)
+            if beep {
+                device.resume();
+                state.beep_ticks = (state.visual_frequency as f32 * state.beep_duration) as u32;
+            }
+
+            // decrements the number of pending beep ticks and checks
+            // if the value has reached zero in that case pauses the
+            // beep issuing device
+            state.beep_ticks = state.beep_ticks.saturating_sub(1);
+            if state.beep_ticks == 0 {
+                device.pause();
             }
 
             // re-creates a vector of pixels from the system pixels
