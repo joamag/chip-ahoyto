@@ -9,6 +9,13 @@ CHIP-8 emulator written in rust 🦀.
 * Simplicity
 * Compatibility
 
+## Features
+
+* Pallet switching
+* Visual diagnostics
+* Variable CPU frequency
+* RAM snapshot saving and loading - (TODO)
+
 ## Inspiration
 
 * [Guide to making a CHIP-8 emulator](https://tobiasvl.github.io/blog/write-a-chip-8-emulator)
