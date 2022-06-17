@@ -1,0 +1,21 @@
+image: hivesolutions/ubuntu_dev
+
+stages:
+  - build
+
+before_script:
+  - apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q pkg-config
+  - curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y
+  - export PATH=$PATH:$HOME/.cargo/bin
+
+build-rust:
+  stage: build
+  parallel:
+    matrix:
+      - RUST_VERSION: ["1.50.0", "1.60.0", "stable", "nightly"]
+  script:
+    - rustup toolchain install $RUST_VERSION
+    - rustup override set $RUST_VERSION
+    - rustc --version
+    - cargo build
+    - cargo build --release
