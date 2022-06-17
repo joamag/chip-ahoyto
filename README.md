@@ -22,6 +22,12 @@ The work of this emulator was inspired/started by [jc-chip8](https://github.com/
 * RAM snapshot saving and loading - (TODO)
 * Multiple implementations (classic and neo)
 
+## Reason
+
+Yes this is the real inspiration behind the emulator...
+
+![Chips Ahoy](resources/chips-ahoy.jpeg)
+
 ## Inspiration
 
 * [Guide to making a CHIP-8 emulator](https://tobiasvl.github.io/blog/write-a-chip-8-emulator)
