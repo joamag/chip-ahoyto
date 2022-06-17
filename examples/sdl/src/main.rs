@@ -87,6 +87,7 @@ pub struct State {
     pixel_color: [u8; 3],
     pixel_color_index: u32,
     title: String,
+    diagnostics: bool,
 }
 
 impl State {
@@ -110,6 +111,7 @@ fn main() {
         pixel_color: COLORS[0],
         pixel_color_index: 0,
         title: String::from(TITLE_INITIAL),
+        diagnostics: false,
     };
 
     // initializes the SDL sub-system
@@ -230,6 +232,14 @@ fn main() {
                     None
                 }
 
+                Event::KeyDown {
+                    keycode: Some(Keycode::T),
+                    ..
+                } => {
+                    state.diagnostics = !state.diagnostics;
+                    None
+                }
+
                 Event::DropFile { filename, .. } => {
                     let rom = read_file(&filename);
                     let filebase = Path::new(&filename).file_name().unwrap().to_str().unwrap();
@@ -332,20 +342,34 @@ fn main() {
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
 
-            // draws the diagnostics information to the canvas so that
-            // it can become visible
-            let surface = font
-                .render(format!("PC: {:#0x?}", state.system.pc()).as_str())
-                .blended(Color::RGBA(80, 203, 147, 255))
-                .unwrap();
-            let texture = texture_creator
-                .create_texture_from_surface(&surface)
-                .unwrap();
-            let TextureQuery { width, height, .. } = texture.query();
-            canvas
-                .copy(&texture, None, Some(rect!(0, 0, width, height)))
-                .unwrap();
+            // draws the diagnostics information to the canvas in case the
+            // current state is requesting the display of it
+            if state.diagnostics {
+                let mut y = 0;
+                let text = format!(
+                    "PC: {:#0x?}\nSP: {:#0x?}",
+                    state.system.pc(),
+                    state.system.sp()
+                );
+                let text_sequence = text.split("\n");
+                for part in text_sequence {
+                    let surface = font
+                        .render(part)
+                        .blended(Color::RGBA(80, 203, 147, 255))
+                        .unwrap();
+                    let texture = texture_creator
+                        .create_texture_from_surface(&surface)
+                        .unwrap();
+                    let TextureQuery { width, height, .. } = texture.query();
+                    canvas
+                        .copy(&texture, None, Some(rect!(0, y, width, height)))
+                        .unwrap();
+                    y += height;
+                }
+            }
 
+            // presents the canvas effectively updating the screen
+            // information presented to the user
             canvas.present();
 
             // updates the next update time reference to the current

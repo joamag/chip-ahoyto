@@ -26,6 +26,7 @@ Drag and drop your ROM to play.
 
 * `+` Increments the logical (CPU) frequency
 * `-` Decrements the logical (CPU) frequency
+* `T` Toggles the display of the diagnostics information
 * `O` Resets the machine
 * `P` Changes the pixel color of the system
 
