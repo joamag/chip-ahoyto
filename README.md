@@ -11,6 +11,7 @@ CHIP-8 emulator written in rust 🦀.
 
 ## Features
 
+* Drag and drop support for ROMs
 * Pallet switching
 * Visual diagnostics
 * Variable CPU frequency
