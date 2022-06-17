@@ -24,7 +24,7 @@ The work of this emulator was inspired/started by [jc-chip8](https://github.com/
 
 ## Reason
 
-Yes this is the real inspiration behind the emulator...
+And... yes this is the real inspiration behind the emulator's name:
 
 <img src="resources/chips-ahoy.jpeg" alt="Chips Ahoy" width="200" />
 
