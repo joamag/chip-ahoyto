@@ -4,10 +4,12 @@ CHIP-8 emulator written in rust 🦀.
 
 The goal of this project is purely experimental and a learning tool for rust.
 
+The work of this emulator was inspired/started by [jc-chip8](https://github.com/joao-conde/jc-chip8).
+
 ## Goals
 
 * Performance 🏎
-* Separation of concerns - presentation vs logic 
+* Separation of concerns 🖖
 * Simplicity 😀
 * Compatibility 🪛
 
