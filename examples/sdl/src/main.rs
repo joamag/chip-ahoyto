@@ -35,10 +35,10 @@ const LOGIC_DELTA: u32 = 60;
 const SCREEN_SCALE: f32 = 10.0;
 
 // The base title to be used in the window.
-const TITLE: &'static str = "CHIP-Ahoyto";
+static TITLE: &'static str = "CHIP-Ahoyto";
 
 // The title that is going to be presented initially to the user.
-const TITLE_INITIAL: &'static str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
+static TITLE_INITIAL: &'static str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
 
 pub struct BeepCallback {
     phase_inc: f32,
