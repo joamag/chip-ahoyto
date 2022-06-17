@@ -2,6 +2,8 @@
 
 CHIP-8 emulator written in rust 🦀.
 
+The goal of this project is purely experimental and a learning tool for rust.
+
 ## Goals
 
 * Performance 🏎
