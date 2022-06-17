@@ -1,3 +1,3 @@
 pub struct Chip8Neo {
-    vram: [u8]
+    vram: [u8],
 }

@@ -1,9 +1,19 @@
-use chip_ahoyto::chip8::{Chip8, SCREEN_PIXEL_HEIGHT, SCREEN_PIXEL_WIDTH};
+use chip_ahoyto::{
+    chip8::Chip8, chip8::SCREEN_PIXEL_HEIGHT, chip8::SCREEN_PIXEL_WIDTH, util::read_file,
+};
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
-    keyboard::Keycode, pixels::PixelFormatEnum, surface::Surface,
+    keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
+    surface::Surface, ttf::Hinting,
 };
-use std::{fs::File, io::Read, path::Path};
+use std::path::Path;
+
+// handle the annoying Rect i32
+macro_rules! rect(
+    ($x:expr, $y:expr, $w:expr, $h:expr) => (
+        Rect::new($x as i32, $y as i32, $w as u32, $h as u32)
+    )
+);
 
 const COLORS: [[u8; 3]; 6] = [
     [255, 255, 255],
@@ -77,6 +87,7 @@ pub struct State {
     pixel_color: [u8; 3],
     pixel_color_index: u32,
     title: String,
+    diagnostics: bool,
 }
 
 impl State {
@@ -100,6 +111,7 @@ fn main() {
         pixel_color: COLORS[0],
         pixel_color_index: 0,
         title: String::from(TITLE_INITIAL),
+        diagnostics: false,
     };
 
     // initializes the SDL sub-system
@@ -108,6 +120,17 @@ fn main() {
     let mut timer_subsystem = sdl.timer().unwrap();
     let audio_subsystem = sdl.audio().unwrap();
     let mut event_pump = sdl.event_pump().unwrap();
+
+    // initialized the fonts context to be used
+    // in the loading of fonts
+    let ttf_context = sdl2::ttf::init().unwrap();
+
+    // loads the font that is going to be used in the drawing
+    // process cycle if necessary
+    let mut font = ttf_context
+        .load_font("./resources/OpenSans-Bold.ttf", 14)
+        .unwrap();
+    font.set_hinting(Hinting::None);
 
     // creates the system window that is going to be used to
     // show the emulator and sets it to the central are o screen
@@ -206,6 +229,14 @@ fn main() {
                 } => {
                     state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
                     state.pixel_color = COLORS[state.pixel_color_index as usize];
+                    None
+                }
+
+                Event::KeyDown {
+                    keycode: Some(Keycode::T),
+                    ..
+                } => {
+                    state.diagnostics = !state.diagnostics;
                     None
                 }
 
@@ -310,6 +341,35 @@ fn main() {
                 .update(None, &rgb_pixels, SCREEN_PIXEL_WIDTH as usize * 3)
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
+
+            // draws the diagnostics information to the canvas in case the
+            // current state is requesting the display of it
+            if state.diagnostics {
+                let mut y = 0;
+                let text = format!(
+                    "PC: {:#0x?}\nSP: {:#0x?}",
+                    state.system.pc(),
+                    state.system.sp()
+                );
+                let text_sequence = text.split("\n");
+                for part in text_sequence {
+                    let surface = font
+                        .render(part)
+                        .blended(Color::RGBA(80, 203, 147, 255))
+                        .unwrap();
+                    let texture = texture_creator
+                        .create_texture_from_surface(&surface)
+                        .unwrap();
+                    let TextureQuery { width, height, .. } = texture.query();
+                    canvas
+                        .copy(&texture, None, Some(rect!(0, y, width, height)))
+                        .unwrap();
+                    y += height;
+                }
+            }
+
+            // presents the canvas effectively updating the screen
+            // information presented to the user
             canvas.present();
 
             // updates the next update time reference to the current
@@ -343,11 +403,4 @@ fn key_to_btn(keycode: Keycode) -> Option<u8> {
         Keycode::V => Some(0x0F),
         _ => None,
     }
-}
-
-fn read_file(path: &str) -> Vec<u8> {
-    let mut file = File::open(path).unwrap();
-    let mut data = Vec::new();
-    file.read_to_end(&mut data).unwrap();
-    data
 }
