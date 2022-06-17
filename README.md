@@ -7,9 +7,9 @@ The goal of this project is purely experimental and a learning tool for rust.
 ## Goals
 
 * Performance 🏎
-* Separation of concerns - presentation vs logic
-* Simplicity
-* Compatibility
+* Separation of concerns - presentation vs logic 
+* Simplicity 😀
+* Compatibility 🪛
 
 ## Features
 
