@@ -20,6 +20,7 @@ The work of this emulator was inspired/started by [jc-chip8](https://github.com/
 * Visual diagnostics
 * Variable CPU frequency
 * RAM snapshot saving and loading - (TODO)
+* Multiple implementations (classic and neo)
 
 ## Inspiration
 
