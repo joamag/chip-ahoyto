@@ -12,7 +12,7 @@ build-rust:
   stage: build
   parallel:
     matrix:
-      - RUST_VERSION: ["1.56.0", "1.60.0", "stable", "nightly"]
+      - RUST_VERSION: ["1.56.1", "1.60.0", "stable", "nightly"]
   script:
     - rustup toolchain install $RUST_VERSION
     - rustup override set $RUST_VERSION
