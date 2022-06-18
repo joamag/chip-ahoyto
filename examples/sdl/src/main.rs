@@ -24,7 +24,7 @@ const COLORS: [[u8; 3]; 6] = [
     [0, 0, 255],
 ];
 
-const LOGIC_HZ: u32 = 360;
+const LOGIC_HZ: u32 = 480;
 const VISUAL_HZ: u32 = 60;
 const IDLE_HZ: u32 = 60;
 
@@ -127,10 +127,9 @@ fn main() {
 
     // loads the font that is going to be used in the drawing
     // process cycle if necessary
-    let mut font = ttf_context
+    let font = ttf_context
         .load_font("./resources/OpenSans-Bold.ttf", 14)
         .unwrap();
-    font.set_hinting(Hinting::None);
 
     // creates the system window that is going to be used to
     // show the emulator and sets it to the central are o screen
@@ -351,6 +350,11 @@ fn main() {
                     state.system.pc(),
                     state.system.sp()
                 );
+
+                // updates the scale of the canvas to a better more minimal
+                // approach allowing proper defined letter to be drawn
+                canvas.set_scale(1.0, 1.0).unwrap();
+
                 let text_sequence = text.split("\n");
                 for part in text_sequence {
                     let surface = font
@@ -366,6 +370,12 @@ fn main() {
                         .unwrap();
                     y += height;
                 }
+
+                // restores the scale of the canvas back to its original
+                // value so that the drawing of pixels is properly done
+                canvas
+                    .set_scale(SCREEN_PIXEL_WIDTH as f32, SCREEN_PIXEL_HEIGHT as f32)
+                    .unwrap();
             }
 
             // presents the canvas effectively updating the screen
