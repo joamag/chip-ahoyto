@@ -37,6 +37,7 @@ const SCREEN_SCALE: f32 = 10.0;
 /// The name of the font file to be used in the diagnostics.
 static FONT_NAME: &'static str = "RobotoMono-Bold.ttf";
 
+/// The size of the font in pixels to be used in the render.
 const FONT_SIZE: u16 = 13;
 
 /// The base title to be used in the window.
@@ -151,7 +152,6 @@ fn main() {
         .resizable()
         .position_centered()
         .opengl()
-        .allow_highdpi()
         .build()
         .unwrap();
 
