@@ -31,7 +31,7 @@ pub struct Chip8Neo {
     ram: [u8; RAM_SIZE],
     vram: [u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
     stack: [u16; STACK_SIZE],
-    registers: [u8; REGISTERS_SIZE],
+    regs: [u8; REGISTERS_SIZE],
     pc: u16,
     i: u16,
     sp: u8,
@@ -47,7 +47,7 @@ impl Chip8Neo {
             ram: [0u8; RAM_SIZE],
             vram: [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
             stack: [0u16; STACK_SIZE],
-            registers: [0u8; REGISTERS_SIZE],
+            regs: [0u8; REGISTERS_SIZE],
             pc: ROM_START as u16,
             i: 0x0,
             sp: 0x0,
@@ -61,7 +61,7 @@ impl Chip8Neo {
     pub fn reset(&mut self) {
         self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT];
         self.stack = [0u16; STACK_SIZE];
-        self.registers = [0u8; REGISTERS_SIZE];
+        self.regs = [0u8; REGISTERS_SIZE];
         self.pc = ROM_START as u16;
         self.i = 0x0;
         self.sp = 0x0;
@@ -99,28 +99,52 @@ impl Chip8Neo {
                 _ => println!("unimplemented instruction"),
             },
             0x1000 => self.pc = address,
-            0x6000 => self.registers[x] = byte,
-            0x7000 => self.registers[x] += byte,
+            0x3000 => self.pc += if self.regs[x] == byte { 2 } else { 0 },
+            0x4000 => self.pc += if self.regs[x] != byte { 2 } else { 0 },
+            0x5000 => self.pc += if self.regs[x] == self.regs[y] { 2 } else { 0 },
+            0x6000 => self.regs[x] = byte,
+            0x7000 => self.regs[x] += byte,
             0x8000 => match nibble {
-                0x0 => self.registers[x] = self.registers[y],
-                0x1 => self.registers[x] |= self.registers[y],
-                0x2 => self.registers[x] &= self.registers[y],
-                0x3 => self.registers[x] ^= self.registers[y],
-                0x4 => self.registers[x] += self.registers[y],
-                0x5 => self.registers[x] -= self.registers[y],
-                0x7 => self.registers[x] = self.registers[y] - self.registers[x],
+                0x0 => self.regs[x] = self.regs[y],
+                0x1 => self.regs[x] |= self.regs[y],
+                0x2 => self.regs[x] &= self.regs[y],
+                0x3 => self.regs[x] ^= self.regs[y],
+                0x4 => {
+                    let (result, overflow) = self.regs[x].overflowing_add(self.regs[y]);
+                    self.regs[x] = result;
+                    self.regs[0xf] = overflow as u8;
+                }
+                0x5 => {
+                    self.regs[0xf] = (self.regs[x] >= self.regs[y]) as u8;
+                    self.regs[x] = self.regs[x] - self.regs[y];
+                }
+                0x6 => {
+                    self.regs[0xf] = self.regs[x] & 0x01;
+                    self.regs[x] >>= 1;
+                }
+                0x7 => {
+                    self.regs[0xf] = (self.regs[y] >= self.regs[x]) as u8;
+                    self.regs[x] = self.regs[y] - self.regs[x];
+                }
+                0xe => {
+                    self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
+                    self.regs[x] <<= 1;
+                }
                 _ => println!("unimplemented instruction"),
             },
+            0x9000 => self.pc += if self.regs[x] != self.regs[y] { 2 } else { 0 },
             0xa000 => self.i = address,
+            0xb000 => self.pc = address + self.regs[0x0] as u16,
+            0xc000 => self.regs[x] = byte, //@todo: generate random number
             0xd000 => {
                 self.draw_sprite(
-                    self.registers[x] as usize,
-                    self.registers[y] as usize,
+                    self.regs[x] as usize,
+                    self.regs[y] as usize,
                     nibble as usize,
                 );
             }
             _ => println!(
-                "unimplemented opcode {}, instruction {}",
+                "unimplemented opcode 0x{:04x}, instruction 0x{:04x}",
                 opcode, instruction
             ),
         }
@@ -163,7 +187,7 @@ impl Chip8Neo {
     }
 
     fn draw_sprite(&mut self, x0: usize, y0: usize, height: usize) {
-        self.registers[0xf] = 0;
+        self.regs[0xf] = 0;
         for y in 0..height {
             let line_byte = self.ram[(self.i as usize + y)];
             for x in 0..8 {
@@ -174,7 +198,7 @@ impl Chip8Neo {
                 }
                 let addr = yf * DISPLAY_WIDTH + xf;
                 if self.vram[addr] == 1 {
-                    self.registers[0xf] = 1;
+                    self.regs[0xf] = 1;
                 }
                 self.vram[addr] ^= 1
             }
