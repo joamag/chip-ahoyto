@@ -88,9 +88,9 @@ impl Chip8Neo {
 
         let opcode = instruction & 0xf000;
         let address = instruction & 0x0fff;
-        let first_nibble = ((instruction & 0x0f00) >> 8) as u8;
-        let second_nibble = ((instruction & 0x00f0) >> 4) as u8;
-        let third_nibble = (instruction & 0x000f) as u8;
+        let x = ((instruction & 0x0f00) >> 8) as usize;
+        let y = ((instruction & 0x00f0) >> 4) as usize;
+        let nibble = (instruction & 0x000f) as u8;
         let byte = (instruction & 0x00ff) as u8;
 
         match opcode {
@@ -99,24 +99,25 @@ impl Chip8Neo {
                 _ => println!("unimplemented instruction"),
             },
             0x1000 => self.pc = address,
-            0x6000 => self.registers[first_nibble as usize] = byte,
-            0x7000 => self.registers[first_nibble as usize] += byte,
+            0x6000 => self.registers[x] = byte,
+            0x7000 => self.registers[x] += byte,
+            0x8000 => match nibble {
+                0x0 => self.registers[x] = self.registers[y],
+                0x1 => self.registers[x] |= self.registers[y],
+                0x2 => self.registers[x] &= self.registers[y],
+                0x3 => self.registers[x] ^= self.registers[y],
+                0x4 => self.registers[x] += self.registers[y],
+                0x5 => self.registers[x] -= self.registers[y],
+                0x7 => self.registers[x] = self.registers[y] - self.registers[x],
+                _ => println!("unimplemented instruction"),
+            },
             0xa000 => self.i = address,
             0xd000 => {
-                let mut x = self.registers[first_nibble as usize];
-                let mut y = self.registers[second_nibble as usize];
-                let mut offset = 0;
-                for i in 0..third_nibble {
-                    y = (y + i) % DISPLAY_HEIGHT as u8;
-                    for j in 0..8 {
-                        x = (x + j) % DISPLAY_WIDTH as u8;
-                        let pixel = self.ram[(self.i + offset) as usize];
-                        
-                        // @todo must switch the pixel values here
-                        self.vram[(y * DISPLAY_WIDTH as u8 + x) as usize] = pixel;
-                        offset += 1;
-                    }
-                }
+                self.draw_sprite(
+                    self.registers[x] as usize,
+                    self.registers[y] as usize,
+                    nibble as usize,
+                );
             }
             _ => println!(
                 "unimplemented opcode {}, instruction {}",
@@ -159,5 +160,24 @@ impl Chip8Neo {
 
     fn clear_screen(&mut self) {
         self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT];
+    }
+
+    fn draw_sprite(&mut self, x0: usize, y0: usize, height: usize) {
+        self.registers[0xf] = 0;
+        for y in 0..height {
+            let line_byte = self.ram[(self.i as usize + y)];
+            for x in 0..8 {
+                let yf = (y0 + y) % DISPLAY_HEIGHT;
+                let xf = (x0 + x) % DISPLAY_WIDTH;
+                if line_byte & (0x80 >> x) == 0 {
+                    continue;
+                }
+                let addr = yf * DISPLAY_WIDTH + xf;
+                if self.vram[addr] == 1 {
+                    self.registers[0xf] = 1;
+                }
+                self.vram[addr] ^= 1
+            }
+        }
     }
 }
