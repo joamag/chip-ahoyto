@@ -59,7 +59,28 @@ impl Chip8Neo {
     }
 
     pub fn tick(&mut self) {
+        // fetches the current instruction and increments
+        // the PC (program counter) accordingly
+        let instruction =
+            (self.ram[self.pc as usize] as u16) << 8 | self.ram[self.pc as usize + 1] as u16;
         self.pc += 0x2;
+
+        let opcode = instruction & 0xf000;
+        let address = instruction & 0x0fff;
+        let nibble = ((instruction & 0x0f00) >> 8) as u8;
+        let byte = (instruction & 0x00ff) as u8;
+
+        match opcode {
+            0x0000 => match byte {
+                0xe0 => self.clear_screen(),
+                _ => println!("unimplemented instruction"),
+            },
+            0x1000 => self.pc = address,
+            0x6000 => {
+                self.registers[nibble as usize] = byte;
+            }
+            _ => println!("unimplemented instruction"),
+        }
     }
 
     pub fn load_rom(&mut self, rom: &[u8]) {
@@ -72,5 +93,9 @@ impl Chip8Neo {
 
     fn load_default_font(&mut self) {
         self.load_font(0, &FONT_SET);
+    }
+
+    fn clear_screen(&mut self) {
+        self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT];
     }
 }
