@@ -4,7 +4,7 @@ use chip_ahoyto::{
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
     keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
-    surface::Surface,
+    surface::Surface, ttf::Hinting,
 };
 use std::path::Path;
 
@@ -34,10 +34,13 @@ const LOGIC_DELTA: u32 = 60;
 
 const SCREEN_SCALE: f32 = 10.0;
 
-// The base title to be used in the window.
+/// The name of the font file to be used in the diagnostics.
+static FONT_NAME: &'static str = "Roboto-Bold.ttf";
+
+/// The base title to be used in the window.
 static TITLE: &'static str = "CHIP-Ahoyto";
 
-// The title that is going to be presented initially to the user.
+/// The title that is going to be presented initially to the user.
 static TITLE_INITIAL: &'static str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
 
 pub struct BeepCallback {
@@ -81,6 +84,7 @@ pub struct State {
     logic_frequency: u32,
     visual_frequency: u32,
     idle_frequency: u32,
+    screen_scale: f32,
     beep_duration: f32,
     next_tick_time: u32,
     beep_ticks: u32,
@@ -105,6 +109,7 @@ fn main() {
         logic_frequency: LOGIC_HZ,
         visual_frequency: VISUAL_HZ,
         idle_frequency: IDLE_HZ,
+        screen_scale: SCREEN_SCALE,
         beep_duration: BEEP_DURATION,
         next_tick_time: 0,
         beep_ticks: 0,
@@ -127,17 +132,18 @@ fn main() {
 
     // loads the font that is going to be used in the drawing
     // process cycle if necessary
-    let font = ttf_context
-        .load_font("./resources/OpenSans-Bold.ttf", 14)
+    let mut font = ttf_context
+        .load_font(format!("./resources/{}", FONT_NAME), 14)
         .unwrap();
+    font.set_hinting(Hinting::Light);
 
     // creates the system window that is going to be used to
     // show the emulator and sets it to the central are o screen
     let mut window = video_subsystem
         .window(
             TITLE,
-            SCREEN_SCALE as u32 * SCREEN_PIXEL_WIDTH as u32,
-            SCREEN_SCALE as u32 * SCREEN_PIXEL_HEIGHT as u32,
+            state.screen_scale as u32 * SCREEN_PIXEL_WIDTH as u32,
+            state.screen_scale as u32 * SCREEN_PIXEL_HEIGHT as u32,
         )
         .resizable()
         .position_centered()
@@ -151,11 +157,13 @@ fn main() {
     window.set_icon(&surface);
 
     let mut canvas = window.into_canvas().build().unwrap();
-    canvas.set_scale(SCREEN_SCALE, SCREEN_SCALE).unwrap();
     canvas.clear();
     canvas.present();
 
     let texture_creator = canvas.texture_creator();
+
+    // creates the texture streaming that is going to be used
+    // as the target for the pixel buffer
     let mut texture = texture_creator
         .create_texture_streaming(
             PixelFormatEnum::RGB24,
@@ -344,38 +352,37 @@ fn main() {
             // draws the diagnostics information to the canvas in case the
             // current state is requesting the display of it
             if state.diagnostics {
-                let mut y = 0;
+                let x = 12;
+                let mut y = 12;
+                let padding = 2;
                 let text = format!(
-                    "PC: {:#0x?}\nSP: {:#0x?}",
+                    "Frequency: {} Hz\nDisplay: {} fps\nPC: 0x{:04x}\nSP: 0x{:04x}",
+                    state.logic_frequency,
+                    state.visual_frequency,
                     state.system.pc(),
                     state.system.sp()
                 );
-
-                // updates the scale of the canvas to a better more minimal
-                // approach allowing proper defined letter to be drawn
-                canvas.set_scale(1.0, 1.0).unwrap();
 
                 let text_sequence = text.split("\n");
                 for part in text_sequence {
                     let surface = font
                         .render(part)
-                        .blended(Color::RGBA(80, 203, 147, 255))
+                        .blended(Color::RGBA(
+                            state.pixel_color[0],
+                            state.pixel_color[1],
+                            state.pixel_color[2],
+                            255,
+                        ))
                         .unwrap();
                     let texture = texture_creator
                         .create_texture_from_surface(&surface)
                         .unwrap();
                     let TextureQuery { width, height, .. } = texture.query();
                     canvas
-                        .copy(&texture, None, Some(rect!(0, y, width, height)))
+                        .copy(&texture, None, Some(rect!(x, y, width, height)))
                         .unwrap();
-                    y += height;
+                    y += height + padding;
                 }
-
-                // restores the scale of the canvas back to its original
-                // value so that the drawing of pixels is properly done
-                canvas
-                    .set_scale(SCREEN_PIXEL_WIDTH as f32, SCREEN_PIXEL_HEIGHT as f32)
-                    .unwrap();
             }
 
             // presents the canvas effectively updating the screen
