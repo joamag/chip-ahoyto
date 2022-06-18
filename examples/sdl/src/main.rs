@@ -35,7 +35,9 @@ const LOGIC_DELTA: u32 = 60;
 const SCREEN_SCALE: f32 = 10.0;
 
 /// The name of the font file to be used in the diagnostics.
-static FONT_NAME: &'static str = "Roboto-Bold.ttf";
+static FONT_NAME: &'static str = "RobotoMono-Bold.ttf";
+
+const FONT_SIZE: u16 = 13;
 
 /// The base title to be used in the window.
 static TITLE: &'static str = "CHIP-Ahoyto";
@@ -133,8 +135,9 @@ fn main() {
     // loads the font that is going to be used in the drawing
     // process cycle if necessary
     let mut font = ttf_context
-        .load_font(format!("./resources/{}", FONT_NAME), 14)
+        .load_font(format!("./resources/{}", FONT_NAME), FONT_SIZE)
         .unwrap();
+    font.set_style(sdl2::ttf::FontStyle::BOLD);
     font.set_hinting(Hinting::Light);
 
     // creates the system window that is going to be used to
