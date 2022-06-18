@@ -84,7 +84,6 @@ impl BeepCallback {
 
 pub struct State {
     system: Chip8,
-    rom_loaded: bool,
     logic_frequency: u32,
     visual_frequency: u32,
     idle_frequency: u32,
@@ -96,6 +95,8 @@ pub struct State {
     pixel_color: [u8; 3],
     pixel_color_index: u32,
     title: String,
+    rom_name: String,
+    rom_loaded: bool,
     diagnostics: bool,
 }
 
@@ -110,7 +111,6 @@ fn main() {
     // is going to logically represent the CHIP-8
     let mut state = State {
         system: Chip8::new(),
-        rom_loaded: false,
         logic_frequency: LOGIC_HZ,
         visual_frequency: VISUAL_HZ,
         idle_frequency: IDLE_HZ,
@@ -122,6 +122,8 @@ fn main() {
         pixel_color: COLORS[0],
         pixel_color_index: 0,
         title: String::from(TITLE_INITIAL),
+        rom_name: String::from("unloaded"),
+        rom_loaded: false,
         diagnostics: false,
     };
 
@@ -204,6 +206,10 @@ fn main() {
         .unwrap();
 
     'main: loop {
+        if state.timer_frequency < state.visual_frequency {
+            panic!("timer frequency must be higher or equal to visual frequency")
+        }
+
         while let Some(event) = event_pump.poll_event() {
             match event {
                 Event::Quit { .. } => break 'main,
@@ -256,14 +262,15 @@ fn main() {
 
                 Event::DropFile { filename, .. } => {
                     let rom = read_file(&filename);
-                    let filebase = Path::new(&filename).file_name().unwrap().to_str().unwrap();
+                    let rom_name = Path::new(&filename).file_name().unwrap().to_str().unwrap();
 
                     state.system.reset_hard();
                     state.system.load_rom(&rom);
 
+                    state.rom_name = String::from(rom_name);
                     state.rom_loaded = true;
 
-                    state.set_title(&format!("{} [Currently playing: {}]", TITLE, filebase));
+                    state.set_title(&format!("{} [Currently playing: {}]", TITLE, rom_name));
 
                     None
                 }
@@ -373,7 +380,8 @@ fn main() {
                 let mut y = 12;
                 let padding = 2;
                 let text = format!(
-                    "Frequency: {} Hz\nDisplay: {} fps\nPC: 0x{:04x}\nSP: 0x{:04x}",
+                    "ROM: {}\nFrequency: {} Hz\nDisplay: {} fps\nPC: 0x{:04x}\nSP: 0x{:04x}",
+                    state.rom_name,
                     state.logic_frequency,
                     state.visual_frequency,
                     state.system.pc(),
