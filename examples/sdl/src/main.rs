@@ -4,7 +4,7 @@ use chip_ahoyto::{
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
     keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
-    surface::Surface, ttf::Hinting,
+    surface::Surface,
 };
 use std::path::Path;
 
