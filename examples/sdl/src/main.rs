@@ -151,6 +151,7 @@ fn main() {
         .resizable()
         .position_centered()
         .opengl()
+        .allow_highdpi()
         .build()
         .unwrap();
 
@@ -159,7 +160,7 @@ fn main() {
     let surface = Surface::from_file("./resources/icon.png").unwrap();
     window.set_icon(&surface);
 
-    let mut canvas = window.into_canvas().build().unwrap();
+    let mut canvas = window.into_canvas().accelerated().build().unwrap();
     canvas.clear();
     canvas.present();
 
