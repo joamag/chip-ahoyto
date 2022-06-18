@@ -30,7 +30,7 @@ const IDLE_HZ: u32 = 60;
 
 const BEEP_DURATION: f32 = 0.1;
 
-const LOGIC_DELTA: u32 = 60;
+const LOGIC_DELTA: u32 = VISUAL_HZ;
 
 const SCREEN_SCALE: f32 = 10.0;
 
