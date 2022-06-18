@@ -111,6 +111,8 @@ impl Chip8Neo {
                     for j in 0..8 {
                         x = (x + j) % DISPLAY_WIDTH as u8;
                         let pixel = self.ram[(self.i + offset) as usize];
+                        
+                        // @todo must switch the pixel values here
                         self.vram[(y * DISPLAY_WIDTH as u8 + x) as usize] = pixel;
                         offset += 1;
                     }
