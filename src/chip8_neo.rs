@@ -5,7 +5,7 @@ pub const STACK_SIZE: usize = 16;
 pub const REGISTERS_SIZE: usize = 16;
 
 /// The starting address for the ROM loading, should be
-/// the initial PC position.
+/// the initial PC position for execution.
 const ROM_START: usize = 0x200;
 
 static FONT_SET: [u8; 80] = [

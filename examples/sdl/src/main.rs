@@ -27,6 +27,7 @@ const COLORS: [[u8; 3]; 6] = [
 const LOGIC_HZ: u32 = 480;
 const VISUAL_HZ: u32 = 60;
 const IDLE_HZ: u32 = 60;
+const TIMER_HZ: u32 = 60;
 
 const BEEP_DURATION: f32 = 0.1;
 
@@ -87,6 +88,7 @@ pub struct State {
     logic_frequency: u32,
     visual_frequency: u32,
     idle_frequency: u32,
+    timer_frequency: u32,
     screen_scale: f32,
     beep_duration: f32,
     next_tick_time: u32,
@@ -112,6 +114,7 @@ fn main() {
         logic_frequency: LOGIC_HZ,
         visual_frequency: VISUAL_HZ,
         idle_frequency: IDLE_HZ,
+        timer_frequency: TIMER_HZ,
         screen_scale: SCREEN_SCALE,
         beep_duration: BEEP_DURATION,
         next_tick_time: 0,
@@ -313,9 +316,19 @@ fn main() {
             // to make sure that the proper number of updates are performed
             let logic_visual_ratio = state.logic_frequency / state.visual_frequency;
             for _ in 0..logic_visual_ratio {
-                // runs the tick operation in the CHIP-8 system,
+                // runs the clock operation in the CHIP-8 system,
                 // effectively changing the logic state of the machine
-                state.system.tick();
+                state.system.clock();
+            }
+
+            // calculates the ration between the timer and the visual frequency
+            // so that the proper timer updates are rune
+            let timer_visual_ratio = state.timer_frequency / state.visual_frequency;
+            for _ in 0..timer_visual_ratio {
+                // runs the clock for the timers (both sound and delay),
+                // after that tries to determine if a beep should be sounded
+                state.system.clock_dt();
+                state.system.clock_st();
                 beep |= state.system.beep();
             }
 
