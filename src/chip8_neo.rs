@@ -58,7 +58,28 @@ impl Chip8Neo {
         chip8
     }
 
-    pub fn tick(&mut self) {
+    pub fn reset(&mut self) {
+        self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT];
+        self.stack = [0u16; STACK_SIZE];
+        self.registers = [0u8; REGISTERS_SIZE];
+        self.pc = ROM_START as u16;
+        self.i = 0x0;
+        self.sp = 0x0;
+        self.dt = 0x0;
+        self.st = 0x0;
+        self.load_default_font();
+    }
+
+    pub fn reset_hard(&mut self) {
+        self.ram = [0u8; RAM_SIZE];
+        self.reset();
+    }
+
+    pub fn pixels(&self) -> Vec<u8> {
+        self.vram.to_vec()
+    }
+
+    pub fn clock(&mut self) {
         // fetches the current instruction and increments
         // the PC (program counter) accordingly
         let instruction =
@@ -67,7 +88,9 @@ impl Chip8Neo {
 
         let opcode = instruction & 0xf000;
         let address = instruction & 0x0fff;
-        let nibble = ((instruction & 0x0f00) >> 8) as u8;
+        let first_nibble = ((instruction & 0x0f00) >> 8) as u8;
+        let second_nibble = ((instruction & 0x00f0) >> 4) as u8;
+        let third_nibble = (instruction & 0x000f) as u8;
         let byte = (instruction & 0x00ff) as u8;
 
         match opcode {
@@ -76,15 +99,52 @@ impl Chip8Neo {
                 _ => println!("unimplemented instruction"),
             },
             0x1000 => self.pc = address,
-            0x6000 => {
-                self.registers[nibble as usize] = byte;
+            0x6000 => self.registers[first_nibble as usize] = byte,
+            0x7000 => self.registers[first_nibble as usize] += byte,
+            0xa000 => self.i = address,
+            0xd000 => {
+                let mut x = self.registers[first_nibble as usize];
+                let mut y = self.registers[second_nibble as usize];
+                let mut offset = 0;
+                for i in 0..third_nibble {
+                    y = (y + i) % DISPLAY_HEIGHT as u8;
+                    for j in 0..8 {
+                        x = (x + j) % DISPLAY_WIDTH as u8;
+                        let pixel = self.ram[(self.i + offset) as usize];
+                        self.vram[(y * DISPLAY_WIDTH as u8 + x) as usize] = pixel;
+                        offset += 1;
+                    }
+                }
             }
-            _ => println!("unimplemented instruction"),
+            _ => println!(
+                "unimplemented opcode {}, instruction {}",
+                opcode, instruction
+            ),
         }
     }
 
+    pub fn clock_dt(&mut self) {}
+
+    pub fn clock_st(&mut self) {}
+
+    pub fn key_press(&mut self, key: u8) {}
+
+    pub fn key_lift(&mut self, key: u8) {}
+
     pub fn load_rom(&mut self, rom: &[u8]) {
         self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(&rom);
+    }
+
+    pub fn beep(&self) -> bool {
+        false
+    }
+
+    pub fn pc(&self) -> u16 {
+        self.pc
+    }
+
+    pub fn sp(&self) -> u8 {
+        self.sp
     }
 
     fn load_font(&mut self, position: usize, font_set: &[u8]) {

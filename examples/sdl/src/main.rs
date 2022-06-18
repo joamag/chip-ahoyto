@@ -1,5 +1,6 @@
 use chip_ahoyto::{
-    chip8::Chip8, chip8::SCREEN_PIXEL_HEIGHT, chip8::SCREEN_PIXEL_WIDTH, util::read_file,
+    chip8::Chip8, chip8::SCREEN_PIXEL_HEIGHT, chip8::SCREEN_PIXEL_WIDTH, chip8_neo::Chip8Neo,
+    util::read_file,
 };
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
@@ -83,7 +84,7 @@ impl BeepCallback {
 }
 
 pub struct State {
-    system: Chip8,
+    system: Chip8Neo,
     logic_frequency: u32,
     visual_frequency: u32,
     idle_frequency: u32,
@@ -110,7 +111,7 @@ fn main() {
     // builds the CHIP-8 machine, this is the instance that
     // is going to logically represent the CHIP-8
     let mut state = State {
-        system: Chip8::new(),
+        system: Chip8Neo::new(),
         logic_frequency: LOGIC_HZ,
         visual_frequency: VISUAL_HZ,
         idle_frequency: IDLE_HZ,
