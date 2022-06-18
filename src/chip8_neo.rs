@@ -96,9 +96,18 @@ impl Chip8Neo {
         match opcode {
             0x0000 => match byte {
                 0xe0 => self.clear_screen(),
-                _ => println!("unimplemented instruction"),
+                0xee => {
+                    self.sp -= 1;
+                    self.pc = self.stack[self.sp as usize];
+                }
+                _ => println!("unimplemented instruction "),
             },
             0x1000 => self.pc = address,
+            0x2000 => {
+                self.stack[self.sp as usize] = self.pc;
+                self.sp += 1;
+                self.pc = address;
+            }
             0x3000 => self.pc += if self.regs[x] == byte { 2 } else { 0 },
             0x4000 => self.pc += if self.regs[x] != byte { 2 } else { 0 },
             0x5000 => self.pc += if self.regs[x] == self.regs[y] { 2 } else { 0 },
@@ -143,6 +152,24 @@ impl Chip8Neo {
                     nibble as usize,
                 );
             }
+            0xf000 => match byte {
+                0x07 => self.regs[x] = self.dt,
+                0x15 => self.dt = self.regs[x],
+                0x18 => self.st = self.regs[x],
+                0x33 => {
+                    self.ram[self.i as usize] = self.regs[x] / 100;
+                    self.ram[self.i as usize + 1] = (self.regs[x] / 10) % 10;
+                    self.ram[self.i as usize + 2] = self.regs[x] % 10;
+                }
+                0x55 => self.ram[self.i as usize..(self.i as usize + x)]
+                    .clone_from_slice(&self.regs[0..x]),
+                0x65 => self.regs[0..x]
+                    .clone_from_slice(&self.ram[self.i as usize..(self.i as usize + x)]),
+                _ => println!(
+                    "unimplemented instruction 0xf000, instruction 0x{:04x}",
+                    instruction
+                ),
+            },
             _ => println!(
                 "unimplemented opcode 0x{:04x}, instruction 0x{:04x}",
                 opcode, instruction
