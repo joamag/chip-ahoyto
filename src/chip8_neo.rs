@@ -3,6 +3,7 @@ pub const DISPLAY_HEIGHT: usize = 32;
 pub const RAM_SIZE: usize = 4096;
 pub const STACK_SIZE: usize = 16;
 pub const REGISTERS_SIZE: usize = 16;
+pub const KEYS_SIZE: usize = 16;
 
 /// The starting address for the ROM loading, should be
 /// the initial PC position for execution.
@@ -37,6 +38,7 @@ pub struct Chip8Neo {
     sp: u8,
     dt: u8,
     st: u8,
+    keys: [bool; KEYS_SIZE],
 }
 
 #[cfg_attr(feature = "web", wasm_bindgen)]
@@ -53,6 +55,7 @@ impl Chip8Neo {
             sp: 0x0,
             dt: 0x0,
             st: 0x0,
+            keys: [false; KEYS_SIZE],
         };
         chip8.load_default_font();
         chip8
@@ -67,6 +70,7 @@ impl Chip8Neo {
         self.sp = 0x0;
         self.dt = 0x0;
         self.st = 0x0;
+        self.keys = [false; KEYS_SIZE];
         self.load_default_font();
     }
 
@@ -178,20 +182,28 @@ impl Chip8Neo {
         }
     }
 
-    pub fn clock_dt(&mut self) {}
+    pub fn clock_dt(&mut self) {
+        self.dt = self.dt.saturating_sub(1)
+    }
 
-    pub fn clock_st(&mut self) {}
+    pub fn clock_st(&mut self) {
+        self.st = self.st.saturating_sub(1)
+    }
 
-    pub fn key_press(&mut self, key: u8) {}
+    pub fn key_press(&mut self, key: u8) {
+        self.keys[key as usize] = true;
+    }
 
-    pub fn key_lift(&mut self, key: u8) {}
+    pub fn key_lift(&mut self, key: u8) {
+        self.keys[key as usize] = false;
+    }
 
     pub fn load_rom(&mut self, rom: &[u8]) {
         self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(&rom);
     }
 
     pub fn beep(&self) -> bool {
-        false
+        self.st > 0
     }
 
     pub fn pc(&self) -> u16 {
