@@ -378,6 +378,10 @@ impl Chip8Neo {
         self.reset_hard()
     }
 
+    pub fn vram_ws(&self) -> Vec<u8> {
+        self.vram()
+    }
+
     pub fn clock_ws(&mut self) {
         self.clock()
     }

@@ -26,6 +26,10 @@ export class Chip8Neo {
 */
   reset_hard_ws(): void;
 /**
+* @returns {Uint8Array}
+*/
+  vram_ws(): Uint8Array;
+/**
 */
   clock_ws(): void;
 }
@@ -41,8 +45,11 @@ export interface InitOutput {
   readonly chip8neo_load_rom_ws: (a: number, b: number, c: number) => void;
   readonly chip8neo_reset_ws: (a: number) => void;
   readonly chip8neo_reset_hard_ws: (a: number) => void;
+  readonly chip8neo_vram_ws: (a: number, b: number) => void;
   readonly chip8neo_clock_ws: (a: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
+  readonly __wbindgen_free: (a: number, b: number) => void;
   readonly __wbindgen_exn_store: (a: number) => void;
 }
 
