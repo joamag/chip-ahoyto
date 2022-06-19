@@ -120,7 +120,7 @@ const registerDrop = () => {
 const registerKeys = () => {
     document.addEventListener("keydown", (event) => {
         const keyCode = KEYS[event.key];
-        if (keyCode) {
+        if (keyCode !== undefined) {
             state.chip8.key_press_ws(keyCode);
             return;
         }
@@ -138,7 +138,7 @@ const registerKeys = () => {
 
     document.addEventListener("keyup", (event) => {
         const keyCode = KEYS[event.key];
-        if (keyCode) {
+        if (keyCode !== undefined) {
             state.chip8.key_lift_ws(keyCode);
             return;
         }
