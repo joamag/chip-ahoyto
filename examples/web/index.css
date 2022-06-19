@@ -57,7 +57,7 @@ p {
 
 .main > .side-left .separator {
     height: 2px;
-    background: white;
+    background: #ffffff;
     margin: 28px 0px 28px 0px;
 }
 
@@ -83,6 +83,17 @@ p {
     clear: both;
 }
 
+.toast {
+    position: absolute;
+    left: 50%;
+    padding: 16px;
+    top: 32px;
+    background: #e63946;
+    font-size: 22px;
+    border-radius: 4px 4px 4px 4px;
+    transform: translate(-50%, 0%);
+}
+
 .overlay {
     position: absolute;
     left: 0px;
@@ -100,6 +111,17 @@ p {
     opacity: 0.0;
     pointer-events: none;
     transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.tiny-button {
+    padding: 0px 8px 0px 8px;
+    border-radius: 64px 64px 64px 64px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tiny-button:hover {
+    background-color: #50cb93;
 }
 
 .overlay.visible {

@@ -96,6 +96,7 @@ const state = {
 const register = () => {
     registerDrop();
     registerKeys();
+    registerButtons();
 }
 
 const registerDrop = () => {
@@ -168,6 +169,18 @@ const registerKeys = () => {
             state.chip8.key_lift_ws(keyCode);
             return;
         }
+    });
+}
+
+const registerButtons = () => {
+    const logicFrequencyPlus = document.getElementById("logic-frequency-plus");
+    logicFrequencyPlus.addEventListener("click", (event) => {
+        setLogicFrequency(state.logicFrequency + 60);
+    });
+
+    const logicFrequencyMinus = document.getElementById("logic-frequency-minus");
+    logicFrequencyMinus.addEventListener("click", (event) => {
+        setLogicFrequency(state.logicFrequency - 60);
     });
 }
 
