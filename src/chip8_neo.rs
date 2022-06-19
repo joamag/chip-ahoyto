@@ -138,7 +138,7 @@ impl Chip8Neo {
                 }
                 0x5 => {
                     self.regs[0xf] = (self.regs[x] >= self.regs[y]) as u8;
-                    self.regs[x] = self.regs[x].saturating_sub(self.regs[y]);
+                    self.regs[x] = self.regs[x].wrapping_sub(self.regs[y]);
                 }
                 0x6 => {
                     self.regs[0xf] = self.regs[x] & 0x01;
@@ -146,7 +146,7 @@ impl Chip8Neo {
                 }
                 0x7 => {
                     self.regs[0xf] = (self.regs[y] >= self.regs[x]) as u8;
-                    self.regs[x] = self.regs[y].saturating_sub(self.regs[x]);
+                    self.regs[x] = self.regs[y].wrapping_sub(self.regs[x]);
                 }
                 0xe => {
                     self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
