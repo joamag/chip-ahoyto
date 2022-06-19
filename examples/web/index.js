@@ -36,7 +36,7 @@ const ROM = "res/roms/pong.ch8";
 
 const state = {
     chip8: null,
-    logic_frequency: LOGIC_HZ,
+    logicFrequency: LOGIC_HZ,
     canvas: null,
     canvasScaled: null,
     canvasCtx: null,
@@ -56,7 +56,7 @@ const state = {
     register();
 
     // loads the ROM data and converts it into the
-    // target u8 array bufffer
+    // target u8 array buffer
     const response = await fetch(ROM);
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
@@ -70,7 +70,7 @@ const state = {
     // runs the sequence as an infinite loop, running
     // the associated CPU cycles accordingly
     while (true) {        
-        const ratioLogic = state.logic_frequency / VISUAL_HZ;
+        const ratioLogic = state.logicFrequency / VISUAL_HZ;
         for(let i = 0; i < ratioLogic; i++) {
             state.chip8.clock_ws();
         }
@@ -82,7 +82,7 @@ const state = {
         }
 
         // updates the canvas object with the new
-        // visual information comming in
+        // visual information coming in
         updateCanvas(state.chip8.vram_ws());
         
         // waits a little bit for the next frame to be draw
@@ -110,11 +110,18 @@ const registerDrop = () => {
 
         const file = event.dataTransfer.files[0];
 
+        if (!file.name.endsWith(".ch8")) {
+            alert("This is probably not a CHIP-8 ROM file");
+            return;
+        }
+
         const arrayBuffer = await file.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);
 
         state.chip8.reset_hard_ws();
         state.chip8.load_rom_ws(data);
+        
+        setRom(file.name, file.size);
     });
     document.addEventListener("dragover", async (event) => {
         if (!event.dataTransfer.items || event.dataTransfer.items[0].type) return;
@@ -146,11 +153,11 @@ const registerKeys = () => {
 
         switch(event.key) {
             case "+":
-                setLogicFrequency(state.logic_frequency + 60);
+                setLogicFrequency(state.logicFrequency + 60);
                 break;
 
             case "-":
-                setLogicFrequency(state.logic_frequency - 60);
+                setLogicFrequency(state.logicFrequency - 60);
                 break;
         }
     });
@@ -164,9 +171,16 @@ const registerKeys = () => {
     });
 }
 
+const setRom = (name, size) => {
+    state.romName = name;
+    state.romSize = size;
+    document.getElementById("rom-name").textContent = name;
+    document.getElementById("rom-size").textContent = String(size);
+}
+
 const setLogicFrequency = (value) => {
     value = Math.max(value, 0);
-    state.logic_frequency = value;
+    state.logicFrequency = value;
     document.getElementById("logic-frequency").textContent = value;
 }
 
