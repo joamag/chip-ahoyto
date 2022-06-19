@@ -252,7 +252,7 @@ fn main() {
                 } => {
                     state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
                     state.pixel_color = COLORS[state.pixel_color_index as usize];
-                    let diag_color_index = (state.pixel_color_index + 2) % COLORS.len() as u32;
+                    let diag_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
                     state.diag_color = COLORS[diag_color_index as usize];
                     None
                 }

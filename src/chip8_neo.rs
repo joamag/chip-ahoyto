@@ -2,10 +2,11 @@ use crate::util::random;
 
 pub const DISPLAY_WIDTH: usize = 64;
 pub const DISPLAY_HEIGHT: usize = 32;
-pub const RAM_SIZE: usize = 4096;
-pub const STACK_SIZE: usize = 16;
-pub const REGISTERS_SIZE: usize = 16;
-pub const KEYS_SIZE: usize = 16;
+
+const RAM_SIZE: usize = 4096;
+const STACK_SIZE: usize = 16;
+const REGISTERS_SIZE: usize = 16;
+const KEYS_SIZE: usize = 16;
 
 /// The starting address for the ROM loading, should be
 /// the initial PC position for execution.
@@ -137,7 +138,7 @@ impl Chip8Neo {
                     self.regs[0xf] = overflow as u8;
                 }
                 0x5 => {
-                    self.regs[0xf] = (self.regs[x] >= self.regs[y]) as u8;
+                    self.regs[0xf] = (self.regs[x] > self.regs[y]) as u8;
                     self.regs[x] = self.regs[x].wrapping_sub(self.regs[y]);
                 }
                 0x6 => {
@@ -145,7 +146,7 @@ impl Chip8Neo {
                     self.regs[x] >>= 1;
                 }
                 0x7 => {
-                    self.regs[0xf] = (self.regs[y] >= self.regs[x]) as u8;
+                    self.regs[0xf] = (self.regs[y] > self.regs[x]) as u8;
                     self.regs[x] = self.regs[y].wrapping_sub(self.regs[x]);
                 }
                 0xe => {
@@ -166,8 +167,14 @@ impl Chip8Neo {
                 );
             }
             0xe000 => match byte {
-                0x9e => self.pc += if self.keys[x] { 2 } else { 0 },
-                0xa1 => self.pc += if !self.keys[x] { 2 } else { 0 },
+                0x9e => {
+                    let key = self.regs[x] as usize;
+                    self.pc += if self.keys[key] { 2 } else { 0 }
+                }
+                0xa1 => {
+                    let key = self.regs[x] as usize;
+                    self.pc += if !self.keys[key] { 2 } else { 0 }
+                }
                 _ => println!(
                     "unimplemented instruction 0xe000, instruction 0x{:04x}",
                     instruction
