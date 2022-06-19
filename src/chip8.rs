@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use getrandom::getrandom;
+use crate::util::random;
 
 #[cfg(feature = "web")]
 use wasm_bindgen::prelude::*;
@@ -193,7 +193,7 @@ impl Chip8 {
             0x9000 => self.skip_if(self.registers[x] != self.registers[y]),
             0xa000 => self.i = addr,
             0xb000 => self.pc = addr + self.registers[0] as u16,
-            0xc000 => self.registers[x] = byte & Chip8::rand(),
+            0xc000 => self.registers[x] = byte & random(),
             0xd000 => self.draw_sprite(
                 self.registers[x] as usize,
                 self.registers[y] as usize,
@@ -312,13 +312,6 @@ impl Chip8 {
 
     fn load_font(&mut self, font_set: &[u8]) {
         self.ram[..font_set.len()].clone_from_slice(&font_set);
-    }
-
-    // rand crate does not compile to wasm32-unknown-unknown
-    fn rand() -> u8 {
-        let mut n = [0];
-        getrandom(&mut n).unwrap();
-        n[0]
     }
 }
 

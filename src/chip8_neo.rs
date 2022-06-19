@@ -1,3 +1,5 @@
+use crate::util::random;
+
 pub const DISPLAY_WIDTH: usize = 64;
 pub const DISPLAY_HEIGHT: usize = 32;
 pub const RAM_SIZE: usize = 4096;
@@ -39,6 +41,7 @@ pub struct Chip8Neo {
     dt: u8,
     st: u8,
     keys: [bool; KEYS_SIZE],
+    last_key: u8,
 }
 
 #[cfg_attr(feature = "web", wasm_bindgen)]
@@ -56,6 +59,7 @@ impl Chip8Neo {
             dt: 0x0,
             st: 0x0,
             keys: [false; KEYS_SIZE],
+            last_key: 0x0,
         };
         chip8.load_default_font();
         chip8
@@ -71,6 +75,7 @@ impl Chip8Neo {
         self.dt = 0x0;
         self.st = 0x0;
         self.keys = [false; KEYS_SIZE];
+        self.last_key = 0x0;
         self.load_default_font();
     }
 
@@ -148,7 +153,7 @@ impl Chip8Neo {
             0x9000 => self.pc += if self.regs[x] != self.regs[y] { 2 } else { 0 },
             0xa000 => self.i = address,
             0xb000 => self.pc = address + self.regs[0x0] as u16,
-            0xc000 => self.regs[x] = byte, //@todo: generate random number
+            0xc000 => self.regs[x] = byte & random(),
             0xd000 => {
                 self.draw_sprite(
                     self.regs[x] as usize,
@@ -156,10 +161,26 @@ impl Chip8Neo {
                     nibble as usize,
                 );
             }
+            0xe000 => match byte {
+                0x9e => self.pc += if self.keys[x] { 2 } else { 0 },
+                0xa1 => self.pc += if !self.keys[x] { 2 } else { 0 },
+                _ => println!(
+                    "unimplemented instruction 0xe000, instruction 0x{:04x}",
+                    instruction
+                ),
+            },
             0xf000 => match byte {
                 0x07 => self.regs[x] = self.dt,
+                0x0a => {
+                    if self.keys[self.last_key as usize] {
+                        self.regs[x] = self.last_key;
+                    } else {
+                        self.pc -= 2
+                    }
+                }
                 0x15 => self.dt = self.regs[x],
                 0x18 => self.st = self.regs[x],
+                0x1e => self.i = self.i.saturating_add(self.regs[x] as u16),
                 0x29 => self.i = self.regs[x] as u16 * 5,
                 0x33 => {
                     self.ram[self.i as usize] = self.regs[x] / 100;
@@ -192,6 +213,7 @@ impl Chip8Neo {
 
     pub fn key_press(&mut self, key: u8) {
         self.keys[key as usize] = true;
+        self.last_key = key;
     }
 
     pub fn key_lift(&mut self, key: u8) {
