@@ -10,6 +10,9 @@ let LOGIC_HZ = 480;
 const TIMER_HZ = 60;
 const VISUAL_HZ = 60;
 
+const DISPLAY_WIDTH = 64;
+const DISPLAY_HEIGHT = 32;
+
 const KEYS = {
     "1": 0x01,
     "2": 0x02,
@@ -164,8 +167,8 @@ const initCanvas = () => {
     // initializes the off-screen canvas that is going to be
     // used in the drawing proces
     state.canvas = document.createElement("canvas");
-    state.canvas.width = 64;
-    state.canvas.height = 32;
+    state.canvas.width = DISPLAY_WIDTH;
+    state.canvas.height = DISPLAY_HEIGHT;
     state.canvasCtx = state.canvas.getContext("2d");
 
     state.canvasScaled = document.getElementById("chip-canvas");

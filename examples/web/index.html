@@ -6,9 +6,15 @@
         <link rel="stylesheet" href="index.css" />
     </head>
     <body>
-        <canvas id="chip-canvas" width="960" height="480"></canvas>
+        <div class="main">
+            <canvas class="canvas" id="chip-canvas" width="640" height="320"></canvas>
+            <div class="side">
+                <h1>CHIP-Ahoyto</h1>
+                <p>This is a CHIP-8 emualtor built using the rust programming language and is running inside this browser with the help of WebAssembly</p>
+            </div>
+        </div>
         <div id="overlay" class="overlay">
-            Drag to load ROM
+            Drag to load ROM <span id="rom-name"></span>
         </div>
         <script type="module" src="index.js"></script>
     </body>
