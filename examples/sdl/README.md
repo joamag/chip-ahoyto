@@ -29,6 +29,7 @@ Drag and drop your ROM to play.
 * `T` Toggles the display of the diagnostics information
 * `O` Resets the machine
 * `P` Changes the pixel color of the system
+* `M` Takes a RAM and VRAM snapshot and saves it in `out.snp`
 
 ## ROMs
 

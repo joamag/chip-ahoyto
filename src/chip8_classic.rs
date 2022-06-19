@@ -92,10 +92,6 @@ impl Chip8 for Chip8Classic {
         self.reset();
     }
 
-    fn pixels(&self) -> Vec<u8> {
-        self.vram.to_vec()
-    }
-
     fn beep(&self) -> bool {
         self.beep
     }
@@ -106,6 +102,14 @@ impl Chip8 for Chip8Classic {
 
     fn sp(&self) -> u8 {
         self.sp
+    }
+
+    fn ram(&self) -> Vec<u8> {
+        self.ram.to_vec()
+    }
+
+    fn vram(&self) -> Vec<u8> {
+        self.vram.to_vec()
     }
 
     fn load_rom(&mut self, rom: &[u8]) {

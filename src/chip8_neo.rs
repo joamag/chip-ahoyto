@@ -70,10 +70,6 @@ impl Chip8 for Chip8Neo {
         self.reset();
     }
 
-    fn pixels(&self) -> Vec<u8> {
-        self.vram.to_vec()
-    }
-
     fn clock(&mut self) {
         // fetches the current instruction and increments
         // the PC (program counter) accordingly
@@ -238,6 +234,14 @@ impl Chip8 for Chip8Neo {
 
     fn sp(&self) -> u8 {
         self.sp
+    }
+
+    fn ram(&self) -> Vec<u8> {
+        self.ram.to_vec()
+    }
+
+    fn vram(&self) -> Vec<u8> {
+        self.vram.to_vec()
     }
 }
 

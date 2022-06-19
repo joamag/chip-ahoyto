@@ -379,7 +379,7 @@ fn main() {
             // re-creates a vector of pixels from the system pixels
             // buffer, this is considered a pretty expensive operation
             let mut rgb_pixels = vec![];
-            for p in state.system.pixels() {
+            for p in state.system.vram() {
                 rgb_pixels.extend_from_slice(&[
                     p * state.pixel_color[0],
                     p * state.pixel_color[1],

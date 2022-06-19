@@ -19,8 +19,9 @@ The work of this emulator was inspired/started by [jc-chip8](https://github.com/
 * Pallet switching
 * Visual diagnostics
 * Variable CPU frequency
-* RAM snapshot saving and loading - (TODO)
-* Multiple implementations (classic and neo)
+* Multiple engine implementations (classic and neo)
+* Full compliant with test CHIP-8 ROMs
+* RAM snapshot saving and loading
 
 ## Reason
 
