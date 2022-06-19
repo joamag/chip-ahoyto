@@ -99,6 +99,9 @@ const registerDrop = () => {
         event.preventDefault();
         event.stopPropagation();
 
+        const overlay = document.getElementById("overlay");
+        overlay.classList.remove("visible");
+
         if (!event.dataTransfer.files) return;
 
         const file = event.dataTransfer.files[0];
@@ -111,9 +114,17 @@ const registerDrop = () => {
     });
     document.addEventListener("dragover", async (event) => {
         event.preventDefault();
-        event.stopPropagation();
 
-        console.info("draging over");
+        const overlay = document.getElementById("overlay");
+        overlay.classList.add("visible");
+    });
+    document.addEventListener("dragenter", async (event) => {
+        const overlay = document.getElementById("overlay");
+        overlay.classList.add("visible");
+    });
+    document.addEventListener("dragleave", async (event) => {
+        const overlay = document.getElementById("overlay");
+        overlay.classList.remove("visible");
     });
 };
 
