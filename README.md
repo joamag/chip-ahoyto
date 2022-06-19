@@ -36,7 +36,9 @@ wasm-pack build --release --target=nodejs -- --features wasm
 
 ```bash
 cargo install wasm-pack
-wasm-pack build --release --target=web -- --features wasm
+wasm-pack build --release --target=web --out-dir=examples/web -- --features wasm
+cd examples/web
+python3 -m http.server
 ```
 
 ## Reason

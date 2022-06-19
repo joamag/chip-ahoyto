@@ -34,17 +34,26 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly __wbg_chip8classic_free: (a: number) => void;
+  readonly chip8classic_new: () => number;
   readonly __wbg_chip8neo_free: (a: number) => void;
   readonly chip8neo_new: () => number;
   readonly chip8neo_load_rom_ws: (a: number, b: number, c: number) => void;
   readonly chip8neo_reset_ws: (a: number) => void;
   readonly chip8neo_reset_hard_ws: (a: number) => void;
   readonly chip8neo_clock_ws: (a: number) => void;
-  readonly __wbg_chip8classic_free: (a: number) => void;
-  readonly chip8classic_new: () => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_exn_store: (a: number) => void;
 }
+
+/**
+* Synchronously compiles the given `bytes` and instantiates the WebAssembly module.
+*
+* @param {BufferSource} bytes
+*
+* @returns {InitOutput}
+*/
+export function initSync(bytes: BufferSource): InitOutput;
 
 /**
 * If `module_or_path` is {RequestInfo} or {URL}, makes a request and
