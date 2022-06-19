@@ -212,11 +212,17 @@ impl Chip8Neo {
     }
 
     pub fn key_press(&mut self, key: u8) {
+        if key >= KEYS_SIZE as u8 {
+            return;
+        }
         self.keys[key as usize] = true;
         self.last_key = key;
     }
 
     pub fn key_lift(&mut self, key: u8) {
+        if key >= KEYS_SIZE as u8 {
+            return;
+        }
         self.keys[key as usize] = false;
     }
 
