@@ -84,6 +84,10 @@ impl Chip8Neo {
         self.reset();
     }
 
+    pub fn name(&self) -> &str {
+        "neo"
+    }
+
     pub fn pixels(&self) -> Vec<u8> {
         self.vram.to_vec()
     }
@@ -93,7 +97,7 @@ impl Chip8Neo {
         // the PC (program counter) accordingly
         let instruction =
             (self.ram[self.pc as usize] as u16) << 8 | self.ram[self.pc as usize + 1] as u16;
-        self.pc += 0x2;
+        self.pc += 2;
 
         let opcode = instruction & 0xf000;
         let address = instruction & 0x0fff;
@@ -254,6 +258,7 @@ impl Chip8Neo {
         self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT];
     }
 
+    #[inline(always)]
     fn draw_sprite(&mut self, x0: usize, y0: usize, height: usize) {
         self.regs[0xf] = 0;
         for y in 0..height {

@@ -94,11 +94,12 @@ pub struct State {
     next_tick_time: u32,
     beep_ticks: u32,
     pixel_color: [u8; 3],
+    diag_color: [u8; 3],
     pixel_color_index: u32,
     title: String,
     rom_name: String,
     rom_loaded: bool,
-    diagnostics: bool,
+    diag: bool,
 }
 
 impl State {
@@ -121,11 +122,12 @@ fn main() {
         next_tick_time: 0,
         beep_ticks: 0,
         pixel_color: COLORS[0],
+        diag_color: COLORS[1],
         pixel_color_index: 0,
         title: String::from(TITLE_INITIAL),
         rom_name: String::from("unloaded"),
         rom_loaded: false,
-        diagnostics: false,
+        diag: false,
     };
 
     // initializes the SDL sub-system
@@ -250,6 +252,8 @@ fn main() {
                 } => {
                     state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
                     state.pixel_color = COLORS[state.pixel_color_index as usize];
+                    let diag_color_index = (state.pixel_color_index + 2) % COLORS.len() as u32;
+                    state.diag_color = COLORS[diag_color_index as usize];
                     None
                 }
 
@@ -257,7 +261,7 @@ fn main() {
                     keycode: Some(Keycode::T),
                     ..
                 } => {
-                    state.diagnostics = !state.diagnostics;
+                    state.diag = !state.diag;
                     None
                 }
 
@@ -376,12 +380,13 @@ fn main() {
 
             // draws the diagnostics information to the canvas in case the
             // current state is requesting the display of it
-            if state.diagnostics {
+            if state.diag {
                 let x = 12;
                 let mut y = 12;
                 let padding = 2;
                 let text = format!(
-                    "ROM: {}\nFrequency: {} Hz\nDisplay: {} fps\nPC: 0x{:04x}\nSP: 0x{:04x}",
+                    "Engine: {}\nROM: {}\nFrequency: {} Hz\nDisplay: {} fps\nPC: 0x{:04x}\nSP: 0x{:04x}",
+                    state.system.name(),
                     state.rom_name,
                     state.logic_frequency,
                     state.visual_frequency,
@@ -394,9 +399,9 @@ fn main() {
                     let surface = font
                         .render(part)
                         .blended(Color::RGBA(
-                            state.pixel_color[0],
-                            state.pixel_color[1],
-                            state.pixel_color[2],
+                            state.diag_color[0],
+                            state.diag_color[1],
+                            state.diag_color[2],
                             255,
                         ))
                         .unwrap();

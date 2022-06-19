@@ -108,6 +108,10 @@ impl Chip8 {
         self.reset();
     }
 
+    pub fn name(&self) -> &str {
+        "classic"
+    }
+
     pub fn pixels(&self) -> Vec<u8> {
         self.vram.to_vec()
     }
