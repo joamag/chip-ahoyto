@@ -25,11 +25,18 @@ The work of this emulator was inspired/started by [jc-chip8](https://github.com/
 
 ## Build
 
-### WASM
+### WASM for Node.js
 
 ```bash
 cargo install wasm-pack
 wasm-pack build --release --target=nodejs -- --features wasm
+```
+
+### WASM for Web
+
+```bash
+cargo install wasm-pack
+wasm-pack build --release --target=web -- --features wasm
 ```
 
 ## Reason

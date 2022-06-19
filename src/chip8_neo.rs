@@ -75,6 +75,89 @@ impl Chip8 for Chip8Neo {
         self.reset();
     }
 
+    fn beep(&self) -> bool {
+        self.st > 0
+    }
+
+    fn pc(&self) -> u16 {
+        self.pc
+    }
+
+    fn sp(&self) -> u8 {
+        self.sp
+    }
+
+    fn ram(&self) -> Vec<u8> {
+        self.ram.to_vec()
+    }
+
+    fn vram(&self) -> Vec<u8> {
+        self.vram.to_vec()
+    }
+
+    fn get_state(&self) -> Vec<u8> {
+        let mut buffer: Vec<u8> = Vec::new();
+        buffer.extend(self.ram.iter());
+        buffer.extend(self.vram.iter());
+        buffer.extend(self.stack.map(|v| v.to_le_bytes()).iter().flatten());
+        buffer.extend(self.regs.iter());
+        buffer.extend(self.pc.to_le_bytes().iter());
+        buffer.extend(self.i.to_le_bytes().iter());
+        buffer.extend(self.sp.to_le_bytes().iter());
+        buffer.extend(self.dt.to_le_bytes().iter());
+        buffer.extend(self.st.to_le_bytes().iter());
+        buffer.extend(self.keys.map(|v| v as u8).iter());
+        buffer.extend(self.last_key.to_le_bytes().iter());
+        buffer
+    }
+
+    fn set_state(&mut self, state: &[u8]) {
+        let mut u8_buffer = [0u8; 1];
+        let mut u16_buffer = [0u8; 2];
+        let mut regs_buffer = [0u8; REGISTERS_SIZE * 2];
+        let mut keys_buffer = [0u8; KEYS_SIZE];
+
+        let mut cursor = Cursor::new(state.to_vec());
+
+        cursor.read_exact(&mut self.ram).unwrap();
+        cursor.read_exact(&mut self.vram).unwrap();
+        cursor.read_exact(&mut regs_buffer).unwrap();
+        self.stack.clone_from_slice(
+            regs_buffer
+                .chunks(2)
+                .map(|v| {
+                    u16_buffer.clone_from_slice(&v[0..2]);
+                    u16::from_le_bytes(u16_buffer)
+                })
+                .collect::<Vec<u16>>()
+                .as_slice(),
+        );
+        cursor.read_exact(&mut self.regs).unwrap();
+        cursor.read_exact(&mut u16_buffer).unwrap();
+        self.pc = u16::from_le_bytes(u16_buffer);
+        cursor.read_exact(&mut u16_buffer).unwrap();
+        self.i = u16::from_le_bytes(u16_buffer);
+        cursor.read_exact(&mut u8_buffer).unwrap();
+        self.sp = u8::from_le_bytes(u8_buffer);
+        cursor.read_exact(&mut u8_buffer).unwrap();
+        self.dt = u8::from_le_bytes(u8_buffer);
+        cursor.read_exact(&mut u8_buffer).unwrap();
+        self.st = u8::from_le_bytes(u8_buffer);
+        cursor.read_exact(&mut keys_buffer).unwrap();
+        self.keys.clone_from_slice(
+            keys_buffer
+                .map(|v| if v == 1 { true } else { false })
+                .iter()
+                .as_slice(),
+        );
+        cursor.read_exact(&mut u8_buffer).unwrap();
+        self.last_key = u8::from_le_bytes(u8_buffer);
+    }
+
+    fn load_rom(&mut self, rom: &[u8]) {
+        self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(&rom);
+    }
+
     fn clock(&mut self) {
         // fetches the current instruction and increments
         // the PC (program counter) accordingly
@@ -224,89 +307,6 @@ impl Chip8 for Chip8Neo {
         }
         self.keys[key as usize] = false;
     }
-
-    fn load_rom(&mut self, rom: &[u8]) {
-        self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(&rom);
-    }
-
-    fn beep(&self) -> bool {
-        self.st > 0
-    }
-
-    fn pc(&self) -> u16 {
-        self.pc
-    }
-
-    fn sp(&self) -> u8 {
-        self.sp
-    }
-
-    fn ram(&self) -> Vec<u8> {
-        self.ram.to_vec()
-    }
-
-    fn vram(&self) -> Vec<u8> {
-        self.vram.to_vec()
-    }
-
-    fn get_state(&self) -> Vec<u8> {
-        let mut buffer: Vec<u8> = Vec::new();
-        buffer.extend(self.ram.iter());
-        buffer.extend(self.vram.iter());
-        buffer.extend(self.stack.map(|v| v.to_le_bytes()).iter().flatten());
-        buffer.extend(self.regs.iter());
-        buffer.extend(self.pc.to_le_bytes().iter());
-        buffer.extend(self.i.to_le_bytes().iter());
-        buffer.extend(self.sp.to_le_bytes().iter());
-        buffer.extend(self.dt.to_le_bytes().iter());
-        buffer.extend(self.st.to_le_bytes().iter());
-        buffer.extend(self.keys.map(|v| v as u8).iter());
-        buffer.extend(self.last_key.to_le_bytes().iter());
-        buffer
-    }
-
-    fn set_state(&mut self, state: &[u8]) {
-        let mut u8_buffer = [0u8; 1];
-        let mut u16_buffer = [0u8; 2];
-        let mut regs_buffer = [0u8; REGISTERS_SIZE * 2];
-        let mut keys_buffer = [0u8; KEYS_SIZE];
-
-        let mut cursor = Cursor::new(state.to_vec());
-
-        cursor.read_exact(&mut self.ram).unwrap();
-        cursor.read_exact(&mut self.vram).unwrap();
-        cursor.read_exact(&mut regs_buffer).unwrap();
-        self.stack.clone_from_slice(
-            regs_buffer
-                .chunks(2)
-                .map(|v| {
-                    u16_buffer.clone_from_slice(&v[0..2]);
-                    u16::from_le_bytes(u16_buffer)
-                })
-                .collect::<Vec<u16>>()
-                .as_slice(),
-        );
-        cursor.read_exact(&mut self.regs).unwrap();
-        cursor.read_exact(&mut u16_buffer).unwrap();
-        self.pc = u16::from_le_bytes(u16_buffer);
-        cursor.read_exact(&mut u16_buffer).unwrap();
-        self.i = u16::from_le_bytes(u16_buffer);
-        cursor.read_exact(&mut u8_buffer).unwrap();
-        self.sp = u8::from_le_bytes(u8_buffer);
-        cursor.read_exact(&mut u8_buffer).unwrap();
-        self.dt = u8::from_le_bytes(u8_buffer);
-        cursor.read_exact(&mut u8_buffer).unwrap();
-        self.st = u8::from_le_bytes(u8_buffer);
-        cursor.read_exact(&mut keys_buffer).unwrap();
-        self.keys.clone_from_slice(
-            keys_buffer
-                .map(|v| if v == 1 { true } else { false })
-                .iter()
-                .as_slice(),
-        );
-        cursor.read_exact(&mut u8_buffer).unwrap();
-        self.last_key = u8::from_le_bytes(u8_buffer);
-    }
 }
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -361,6 +361,25 @@ impl Chip8Neo {
                 self.vram[addr] ^= 1
             }
         }
+    }
+}
+
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
+impl Chip8Neo {
+    pub fn load_rom_ws(&mut self, rom: &[u8]) {
+        self.load_rom(rom)
+    }
+
+    pub fn reset_ws(&mut self) {
+        self.reset()
+    }
+
+    pub fn reset_hard_ws(&mut self) {
+        self.reset_hard()
+    }
+
+    pub fn clock_ws(&mut self) {
+        self.clock()
     }
 }
 
