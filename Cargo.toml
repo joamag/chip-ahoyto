@@ -10,8 +10,12 @@ edition = "2018"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+wasm = ["wasm-bindgen"]
+
 [dependencies]
 getrandom = { version = "0.2", features = ["js"] }
+wasm-bindgen = { version = "0.2", optional = true }
 
 [profile.release]
 debug = false

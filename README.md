@@ -23,11 +23,29 @@ The work of this emulator was inspired/started by [jc-chip8](https://github.com/
 * Full compliant with test CHIP-8 ROMs
 * RAM snapshot saving and loading
 
+## Build
+
+### WASM for Node.js
+
+```bash
+cargo install wasm-pack
+wasm-pack build --release --target=nodejs -- --features wasm
+```
+
+### WASM for Web
+
+```bash
+cargo install wasm-pack
+wasm-pack build --release --target=web --out-dir=examples/web -- --features wasm
+cd examples/web
+python3 -m http.server
+```
+
 ## Reason
 
 And... yes this is the real inspiration behind the emulator's name:
 
-<img src="resources/chips-ahoy.jpeg" alt="Chips Ahoy" width="200" />
+<img src="res/chips-ahoy.jpeg" alt="Chips Ahoy" width="200" />
 
 ## Inspiration
 

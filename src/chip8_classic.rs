@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::{chip8::Chip8, util::random};
 
-#[cfg(feature = "web")]
+#[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
 /// The width of the screen in pixels.
@@ -50,7 +50,7 @@ static FONT_SET: [u8; 80] = [
     0xf0, 0x80, 0xf0, 0x80, 0x80, // F
 ];
 
-#[cfg_attr(feature = "web", wasm_bindgen)]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Chip8Classic {
     vram: [u8; SCREEN_PIXEL_WIDTH * SCREEN_PIXEL_HEIGHT],
     ram: [u8; RAM_SIZE],
@@ -66,7 +66,6 @@ pub struct Chip8Classic {
     keys: [bool; NUM_KEYS],
 }
 
-#[cfg_attr(feature = "web", wasm_bindgen)]
 impl Chip8 for Chip8Classic {
     fn name(&self) -> &str {
         "classic"
@@ -152,8 +151,9 @@ impl Chip8 for Chip8Classic {
     }
 }
 
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Classic {
-    #[cfg_attr(feature = "web", wasm_bindgen(constructor))]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new() -> Chip8Classic {
         let mut chip8 = Chip8Classic {
             vram: [0u8; SCREEN_PIXEL_WIDTH * SCREEN_PIXEL_HEIGHT],
