@@ -7,7 +7,7 @@ use sdl2::{
     keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
     surface::Surface, ttf::Hinting,
 };
-use std::path::Path;
+use std::{env::args, path::Path};
 
 // handle the annoying Rect i32
 macro_rules! rect(
@@ -84,7 +84,7 @@ impl BeepCallback {
 }
 
 pub struct State {
-    system: Chip8Neo,
+    system: Box<dyn Chip8>,
     logic_frequency: u32,
     visual_frequency: u32,
     idle_frequency: u32,
@@ -95,7 +95,7 @@ pub struct State {
     beep_ticks: u32,
     pixel_color: [u8; 3],
     diag_color: [u8; 3],
-    pixel_color_index: u32,
+    pixel_color_index: usize,
     title: String,
     rom_name: String,
     rom_loaded: bool,
@@ -109,10 +109,26 @@ impl State {
 }
 
 fn main() {
+    let system: Box<dyn Chip8>;
+
+    // uses the command line arguments to create the proper
+    // engine for the processing
+    let args: Vec<String> = args().collect();
+    if args.len() > 1 {
+        let engine = &args[1];
+        match engine.as_str() {
+            "neo" => system = Box::new(Chip8Neo::new()),
+            "classic" => system = Box::new(Chip8Classic::new()),
+            _ => panic!("invalid system engine name '{}'", engine),
+        }
+    } else {
+        system = Box::new(Chip8Neo::new());
+    }
+
     // builds the CHIP-8 machine, this is the instance that
     // is going to logically represent the CHIP-8
     let mut state = State {
-        system: Chip8Neo::new(),
+        system: system,
         logic_frequency: LOGIC_HZ,
         visual_frequency: VISUAL_HZ,
         idle_frequency: IDLE_HZ,
@@ -250,10 +266,10 @@ fn main() {
                     keycode: Some(Keycode::P),
                     ..
                 } => {
-                    state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
-                    state.pixel_color = COLORS[state.pixel_color_index as usize];
-                    let diag_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
-                    state.diag_color = COLORS[diag_color_index as usize];
+                    state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len() as usize;
+                    state.pixel_color = COLORS[state.pixel_color_index];
+                    let diag_color_index = (state.pixel_color_index + 1) % COLORS.len() as usize;
+                    state.diag_color = COLORS[diag_color_index];
                     None
                 }
 

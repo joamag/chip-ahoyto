@@ -6,7 +6,7 @@ use time::Instant;
 const CYCLE_COUNT: u64 = 5_000_000_000;
 
 fn main() {
-    let chips: Vec<Box<dyn Chip8>> = vec![Box::new(Chip8Classic::new()), Box::new(Chip8Neo::new())];
+    let chips: [Box<dyn Chip8>; 2] = [Box::new(Chip8Classic::new()), Box::new(Chip8Neo::new())];
 
     let rom_path = "./resources/pong.ch8";
     let rom = read_file(rom_path);
