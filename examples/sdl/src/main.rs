@@ -160,7 +160,7 @@ fn main() {
     // loads the font that is going to be used in the drawing
     // process cycle if necessary
     let mut font = ttf_context
-        .load_font(format!("./resources/{}", FONT_NAME), FONT_SIZE)
+        .load_font(format!("./res/{}", FONT_NAME), FONT_SIZE)
         .unwrap();
     font.set_style(sdl2::ttf::FontStyle::BOLD);
     font.set_hinting(Hinting::Light);
@@ -181,7 +181,7 @@ fn main() {
 
     // updates the icon of the window to reflect the image
     // and style of the emulator
-    let surface = Surface::from_file("./resources/icon.png").unwrap();
+    let surface = Surface::from_file("./res/icon.png").unwrap();
     window.set_icon(&surface);
 
     let mut canvas = window.into_canvas().accelerated().build().unwrap();

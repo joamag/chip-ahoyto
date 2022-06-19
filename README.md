@@ -45,7 +45,7 @@ python3 -m http.server
 
 And... yes this is the real inspiration behind the emulator's name:
 
-<img src="resources/chips-ahoy.jpeg" alt="Chips Ahoy" width="200" />
+<img src="res/chips-ahoy.jpeg" alt="Chips Ahoy" width="200" />
 
 ## Inspiration
 

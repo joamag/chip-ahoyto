@@ -32,14 +32,18 @@ export class Chip8Neo {
 /**
 */
   clock_ws(): void;
+/**
+*/
+  clock_dt_ws(): void;
+/**
+*/
+  clock_st_ws(): void;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly __wbg_chip8classic_free: (a: number) => void;
-  readonly chip8classic_new: () => number;
   readonly __wbg_chip8neo_free: (a: number) => void;
   readonly chip8neo_new: () => number;
   readonly chip8neo_load_rom_ws: (a: number, b: number, c: number) => void;
@@ -47,6 +51,10 @@ export interface InitOutput {
   readonly chip8neo_reset_hard_ws: (a: number) => void;
   readonly chip8neo_vram_ws: (a: number, b: number) => void;
   readonly chip8neo_clock_ws: (a: number) => void;
+  readonly chip8neo_clock_dt_ws: (a: number) => void;
+  readonly chip8neo_clock_st_ws: (a: number) => void;
+  readonly __wbg_chip8classic_free: (a: number) => void;
+  readonly chip8classic_new: () => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number) => void;

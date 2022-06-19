@@ -6,7 +6,14 @@ import {
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
 
+const LOGIC_HZ = 480;
+const TIMER_HZ = 60;
+const VISUAL_HZ = 60;
+
+const ROM = "res/roms/pong.ch8";
+
 const state = {
+    chip8: null,
     canvas: null,
     canvasScaled: null,
     canvasCtx: null,
@@ -20,9 +27,9 @@ const state = {
     // so that the global symbols become available
     await wasm();
 
-    const ROM = "roms/ibm_logo.ch8";
-
-    console.info("System Loaded!");
+    // initializes the canvas sub-sytem
+    initCanvas();
+    registerDrop();
 
     // loads the ROM data and converts it into the
     // target u8 array bufffer
@@ -32,24 +39,57 @@ const state = {
     const data = new Uint8Array(arrayBuffer);
 
     // creates the CHIP-8 instance and resets it
-    const chip8 = new Chip8Neo();
-    chip8.reset_hard_ws();
-    chip8.load_rom_ws(data);
+    state.chip8 = new Chip8Neo();
+    state.chip8.reset_hard_ws();
+    state.chip8.load_rom_ws(data);
 
-    console.info(`ROM Loaded ${ROM}`);
+    // runs the sequence as an infinite loop, running
+    // the associated CPU cycles accordingly
+    while (true) {        
+        const ratioLogic = LOGIC_HZ / VISUAL_HZ;
+        for(let i = 0; i < ratioLogic; i++) {
+            state.chip8.clock_ws();
+        }
 
-    initCanvas();
+        const ratioTimer = TIMER_HZ / VISUAL_HZ;
+        for(let i = 0; i < ratioTimer; i++) {
+            state.chip8.clock_dt_ws();
+            state.chip8.clock_st_ws();
+        }
 
-    while (true) {
-        chip8.clock_ws();
-        updateCanvas(chip8.vram_ws());
+        // updates the canvas object with the new
+        // visual information comming in
+        updateCanvas(state.chip8.vram_ws());
         
-        // hack
+        // @todo hack
         await new Promise((resolve, reject) => {
-            setTimeout(resolve, 100);
+            setTimeout(resolve, 1000 / VISUAL_HZ);
         })
     }
 })();
+
+const registerDrop = () => {
+    document.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!e.dataTransfer.files) return;
+
+        const file = e.dataTransfer.files[0];
+
+        const arrayBuffer = await file.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+
+        state.chip8.reset_hard_ws();
+        state.chip8.load_rom_ws(data);
+    });
+    document.addEventListener("dragover", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.info("draging over");
+    });
+}
 
 const initCanvas = () => {
     // initializes the off-screen canvas that is going to be

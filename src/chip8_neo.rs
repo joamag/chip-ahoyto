@@ -385,6 +385,14 @@ impl Chip8Neo {
     pub fn clock_ws(&mut self) {
         self.clock()
     }
+
+    pub fn clock_dt_ws(&mut self) {
+        self.clock_dt()
+    }
+
+    pub fn clock_st_ws(&mut self) {
+        self.clock_st()
+    }
 }
 
 impl Default for Chip8Neo {
