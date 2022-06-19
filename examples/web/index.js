@@ -36,6 +36,7 @@ const ROM = "res/roms/pong.ch8";
 
 const state = {
     chip8: null,
+    logic_frequency: LOGIC_HZ,
     canvas: null,
     canvasScaled: null,
     canvasCtx: null,
@@ -69,7 +70,7 @@ const state = {
     // runs the sequence as an infinite loop, running
     // the associated CPU cycles accordingly
     while (true) {        
-        const ratioLogic = LOGIC_HZ / VISUAL_HZ;
+        const ratioLogic = state.logic_frequency / VISUAL_HZ;
         for(let i = 0; i < ratioLogic; i++) {
             state.chip8.clock_ws();
         }
@@ -99,13 +100,13 @@ const register = () => {
 
 const registerDrop = () => {
     document.addEventListener("drop", async (event) => {
+        if (!event.dataTransfer.files || event.dataTransfer.files.length === 0) return;
+
         event.preventDefault();
         event.stopPropagation();
 
         const overlay = document.getElementById("overlay");
         overlay.classList.remove("visible");
-
-        if (!event.dataTransfer.files) return;
 
         const file = event.dataTransfer.files[0];
 
@@ -116,16 +117,20 @@ const registerDrop = () => {
         state.chip8.load_rom_ws(data);
     });
     document.addEventListener("dragover", async (event) => {
+        if (!event.dataTransfer.items || event.dataTransfer.items[0].type) return;
+
         event.preventDefault();
 
         const overlay = document.getElementById("overlay");
         overlay.classList.add("visible");
     });
     document.addEventListener("dragenter", async (event) => {
+        if (!event.dataTransfer.items || event.dataTransfer.items[0].type) return;
         const overlay = document.getElementById("overlay");
         overlay.classList.add("visible");
     });
     document.addEventListener("dragleave", async (event) => {
+        if (!event.dataTransfer.items || event.dataTransfer.items[0].type) return;
         const overlay = document.getElementById("overlay");
         overlay.classList.remove("visible");
     });
@@ -141,11 +146,11 @@ const registerKeys = () => {
 
         switch(event.key) {
             case "+":
-                LOGIC_HZ += 60;
+                setLogicFrequency(state.logic_frequency + 60);
                 break;
 
             case "-":
-                LOGIC_HZ += 60;
+                setLogicFrequency(state.logic_frequency - 60);
                 break;
         }
     });
@@ -159,13 +164,19 @@ const registerKeys = () => {
     });
 }
 
+const setLogicFrequency = (value) => {
+    value = Math.max(value, 0);
+    state.logic_frequency = value;
+    document.getElementById("logic-frequency").textContent = value;
+}
+
 const init = () => {
     initCanvas();
 }
 
 const initCanvas = () => {
     // initializes the off-screen canvas that is going to be
-    // used in the drawing proces
+    // used in the drawing process
     state.canvas = document.createElement("canvas");
     state.canvas.width = DISPLAY_WIDTH;
     state.canvas.height = DISPLAY_HEIGHT;
