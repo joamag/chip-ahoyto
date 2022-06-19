@@ -29,22 +29,37 @@ body {
 
 p {
     font-size: 18px;
-    line-height: 22px;
+    line-height: 24px;
+    margin: 12px 0px 12px 0px;
 }
 
 .main {
     display: flex;
 }
 
+@media only screen and (max-width: 1120px) {
+    .main {
+        flex-direction: column;
+    }    
+}
+
 .main > .side-right {
     flex: 1 0;
     text-align: center;
-    margin-top: 30px;
 }
 
 .main > .side-right .canvas {
+    margin-top: 72px;
     border: 2px solid #50cb93;
-    padding: 6px 6px 6px 6px;
+    padding: 8px 8px 8px 8px;
+    background-color: #1b1a17;
+    max-width: 100%;
+}
+
+@media only screen and (max-width: 1120px) {
+    .main > .side-right .canvas {
+        margin-top: 12px;
+    }    
 }
 
 .main > .side-right .canvas.fullscreen {
@@ -65,7 +80,15 @@ p {
 .main > .side-left {
     flex: 0 1;
     min-width: 580px;
+    max-width: 100%;
     padding: 0px 24px 0px 24px;
+}
+
+@media only screen and (max-width: 1120px) {
+    .main > .side-left {
+        min-width: unset;
+        padding: 0px 0px 0px 0px;
+    }    
 }
 
 .main > .side-left .logo-image {
@@ -76,7 +99,7 @@ p {
 .main > .side-left .separator {
     height: 2px;
     background: #ffffff;
-    margin: 28px 0px 28px 0px;
+    margin: 22px 0px 22px 0px;
 }
 
 .main > .side-left .diag {
@@ -90,9 +113,17 @@ p {
     margin-top: 12px;
 }
 
+.main > .side-left .diag > dt:first-of-type {
+    margin-top: 0px;
+}
+
 .main > .side-left .diag > dd {
     margin-top: 12px;
     float: right;
+}
+
+.main > .side-left .diag > dd:first-of-type {
+    margin-top: 0px;
 }
 
 .main > .side-left .diag::after {
@@ -115,16 +146,25 @@ p {
 .toast {
     position: absolute;
     left: 50%;
-    padding: 16px;
-    top: 32px;
+    padding: 12px 18px 12px 18px;
     background-color: #2a9d8f;
-    font-size: 22px;
+    font-size: 20px;
+    line-height: 22px;
     border-radius: 4px 4px 4px 4px;
     transform: translate(-50%, 0%);
+    cursor: pointer;
+    transition: top 0.5s cubic-bezier(0.075, 0.82, 0.165, 1), opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+    opacity: 0.0;
+    top: -40px;
 }
 
 .toast.error {
     background-color: #e63946;
+}
+
+.toast.visible {
+    top: 24px;
+    opacity: 1.0;
 }
 
 .overlay {
@@ -169,8 +209,8 @@ p {
 }
 
 .tiny-button.padded {
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 .tiny-button:hover {

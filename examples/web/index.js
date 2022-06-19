@@ -6,7 +6,7 @@ import {
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
 
-let LOGIC_HZ = 480;
+const LOGIC_HZ = 480;
 const TIMER_HZ = 60;
 const VISUAL_HZ = 60;
 
@@ -44,7 +44,8 @@ const state = {
     canvasCtx: null,
     canvasScaledCtx: null,
     image: null,
-    videoBuff: null
+    videoBuff: null,
+    toastTimeout: null
 };
 
 (async () => {
@@ -94,7 +95,7 @@ const state = {
         // @todo need to define target time for draw
         await new Promise((resolve, reject) => {
             setTimeout(resolve, 1000 / VISUAL_HZ);
-        })
+        });
     }
 })();
 
@@ -102,7 +103,8 @@ const register = () => {
     registerDrop();
     registerKeys();
     registerButtons();
-}
+    registerToast();
+};
 
 const registerDrop = () => {
     document.addEventListener("drop", async (event) => {
@@ -117,7 +119,7 @@ const registerDrop = () => {
         const file = event.dataTransfer.files[0];
 
         if (!file.name.endsWith(".ch8")) {
-            alert("This is probably not a CHIP-8 ROM file");
+            showToast("This is probably not a CHIP-8 ROM file!", true);
             return;
         }
 
@@ -128,6 +130,8 @@ const registerDrop = () => {
         state.chip8.load_rom_ws(data);
         
         setRom(file.name, file.size);
+
+        showToast(`Loaded ${file.name} ROM successfully!`);
     });
     document.addEventListener("dragover", async (event) => {
         if (!event.dataTransfer.items || event.dataTransfer.items[0].type) return;
@@ -175,7 +179,7 @@ const registerKeys = () => {
             return;
         }
     });
-}
+};
 
 const registerButtons = () => {
     const logicFrequencyPlus = document.getElementById("logic-frequency-plus");
@@ -187,6 +191,26 @@ const registerButtons = () => {
     logicFrequencyMinus.addEventListener("click", (event) => {
         setLogicFrequency(state.logicFrequency - 60);
     });
+};
+
+const registerToast = () => {
+    const toast = document.getElementById("toast");
+    toast.addEventListener("click", (event) => {
+        toast.classList.remove("visible");
+    });
+};
+
+const showToast = async (message, error = false, timeout = 3500) => {
+    const toast = document.getElementById("toast");
+    toast.classList.remove("error");
+    if (error) toast.classList.add("error");
+    toast.classList.add("visible");
+    toast.textContent = message;
+    if (state.toastTimeout) clearTimeout(state.toastTimeout);
+    state.toastTimeout = setTimeout(() => {
+        toast.classList.remove("visible");
+        state.toastTimeout = null;
+    }, timeout);
 }
 
 const setRom = (name, size) => {
@@ -194,17 +218,18 @@ const setRom = (name, size) => {
     state.romSize = size;
     document.getElementById("rom-name").textContent = name;
     document.getElementById("rom-size").textContent = String(size);
-}
+};
 
 const setLogicFrequency = (value) => {
+    if (value < 0) showToast("Invalid frequency value!", true);
     value = Math.max(value, 0);
     state.logicFrequency = value;
     document.getElementById("logic-frequency").textContent = value;
-}
+};
 
 const init = () => {
     initCanvas();
-}
+};
 
 const initCanvas = () => {
     // initializes the off-screen canvas that is going to be
