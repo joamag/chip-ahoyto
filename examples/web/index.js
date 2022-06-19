@@ -6,9 +6,28 @@ import {
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
 
-const LOGIC_HZ = 480;
+let LOGIC_HZ = 480;
 const TIMER_HZ = 60;
 const VISUAL_HZ = 60;
+
+const KEYS = {
+    "1": 0x01,
+    "2": 0x02,
+    "3": 0x03,
+    "4": 0x0c,
+    "q": 0x04,
+    "w": 0x05,
+    "e": 0x06,
+    "r": 0x0d,
+    "a": 0x07,
+    "s": 0x08,
+    "d": 0x09,
+    "f": 0x0e,
+    "z": 0x0a,
+    "x": 0x00,
+    "c": 0x0b,
+    "v": 0x0f
+}
 
 const ROM = "res/roms/pong.ch8";
 
@@ -27,9 +46,10 @@ const state = {
     // so that the global symbols become available
     await wasm();
 
-    // initializes the canvas sub-sytem
-    initCanvas();
-    registerDrop();
+    // initializes the complete set of sub-systems
+    // and registers the event handlers
+    init();
+    register();
 
     // loads the ROM data and converts it into the
     // target u8 array bufffer
@@ -69,14 +89,19 @@ const state = {
     }
 })();
 
+const register = () => {
+    registerDrop();
+    registerKeys();
+}
+
 const registerDrop = () => {
-    document.addEventListener("drop", async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    document.addEventListener("drop", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
 
-        if (!e.dataTransfer.files) return;
+        if (!event.dataTransfer.files) return;
 
-        const file = e.dataTransfer.files[0];
+        const file = event.dataTransfer.files[0];
 
         const arrayBuffer = await file.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);
@@ -84,12 +109,44 @@ const registerDrop = () => {
         state.chip8.reset_hard_ws();
         state.chip8.load_rom_ws(data);
     });
-    document.addEventListener("dragover", async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    document.addEventListener("dragover", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
 
         console.info("draging over");
     });
+};
+
+const registerKeys = () => {
+    document.addEventListener("keydown", (event) => {
+        const keyCode = KEYS[event.key];
+        if (keyCode) {
+            state.chip8.key_press_ws(keyCode);
+            return;
+        }
+
+        switch(event.key) {
+            case "+":
+                LOGIC_HZ += 60;
+                break;
+
+            case "-":
+                LOGIC_HZ += 60;
+                break;
+        }
+    });
+
+    document.addEventListener("keyup", (event) => {
+        const keyCode = KEYS[event.key];
+        if (keyCode) {
+            state.chip8.key_lift_ws(keyCode);
+            return;
+        }
+    });
+}
+
+const init = () => {
+    initCanvas();
 }
 
 const initCanvas = () => {
@@ -108,7 +165,7 @@ const initCanvas = () => {
 
     state.image = state.canvasCtx.createImageData(state.canvas.width, state.canvas.height);
     state.videoBuff = new DataView(state.image.data.buffer);
-}
+};
 
 const updateCanvas = (pixels) => {
     for (let i = 0; i < pixels.length; i++) {
@@ -116,4 +173,4 @@ const updateCanvas = (pixels) => {
     }
     state.canvasCtx.putImageData(state.image, 0, 0);
     state.canvasScaledCtx.drawImage(state.canvas, 0, 0);
-}
+};

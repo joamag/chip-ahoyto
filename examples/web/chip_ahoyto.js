@@ -180,6 +180,18 @@ export class Chip8Neo {
     clock_st_ws() {
         wasm.chip8neo_clock_st_ws(this.ptr);
     }
+    /**
+    * @param {number} key
+    */
+    key_press_ws(key) {
+        wasm.chip8neo_key_press_ws(this.ptr, key);
+    }
+    /**
+    * @param {number} key
+    */
+    key_lift_ws(key) {
+        wasm.chip8neo_key_lift_ws(this.ptr, key);
+    }
 }
 
 async function load(module, imports) {

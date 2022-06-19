@@ -393,6 +393,14 @@ impl Chip8Neo {
     pub fn clock_st_ws(&mut self) {
         self.clock_st()
     }
+
+    pub fn key_press_ws(&mut self, key: u8) {
+        self.key_press(key)
+    }
+
+    pub fn key_lift_ws(&mut self, key: u8) {
+        self.key_lift(key)
+    }
 }
 
 impl Default for Chip8Neo {

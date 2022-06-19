@@ -38,6 +38,14 @@ export class Chip8Neo {
 /**
 */
   clock_st_ws(): void;
+/**
+* @param {number} key
+*/
+  key_press_ws(key: number): void;
+/**
+* @param {number} key
+*/
+  key_lift_ws(key: number): void;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -53,6 +61,8 @@ export interface InitOutput {
   readonly chip8neo_clock_ws: (a: number) => void;
   readonly chip8neo_clock_dt_ws: (a: number) => void;
   readonly chip8neo_clock_st_ws: (a: number) => void;
+  readonly chip8neo_key_press_ws: (a: number, b: number) => void;
+  readonly chip8neo_key_lift_ws: (a: number, b: number) => void;
   readonly __wbg_chip8classic_free: (a: number) => void;
   readonly chip8classic_new: () => number;
   readonly __wbindgen_malloc: (a: number) => number;
