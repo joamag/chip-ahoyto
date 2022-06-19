@@ -63,7 +63,8 @@ p {
 }
 
 .main > .side-right .canvas.fullscreen {
-    padding: 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
     border: none;
     position: absolute;
     z-index: 10;
@@ -71,10 +72,6 @@ p {
     height: 100%;
     left: 0px;
     top: 0px;
-}
-
-.main > .side-right .canvas-buttons {
-    margin-top: 12px;
 }
 
 .main > .side-left {

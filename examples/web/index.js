@@ -161,6 +161,7 @@ const registerKeys = () => {
             return;
         }
 
+        
         switch(event.key) {
             case "+":
                 setLogicFrequency(state.logicFrequency + 60);
@@ -168,6 +169,11 @@ const registerKeys = () => {
 
             case "-":
                 setLogicFrequency(state.logicFrequency - 60);
+                break;
+
+            case "Escape":
+                const chipCanvas = document.getElementById("chip-canvas");
+                chipCanvas.classList.remove("fullscreen");
                 break;
         }
     });
@@ -190,6 +196,32 @@ const registerButtons = () => {
     const logicFrequencyMinus = document.getElementById("logic-frequency-minus");
     logicFrequencyMinus.addEventListener("click", (event) => {
         setLogicFrequency(state.logicFrequency - 60);
+    });
+
+    const buttonBenchmark = document.getElementById("button-benchmark");
+    buttonBenchmark.addEventListener("click", (event) => {
+        console.info("Going to benchmark stuff");
+    });
+
+    const buttonFullscreen = document.getElementById("button-fullscreen");
+    buttonFullscreen.addEventListener("click", (event) => {
+        const chipCanvas = document.getElementById("chip-canvas");
+        chipCanvas.classList.add("fullscreen");
+    });
+
+    const buttonInformation = document.getElementById("button-information");
+    buttonInformation.addEventListener("click", (event) => {
+        const sectionDiag = document.getElementById("section-diag");
+        const separatorDiag = document.getElementById("separator-diag");
+        if (buttonInformation.classList.contains("enabled")) {
+            sectionDiag.style.display = "none";
+            separatorDiag.style.display = "none";
+            buttonInformation.classList.remove("enabled");
+        } else {
+            sectionDiag.style.display = "block";
+            separatorDiag.style.display = "block";
+            buttonInformation.classList.add("enabled");
+        }
     });
 };
 

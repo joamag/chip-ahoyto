@@ -10,14 +10,6 @@
         <div class="main">
             <div class="side-right">
                 <canvas class="canvas" id="chip-canvas" width="640" height="320"></canvas>
-                <div class="canvas-buttons">
-                    <span class="magnify-button">
-                        <img src="res/maximise.svg" width="20" />
-                    </span>
-                    <span class="magnify-button">
-                        <img src="res/pause.svg" width="20" />
-                    </span>
-                </div>
             </div>
             <div class="side-left">
                 <h1>CHIP-Ahoyto <img class="logo-image" src="res/thunder.png" /></h1>
@@ -26,7 +18,7 @@
                 <p>You can check the source code of it at <a href="https://gitlab.stage.hive.pt/joamag/chip-ahoyto" target="_blank">GitLab</a>.</p>
                 <p>TIP: Drag and Drop ROM files to the Browser to load the ROM.</p>
                 <div class="separator"></div>
-                <div class="section">
+                <div id="section-diag" class="section">
                     <dl class="diag">
                         <dt>Engine</dt>
                         <dd>NEO</dd>
@@ -43,10 +35,11 @@
                         <dd>60 fps</dd>
                     </dl>
                 </div>
-                <div class="separator"></div>
+                <div id="separator-diag" class="separator"></div>
                 <div class="section">
-                    <span class="tiny-button tiny-button-left border padded">Benchmark</span>
-                    <span class="tiny-button tiny-button-left padded enabled">Information</span>
+                    <span id="button-benchmark" class="tiny-button tiny-button-left border padded">Benchmark</span>
+                    <span id="button-fullscreen" class="tiny-button tiny-button-left border padded">Fullscreen</span>
+                    <span id="button-information" class="tiny-button tiny-button-left padded enabled">Information</span>
                 </div>
             </div>
         </div>
