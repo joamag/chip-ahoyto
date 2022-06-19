@@ -11,13 +11,20 @@
                 <canvas class="canvas" id="chip-canvas" width="640" height="320"></canvas>
             </div>
             <div class="side-left">
-                <h1>CHIP-Ahoyto</h1>
+                <h1>CHIP-Ahoyto <img class="logo-image" src="res/thunder.png" /></h1>
                 <p>This is a <a href="https://en.wikipedia.org/wiki/CHIP-8" target="_blank">CHIP-8</a> emulator built using the rust programming language and is running inside this browser with the help of <a href="https://webassembly.org/" target="_blank">WebAssembly</a>.</p>
                 <p>You can check the source code of it at <a href="https://gitlab.stage.hive.pt/joamag/chip-ahoyto" target="_blank">GitLab</a>.</p>
             </div>
         </div>
         <div id="overlay" class="overlay">
-            Drag to load ROM <span id="rom-name"></span>
+            <div class="overlay-container">
+                <div class="overlay-text">
+                    Drag to load ROM <span id="rom-name"></span>
+                </div>
+                <div class="overlay-image">
+                    <img src="res/sunglasses.png" />
+                </div>
+            </div>
         </div>
         <script type="module" src="index.js"></script>
     </body>
