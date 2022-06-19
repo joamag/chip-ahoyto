@@ -261,6 +261,7 @@ impl Chip8Neo {
         self.load_font(0, &FONT_SET);
     }
 
+    #[inline(always)]
     fn clear_screen(&mut self) {
         self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT];
     }
