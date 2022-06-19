@@ -298,6 +298,7 @@ impl Chip8 for Chip8Neo {
         self.keys.clone_from_slice(
             keys_buffer
                 .map(|v| if v == 1 { true } else { false })
+                .iter()
                 .as_slice(),
         );
         cursor.read_exact(&mut u8_buffer).unwrap();
