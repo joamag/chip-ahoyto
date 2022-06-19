@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
 
+* {
+    box-sizing: border-box;
+}
+
 a {
     text-decoration: none;
     border-bottom: 2px dotted #ffffff;
@@ -45,7 +49,6 @@ p {
 
 .main > .side-left {
     flex: 0 1;
-    box-sizing: border-box;
     min-width: 580px;
     padding: 0px 12px 0px 12px;
 }
@@ -83,15 +86,28 @@ p {
     clear: both;
 }
 
+.footer {
+    position: absolute;
+    width: 100%;
+    bottom: 22px;
+    left: 0px;
+    padding: 0px 22px 0px 22px;
+    text-align: center;;
+}
+
 .toast {
     position: absolute;
     left: 50%;
     padding: 16px;
     top: 32px;
-    background: #e63946;
+    background-color: #2a9d8f;
     font-size: 22px;
     border-radius: 4px 4px 4px 4px;
     transform: translate(-50%, 0%);
+}
+
+.toast.error {
+    background-color: #e63946;
 }
 
 .overlay {

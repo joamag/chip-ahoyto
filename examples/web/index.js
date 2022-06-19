@@ -32,7 +32,9 @@ const KEYS = {
     "v": 0x0f
 }
 
-const ROM = "res/roms/pong.ch8";
+const ROM_PATH = "res/roms/pong.ch8";
+
+const ROM_NAME = "pong.ch8";
 
 const state = {
     chip8: null,
@@ -57,10 +59,13 @@ const state = {
 
     // loads the ROM data and converts it into the
     // target u8 array buffer
-    const response = await fetch(ROM);
+    const response = await fetch(ROM_PATH);
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     const data = new Uint8Array(arrayBuffer);
+
+    // updates the ROM information on display
+    setRom(ROM_NAME, data.length);
 
     // creates the CHIP-8 instance and resets it
     state.chip8 = new Chip8Neo();
