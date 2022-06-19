@@ -208,13 +208,24 @@ p {
     user-select: none;
 }
 
+.tiny-button.border {
+    border: 1px solid #ffffff;
+}
+
 .tiny-button.padded {
-    padding-top: 4px;
-    padding-bottom: 4px;
+    padding: 4px 10px 4px 10px;
+}
+
+.tiny-button.enabled {
+    background-color: #50cb93;
 }
 
 .tiny-button:hover {
     background-color: #50cb93;
+}
+
+.tiny-button:active {
+    background-color: #2a9d8f;
 }
 
 .overlay.visible {
