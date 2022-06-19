@@ -7,6 +7,8 @@ pub trait Chip8 {
     fn sp(&self) -> u8;
     fn ram(&self) -> Vec<u8>;
     fn vram(&self) -> Vec<u8>;
+    fn get_state(&self) -> Vec<u8>;
+    fn set_state(&mut self, state: &[u8]);
     fn load_rom(&mut self, rom: &[u8]);
     fn clock(&mut self);
     fn clock_dt(&mut self);

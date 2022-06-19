@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, io::Cursor};
 
 use crate::{chip8::Chip8, util::random};
 
@@ -111,6 +111,12 @@ impl Chip8 for Chip8Classic {
     fn vram(&self) -> Vec<u8> {
         self.vram.to_vec()
     }
+
+    fn get_state(&self) -> Vec<u8> {
+        Vec::new()
+    }
+
+    fn set_state(&mut self, state: &[u8]) {}
 
     fn load_rom(&mut self, rom: &[u8]) {
         self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(rom);

@@ -1,6 +1,6 @@
 use chip_ahoyto::{
     chip8::Chip8, chip8_classic::Chip8Classic, chip8_classic::SCREEN_PIXEL_HEIGHT,
-    chip8_classic::SCREEN_PIXEL_WIDTH, chip8_neo::Chip8Neo, util::read_file,
+    chip8_classic::SCREEN_PIXEL_WIDTH, chip8_neo::Chip8Neo, util::read_file, util::save_snapshot,
 };
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
@@ -255,6 +255,16 @@ fn main() {
                 }
 
                 Event::KeyDown {
+                    keycode: Some(Keycode::M),
+                    ..
+                } => {
+                    if state.rom_loaded {
+                        save_snapshot(format!("{}.sv8", state.rom_name).as_str(), &state.system);
+                    }
+                    None
+                }
+
+                Event::KeyDown {
                     keycode: Some(Keycode::O),
                     ..
                 } => {
@@ -282,16 +292,31 @@ fn main() {
                 }
 
                 Event::DropFile { filename, .. } => {
-                    let rom = read_file(&filename);
-                    let rom_name = Path::new(&filename).file_name().unwrap().to_str().unwrap();
+                    if filename.ends_with(".sv8") {
+                        let system_state = read_file(&filename);
 
-                    state.system.reset_hard();
-                    state.system.load_rom(&rom);
+                        state.system.set_state(system_state.as_slice());
 
-                    state.rom_name = String::from(rom_name);
-                    state.rom_loaded = true;
+                        state.rom_name = String::from(
+                            Path::new(&filename).file_stem().unwrap().to_str().unwrap(),
+                        );
+                        state.rom_loaded = true;
+                    } else {
+                        let rom = read_file(&filename);
 
-                    state.set_title(&format!("{} [Currently playing: {}]", TITLE, rom_name));
+                        state.system.reset_hard();
+                        state.system.load_rom(&rom);
+
+                        state.rom_name = String::from(
+                            Path::new(&filename).file_name().unwrap().to_str().unwrap(),
+                        );
+                        state.rom_loaded = true;
+                    }
+
+                    state.set_title(&format!(
+                        "{} [Currently playing: {}]",
+                        TITLE, state.rom_name
+                    ));
 
                     None
                 }

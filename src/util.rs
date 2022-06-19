@@ -22,9 +22,13 @@ pub fn random() -> u8 {
 
 /// Saves a snapshot image of the provided machine
 /// so that it can be latter loaded and RAM restored.
-pub fn save_snapshot(chip8: &Box<dyn Chip8>) {
-    let mut file = File::create("out.snp").unwrap();
-    file.write(&chip8.pc().to_le_bytes()).unwrap();
-    //file.write(&chip8.ram().tr().).unwrap();
-    //@todo need to serialize the rest of the machine
+pub fn save_snapshot(name: &str, chip8: &Box<dyn Chip8>) {
+    let mut file = File::create(name).unwrap();
+    let state = chip8.get_state();
+    let buffer = state.as_slice();
+    file.write(buffer).unwrap();
+}
+
+pub fn take_snapshot(chip8: &Box<dyn Chip8>) {
+    save_snapshot("out.sv8", chip8);
 }
