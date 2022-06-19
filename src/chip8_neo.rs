@@ -112,7 +112,7 @@ impl Chip8Neo {
             0x4000 => self.pc += if self.regs[x] != byte { 2 } else { 0 },
             0x5000 => self.pc += if self.regs[x] == self.regs[y] { 2 } else { 0 },
             0x6000 => self.regs[x] = byte,
-            0x7000 => self.regs[x] += byte,
+            0x7000 => self.regs[x] = self.regs[x].wrapping_add(byte),
             0x8000 => match nibble {
                 0x0 => self.regs[x] = self.regs[y],
                 0x1 => self.regs[x] |= self.regs[y],
@@ -125,7 +125,7 @@ impl Chip8Neo {
                 }
                 0x5 => {
                     self.regs[0xf] = (self.regs[x] >= self.regs[y]) as u8;
-                    self.regs[x] = self.regs[x] - self.regs[y];
+                    self.regs[x] = self.regs[x].saturating_sub(self.regs[y]);
                 }
                 0x6 => {
                     self.regs[0xf] = self.regs[x] & 0x01;
@@ -133,7 +133,7 @@ impl Chip8Neo {
                 }
                 0x7 => {
                     self.regs[0xf] = (self.regs[y] >= self.regs[x]) as u8;
-                    self.regs[x] = self.regs[y] - self.regs[x];
+                    self.regs[x] = self.regs[y].saturating_sub(self.regs[x]);
                 }
                 0xe => {
                     self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
@@ -156,15 +156,16 @@ impl Chip8Neo {
                 0x07 => self.regs[x] = self.dt,
                 0x15 => self.dt = self.regs[x],
                 0x18 => self.st = self.regs[x],
+                0x29 => self.i = self.regs[x] as u16 * 5,
                 0x33 => {
                     self.ram[self.i as usize] = self.regs[x] / 100;
                     self.ram[self.i as usize + 1] = (self.regs[x] / 10) % 10;
                     self.ram[self.i as usize + 2] = self.regs[x] % 10;
                 }
-                0x55 => self.ram[self.i as usize..(self.i as usize + x)]
-                    .clone_from_slice(&self.regs[0..x]),
-                0x65 => self.regs[0..x]
-                    .clone_from_slice(&self.ram[self.i as usize..(self.i as usize + x)]),
+                0x55 => self.ram[self.i as usize..self.i as usize + x + 1]
+                    .clone_from_slice(&self.regs[0..x + 1]),
+                0x65 => self.regs[0..x + 1]
+                    .clone_from_slice(&self.ram[self.i as usize..self.i as usize + x + 1]),
                 _ => println!(
                     "unimplemented instruction 0xf000, instruction 0x{:04x}",
                     instruction
