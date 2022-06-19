@@ -61,7 +61,8 @@ const state = {
         // visual information comming in
         updateCanvas(state.chip8.vram_ws());
         
-        // @todo hack
+        // waits a little bit for the next frame to be draw
+        // @todo need to define target time for draw
         await new Promise((resolve, reject) => {
             setTimeout(resolve, 1000 / VISUAL_HZ);
         })
