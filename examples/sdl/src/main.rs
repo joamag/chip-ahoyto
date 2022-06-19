@@ -1,5 +1,6 @@
 use chip_ahoyto::{
-    chip8::Chip8, chip8::SCREEN_PIXEL_HEIGHT, chip8::SCREEN_PIXEL_WIDTH, util::read_file,
+    chip8::Chip8, chip8::SCREEN_PIXEL_HEIGHT, chip8::SCREEN_PIXEL_WIDTH, chip8_neo::Chip8Neo,
+    util::read_file,
 };
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
@@ -83,7 +84,7 @@ impl BeepCallback {
 }
 
 pub struct State {
-    system: Chip8,
+    system: Chip8Neo,
     logic_frequency: u32,
     visual_frequency: u32,
     idle_frequency: u32,
@@ -93,11 +94,12 @@ pub struct State {
     next_tick_time: u32,
     beep_ticks: u32,
     pixel_color: [u8; 3],
+    diag_color: [u8; 3],
     pixel_color_index: u32,
     title: String,
     rom_name: String,
     rom_loaded: bool,
-    diagnostics: bool,
+    diag: bool,
 }
 
 impl State {
@@ -110,7 +112,7 @@ fn main() {
     // builds the CHIP-8 machine, this is the instance that
     // is going to logically represent the CHIP-8
     let mut state = State {
-        system: Chip8::new(),
+        system: Chip8Neo::new(),
         logic_frequency: LOGIC_HZ,
         visual_frequency: VISUAL_HZ,
         idle_frequency: IDLE_HZ,
@@ -120,11 +122,12 @@ fn main() {
         next_tick_time: 0,
         beep_ticks: 0,
         pixel_color: COLORS[0],
+        diag_color: COLORS[1],
         pixel_color_index: 0,
         title: String::from(TITLE_INITIAL),
         rom_name: String::from("unloaded"),
         rom_loaded: false,
-        diagnostics: false,
+        diag: false,
     };
 
     // initializes the SDL sub-system
@@ -249,6 +252,8 @@ fn main() {
                 } => {
                     state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
                     state.pixel_color = COLORS[state.pixel_color_index as usize];
+                    let diag_color_index = (state.pixel_color_index + 1) % COLORS.len() as u32;
+                    state.diag_color = COLORS[diag_color_index as usize];
                     None
                 }
 
@@ -256,7 +261,7 @@ fn main() {
                     keycode: Some(Keycode::T),
                     ..
                 } => {
-                    state.diagnostics = !state.diagnostics;
+                    state.diag = !state.diag;
                     None
                 }
 
@@ -375,12 +380,13 @@ fn main() {
 
             // draws the diagnostics information to the canvas in case the
             // current state is requesting the display of it
-            if state.diagnostics {
+            if state.diag {
                 let x = 12;
                 let mut y = 12;
                 let padding = 2;
                 let text = format!(
-                    "ROM: {}\nFrequency: {} Hz\nDisplay: {} fps\nPC: 0x{:04x}\nSP: 0x{:04x}",
+                    "Engine: {}\nROM: {}\nFrequency: {} Hz\nDisplay: {} fps\nPC: 0x{:04x}\nSP: 0x{:04x}",
+                    state.system.name(),
                     state.rom_name,
                     state.logic_frequency,
                     state.visual_frequency,
@@ -393,9 +399,9 @@ fn main() {
                     let surface = font
                         .render(part)
                         .blended(Color::RGBA(
-                            state.pixel_color[0],
-                            state.pixel_color[1],
-                            state.pixel_color[2],
+                            state.diag_color[0],
+                            state.diag_color[1],
+                            state.diag_color[2],
                             255,
                         ))
                         .unwrap();
@@ -430,19 +436,19 @@ fn key_to_btn(keycode: Keycode) -> Option<u8> {
         Keycode::Num1 => Some(0x01),
         Keycode::Num2 => Some(0x02),
         Keycode::Num3 => Some(0x03),
-        Keycode::Num4 => Some(0x0C),
+        Keycode::Num4 => Some(0x0c),
         Keycode::Q => Some(0x04),
         Keycode::W => Some(0x05),
         Keycode::E => Some(0x06),
-        Keycode::R => Some(0x0D),
+        Keycode::R => Some(0x0d),
         Keycode::A => Some(0x07),
         Keycode::S => Some(0x08),
         Keycode::D => Some(0x09),
-        Keycode::F => Some(0x0E),
-        Keycode::Z => Some(0x0A),
+        Keycode::F => Some(0x0e),
+        Keycode::Z => Some(0x0a),
         Keycode::X => Some(0x00),
-        Keycode::C => Some(0x0B),
-        Keycode::V => Some(0x0F),
+        Keycode::C => Some(0x0b),
+        Keycode::V => Some(0x0f),
         _ => None,
     }
 }

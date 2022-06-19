@@ -18,7 +18,7 @@ fn benchmark_chip8() {
     println!("[Chip8] Running {} cycles for {}", cycles, rom_path);
 
     for _ in 0..CYCLE_COUNT {
-        chip8.tick();
+        chip8.clock();
     }
 
     let duration_s = instant.elapsed().as_seconds_f32();
@@ -33,8 +33,11 @@ fn benchmark_chip8() {
 
 fn benchmark_chip8_neo() {
     let rom_path = "./resources/pong.ch8";
+    let rom = read_file(rom_path);
 
     let mut chip8 = Chip8Neo::new();
+    chip8.reset_hard();
+    chip8.load_rom(&rom);
 
     let instant = Instant::now();
 
@@ -43,7 +46,7 @@ fn benchmark_chip8_neo() {
     println!("[Chip8Neo] Running {} cycles for {}", cycles, rom_path);
 
     for _ in 0..CYCLE_COUNT {
-        chip8.tick();
+        chip8.clock();
     }
 
     let duration_s = instant.elapsed().as_seconds_f32();
