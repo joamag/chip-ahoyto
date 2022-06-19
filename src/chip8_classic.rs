@@ -1,4 +1,4 @@
-use std::{fmt::Display, io::Cursor};
+use std::{fmt::Display};
 
 use crate::{chip8::Chip8, util::random};
 
@@ -113,10 +113,12 @@ impl Chip8 for Chip8Classic {
     }
 
     fn get_state(&self) -> Vec<u8> {
-        Vec::new()
+        panic!("not implemented")
     }
 
-    fn set_state(&mut self, state: &[u8]) {}
+    fn set_state(&mut self, _state: &[u8]) {
+        panic!("not implemented")
+    }
 
     fn load_rom(&mut self, rom: &[u8]) {
         self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(rom);
