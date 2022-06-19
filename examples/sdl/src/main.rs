@@ -1,6 +1,6 @@
 use chip_ahoyto::{
-    chip8::Chip8, chip8::SCREEN_PIXEL_HEIGHT, chip8::SCREEN_PIXEL_WIDTH, chip8_neo::Chip8Neo,
-    util::read_file,
+    chip8::Chip8, chip8_classic::Chip8Classic, chip8_classic::SCREEN_PIXEL_HEIGHT,
+    chip8_classic::SCREEN_PIXEL_WIDTH, chip8_neo::Chip8Neo, util::read_file,
 };
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,

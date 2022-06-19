@@ -1,4 +1,4 @@
-use crate::util::random;
+use crate::{chip8::Chip8, util::random};
 
 pub const DISPLAY_WIDTH: usize = 64;
 pub const DISPLAY_HEIGHT: usize = 32;
@@ -46,27 +46,12 @@ pub struct Chip8Neo {
 }
 
 #[cfg_attr(feature = "web", wasm_bindgen)]
-impl Chip8Neo {
-    #[cfg_attr(feature = "web", wasm_bindgen(constructor))]
-    pub fn new() -> Chip8Neo {
-        let mut chip8 = Chip8Neo {
-            ram: [0u8; RAM_SIZE],
-            vram: [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
-            stack: [0u16; STACK_SIZE],
-            regs: [0u8; REGISTERS_SIZE],
-            pc: ROM_START as u16,
-            i: 0x0,
-            sp: 0x0,
-            dt: 0x0,
-            st: 0x0,
-            keys: [false; KEYS_SIZE],
-            last_key: 0x0,
-        };
-        chip8.load_default_font();
-        chip8
+impl Chip8 for Chip8Neo {
+    fn name(&self) -> &str {
+        "neo"
     }
 
-    pub fn reset(&mut self) {
+    fn reset(&mut self) {
         self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT];
         self.stack = [0u16; STACK_SIZE];
         self.regs = [0u8; REGISTERS_SIZE];
@@ -80,20 +65,16 @@ impl Chip8Neo {
         self.load_default_font();
     }
 
-    pub fn reset_hard(&mut self) {
+    fn reset_hard(&mut self) {
         self.ram = [0u8; RAM_SIZE];
         self.reset();
     }
 
-    pub fn name(&self) -> &str {
-        "neo"
-    }
-
-    pub fn pixels(&self) -> Vec<u8> {
+    fn pixels(&self) -> Vec<u8> {
         self.vram.to_vec()
     }
 
-    pub fn clock(&mut self) {
+    fn clock(&mut self) {
         // fetches the current instruction and increments
         // the PC (program counter) accordingly
         let instruction =
@@ -220,15 +201,15 @@ impl Chip8Neo {
         }
     }
 
-    pub fn clock_dt(&mut self) {
+    fn clock_dt(&mut self) {
         self.dt = self.dt.saturating_sub(1)
     }
 
-    pub fn clock_st(&mut self) {
+    fn clock_st(&mut self) {
         self.st = self.st.saturating_sub(1)
     }
 
-    pub fn key_press(&mut self, key: u8) {
+    fn key_press(&mut self, key: u8) {
         if key >= KEYS_SIZE as u8 {
             return;
         }
@@ -236,27 +217,48 @@ impl Chip8Neo {
         self.last_key = key;
     }
 
-    pub fn key_lift(&mut self, key: u8) {
+    fn key_lift(&mut self, key: u8) {
         if key >= KEYS_SIZE as u8 {
             return;
         }
         self.keys[key as usize] = false;
     }
 
-    pub fn load_rom(&mut self, rom: &[u8]) {
+    fn load_rom(&mut self, rom: &[u8]) {
         self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(&rom);
     }
 
-    pub fn beep(&self) -> bool {
+    fn beep(&self) -> bool {
         self.st > 0
     }
 
-    pub fn pc(&self) -> u16 {
+    fn pc(&self) -> u16 {
         self.pc
     }
 
-    pub fn sp(&self) -> u8 {
+    fn sp(&self) -> u8 {
         self.sp
+    }
+}
+
+impl Chip8Neo {
+    #[cfg_attr(feature = "web", wasm_bindgen(constructor))]
+    pub fn new() -> Chip8Neo {
+        let mut chip8 = Chip8Neo {
+            ram: [0u8; RAM_SIZE],
+            vram: [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
+            stack: [0u16; STACK_SIZE],
+            regs: [0u8; REGISTERS_SIZE],
+            pc: ROM_START as u16,
+            i: 0x0,
+            sp: 0x0,
+            dt: 0x0,
+            st: 0x0,
+            keys: [false; KEYS_SIZE],
+            last_key: 0x0,
+        };
+        chip8.load_default_font();
+        chip8
     }
 
     fn load_font(&mut self, position: usize, font_set: &[u8]) {
