@@ -114,7 +114,10 @@ impl Chip8Neo {
                     self.sp -= 1;
                     self.pc = self.stack[self.sp as usize];
                 }
-                _ => println!("unimplemented instruction "),
+                _ => panic!(
+                    "unimplemented instruction 0x0000, instruction 0x{:04x}",
+                    instruction
+                ),
             },
             0x1000 => self.pc = address,
             0x2000 => {
@@ -153,7 +156,10 @@ impl Chip8Neo {
                     self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
                     self.regs[x] <<= 1;
                 }
-                _ => println!("unimplemented instruction"),
+                _ => panic!(
+                    "unimplemented instruction 0x8000, instruction 0x{:04x}",
+                    instruction
+                ),
             },
             0x9000 => self.pc += if self.regs[x] != self.regs[y] { 2 } else { 0 },
             0xa000 => self.i = address,
@@ -175,7 +181,7 @@ impl Chip8Neo {
                     let key = self.regs[x] as usize;
                     self.pc += if !self.keys[key] { 2 } else { 0 }
                 }
-                _ => println!(
+                _ => panic!(
                     "unimplemented instruction 0xe000, instruction 0x{:04x}",
                     instruction
                 ),
@@ -202,12 +208,12 @@ impl Chip8Neo {
                     .clone_from_slice(&self.regs[0..x + 1]),
                 0x65 => self.regs[0..x + 1]
                     .clone_from_slice(&self.ram[self.i as usize..self.i as usize + x + 1]),
-                _ => println!(
+                _ => panic!(
                     "unimplemented instruction 0xf000, instruction 0x{:04x}",
                     instruction
                 ),
             },
-            _ => println!(
+            _ => panic!(
                 "unimplemented opcode 0x{:04x}, instruction 0x{:04x}",
                 opcode, instruction
             ),
