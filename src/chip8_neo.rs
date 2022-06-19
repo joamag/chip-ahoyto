@@ -36,6 +36,7 @@ static FONT_SET: [u8; 80] = [
     0xf0, 0x80, 0xf0, 0x80, 0x80, // F
 ];
 
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Chip8Neo {
     ram: [u8; RAM_SIZE],
     vram: [u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
