@@ -2,6 +2,9 @@ use std::io::{Cursor, Read};
 
 use crate::{chip8::Chip8, util::random};
 
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::*;
+
 pub const DISPLAY_WIDTH: usize = 64;
 pub const DISPLAY_HEIGHT: usize = 32;
 
@@ -47,7 +50,6 @@ pub struct Chip8Neo {
     last_key: u8,
 }
 
-#[cfg_attr(feature = "web", wasm_bindgen)]
 impl Chip8 for Chip8Neo {
     fn name(&self) -> &str {
         "neo"
@@ -306,8 +308,9 @@ impl Chip8 for Chip8Neo {
     }
 }
 
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Neo {
-    #[cfg_attr(feature = "web", wasm_bindgen(constructor))]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new() -> Chip8Neo {
         let mut chip8 = Chip8Neo {
             ram: [0u8; RAM_SIZE],
@@ -357,5 +360,11 @@ impl Chip8Neo {
                 self.vram[addr] ^= 1
             }
         }
+    }
+}
+
+impl Default for Chip8Neo {
+    fn default() -> Chip8Neo {
+        Chip8Neo::new()
     }
 }

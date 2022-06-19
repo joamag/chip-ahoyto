@@ -23,6 +23,15 @@ The work of this emulator was inspired/started by [jc-chip8](https://github.com/
 * Full compliant with test CHIP-8 ROMs
 * RAM snapshot saving and loading
 
+## Build
+
+### WASM
+
+```bash
+cargo install wasm-pack
+wasm-pack build --release --target=nodejs -- --features wasm
+```
+
 ## Reason
 
 And... yes this is the real inspiration behind the emulator's name:
