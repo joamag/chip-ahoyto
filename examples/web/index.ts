@@ -23,7 +23,7 @@ const BACKGROUNDS = [
     "283618"
 ]
 
-const KEYS = {
+const KEYS: Record<string, number> = {
     "1": 0x01,
     "2": 0x02,
     "3": 0x03,
@@ -46,7 +46,29 @@ const ROM_PATH = "res/roms/pong.ch8";
 
 const ROM_NAME = "pong.ch8";
 
-const state = {
+type State = {
+    chip8: Chip8Neo,
+    logicFrequency: number,
+    visualFrequency: number,
+    timerFrequency: number,
+    canvas: HTMLCanvasElement,
+    canvasScaled: HTMLCanvasElement,
+    canvasCtx: CanvasRenderingContext2D,
+    canvasScaledCtx: CanvasRenderingContext2D,
+    image: ImageData,
+    videoBuff: DataView,
+    toastTimeout: number,
+    paused: boolean,
+    background_index: number,
+    nextTickTime: number,
+    fps: number,
+    frameStart: number,
+    frameCount: number,
+    romName: string,
+    romSize: number
+};
+
+const state: State = {
     chip8: null,
     logicFrequency: LOGIC_HZ,
     visualFrequency: VISUAL_HZ,
@@ -63,7 +85,9 @@ const state = {
     nextTickTime: 0,
     fps: VISUAL_HZ,
     frameStart: new Date().getTime(),
-    frameCount: 0
+    frameCount: 0,
+    romName: null,
+    romSize: 0
 };
 
 (async () => {
@@ -140,7 +164,7 @@ const state = {
             if (state.frameCount === state.visualFrequency * 2) {
                 const currentTime = new Date().getTime();
                 const deltaTime = (currentTime - state.frameStart) / 1000;
-                const fps = parseInt(Math.round(state.frameCount / deltaTime));
+                const fps = Math.round(state.frameCount / deltaTime) ;
                 setFps(fps);
                 state.frameCount = 0;
                 state.frameStart = currentTime;
@@ -323,7 +347,7 @@ const registerToast = () => {
     });
 };
 
-const showToast = async (message, error = false, timeout = 3500) => {
+const showToast = async (message: string, error = false, timeout = 3500) => {
     const toast = document.getElementById("toast");
     toast.classList.remove("error");
     if (error) toast.classList.add("error");
@@ -336,25 +360,25 @@ const showToast = async (message, error = false, timeout = 3500) => {
     }, timeout);
 }
 
-const setRom = (name, size) => {
+const setRom = (name: string, size: number) => {
     state.romName = name;
     state.romSize = size;
     document.getElementById("rom-name").textContent = name;
     document.getElementById("rom-size").textContent = String(size);
 };
 
-const setLogicFrequency = (value) => {
+const setLogicFrequency = (value: number) => {
     if (value < 0) showToast("Invalid frequency value!", true);
     value = Math.max(value, 0);
     state.logicFrequency = value;
-    document.getElementById("logic-frequency").textContent = value;
+    document.getElementById("logic-frequency").textContent = String(value);
 };
 
-const setFps = (value) => {
+const setFps = (value: number) => {
     if (value < 0) showToast("Invalid FPS value!", true);
     value = Math.max(value, 0);
     state.fps = value;
-    document.getElementById("fps-count").textContent = value;
+    document.getElementById("fps-count").textContent = String(value);
 };
 
 const toggleRunning = () => {
@@ -393,7 +417,7 @@ const initCanvas = () => {
     state.canvas.height = DISPLAY_HEIGHT;
     state.canvasCtx = state.canvas.getContext("2d");
 
-    state.canvasScaled = document.getElementById("chip-canvas");
+    state.canvasScaled = document.getElementById("chip-canvas") as HTMLCanvasElement;
     state.canvasScaledCtx = state.canvasScaled.getContext("2d");
 
     state.canvasScaledCtx.scale(state.canvasScaled.width / state.canvas.width, state.canvasScaled.height / state.canvas.height);
@@ -403,7 +427,7 @@ const initCanvas = () => {
     state.videoBuff = new DataView(state.image.data.buffer);
 };
 
-const updateCanvas = (pixels) => {
+const updateCanvas = (pixels: Uint8Array) => {
     for (let i = 0; i < pixels.length; i++) {
         state.videoBuff.setUint32(i * 4, pixels[i] ? PIXEL_SET_COLOR : PIXEL_UNSET_COLOR);
     }
