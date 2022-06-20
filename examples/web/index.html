@@ -8,10 +8,12 @@
     </head>
     <body>
         <div class="main">
-            <div class="side-right">
-                <canvas class="canvas" id="chip-canvas" width="640" height="320"></canvas>
-            </div>
             <div class="side-left">
+                <div id="canvas-container" class="canvas-container">
+                    <canvas id="chip-canvas" class="canvas" width="640" height="320"></canvas>
+                </div>
+            </div>
+            <div class="side-right">
                 <h1>CHIP-Ahoyto <img class="logo-image" src="res/thunder.png" /></h1>
                 <div class="separator"></div>
                 <p>This is a <a href="https://en.wikipedia.org/wiki/CHIP-8" target="_blank">CHIP-8</a> emulator built using the <a href="https://www.rust-lang.org" target="_blank">Rust Programming Language</a> and is running inside this browser with the help of <a href="https://webassembly.org/" target="_blank">WebAssembly</a>.</p>
@@ -37,11 +39,26 @@
                 </div>
                 <div id="separator-diag" class="separator"></div>
                 <div class="section">
-                    <span id="button-pause" class="tiny-button tiny-button-left border padded">Pause</span>
-                    <span id="button-benchmark" class="tiny-button tiny-button-left border padded">Benchmark</span>
-                    <span id="button-fullscreen" class="tiny-button tiny-button-left border padded">Fullscreen</span>
-                    <span id="button-information" class="tiny-button tiny-button-left border padded enabled">Information</span>
-                    <span id="button-theme" class="tiny-button tiny-button-left border padded">Theme</span>
+                    <div class="button-area">
+                        <span id="button-pause" class="tiny-button tiny-button-left border padded">
+                            <img src="res/pause.svg"/><span>Pause</span>
+                        </span>
+                        <span id="button-reset" class="tiny-button tiny-button-left border padded">
+                            <img src="res/reset.svg"/><span>Reset</span>
+                        </span>
+                        <span id="button-benchmark" class="tiny-button tiny-button-left border padded">
+                            <img src="res/bug.svg"/><span>Benchmark</span>
+                        </span>
+                        <span id="button-fullscreen" class="tiny-button tiny-button-left border padded">
+                            <img src="res/maximise.svg"/><span>Fullscreen</span>
+                        </span>
+                        <span id="button-information" class="tiny-button tiny-button-left border padded enabled">
+                            <img src="res/info.svg"/><span>Information</span>
+                        </span>
+                        <span id="button-theme" class="tiny-button tiny-button-left border padded">
+                            <img src="res/marker.svg"/><span>Theme</span>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

@@ -43,12 +43,27 @@ p {
     }    
 }
 
-.main > .side-right {
+.main > .side-left {
     flex: 1 0;
     text-align: center;
+    display: flex;
+    justify-content: center;
 }
 
-.main > .side-right .canvas {
+.main > .side-left .canvas-container.fullscreen {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background-color: #2d2d2d;
+    z-index: 10;
+    left: 0px;
+    top: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main > .side-left .canvas-container > .canvas {
     margin-top: 72px;
     border: 2px solid #50cb93;
     padding: 8px 8px 8px 8px;
@@ -57,24 +72,20 @@ p {
 }
 
 @media only screen and (max-width: 1120px) {
-    .main > .side-right .canvas {
+    .main > .side-left .canvas-container > .canvas {
         margin-top: 12px;
     }    
 }
 
-.main > .side-right .canvas.fullscreen {
+.main > .side-left .canvas-container.fullscreen > .canvas {
     padding: 0px 0px 0px 0px;
     margin: 0px 0px 0px 0px;
     border: none;
-    position: absolute;
-    z-index: 10;
     width: 100%;
     height: 100%;
-    left: 0px;
-    top: 0px;
 }
 
-.main > .side-left {
+.main > .side-right {
     flex: 0 1;
     min-width: 580px;
     max-width: 100%;
@@ -82,48 +93,48 @@ p {
 }
 
 @media only screen and (max-width: 1120px) {
-    .main > .side-left {
+    .main > .side-right {
         min-width: unset;
         padding: 0px 0px 0px 0px;
     }    
 }
 
-.main > .side-left .logo-image {
+.main > .side-right .logo-image {
     vertical-align: middle;
     width: 32px;
 }
 
-.main > .side-left .separator {
+.main > .side-right .separator {
     height: 2px;
     background: #ffffff;
     margin: 22px 0px 22px 0px;
 }
 
-.main > .side-left .diag {
+.main > .side-right .diag {
     font-size: 24px;
     vertical-align: top;
 }
 
-.main > .side-left .diag > dt {
+.main > .side-right .diag > dt {
     float: left;
     clear: both;
     margin-top: 12px;
 }
 
-.main > .side-left .diag > dt:first-of-type {
+.main > .side-right .diag > dt:first-of-type {
     margin-top: 0px;
 }
 
-.main > .side-left .diag > dd {
+.main > .side-right .diag > dd {
     margin-top: 12px;
     float: right;
 }
 
-.main > .side-left .diag > dd:first-of-type {
+.main > .side-right .diag > dd:first-of-type {
     margin-top: 0px;
 }
 
-.main > .side-left .diag::after {
+.main > .side-right .diag::after {
     content: '';
     display: block;
     clear: both;
@@ -183,6 +194,10 @@ p {
     transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
+.button-area > * {
+    margin-bottom: 12px;
+}
+
 .magnify-button {
     transition: transform 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
     display: inline-block;
@@ -223,6 +238,13 @@ p {
 
 .tiny-button:active {
     background-color: #2a9d8f;
+}
+
+.tiny-button > img {
+    vertical-align: top;
+    width: 13px;
+    margin-right: 6px;
+    margin-top: 2px;
 }
 
 .overlay.visible {

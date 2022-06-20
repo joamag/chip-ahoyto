@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Drag and Drop support in Web version
 * Support for background selection in SDL example
 * Support for the `beep()` sound in Web
+* Proportional support for fullscreen
 
 ### Changed
 
