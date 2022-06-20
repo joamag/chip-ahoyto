@@ -13,6 +13,14 @@ const VISUAL_HZ = 60;
 const DISPLAY_WIDTH = 64;
 const DISPLAY_HEIGHT = 32;
 
+const BACKGROUNDS = [
+    "1b1a17",
+    "023047",
+    "bc6c25",
+    "264653",
+    "283618"
+]
+
 const KEYS = {
     "1": 0x01,
     "2": 0x02,
@@ -46,7 +54,8 @@ const state = {
     image: null,
     videoBuff: null,
     toastTimeout: null,
-    paused: false
+    paused: false,
+    background_index: 0
 };
 
 (async () => {
@@ -196,33 +205,33 @@ const registerKeys = () => {
 
 const registerButtons = () => {
     const logicFrequencyPlus = document.getElementById("logic-frequency-plus");
-    logicFrequencyPlus.addEventListener("click", (event) => {
+    logicFrequencyPlus.addEventListener("click", () => {
         setLogicFrequency(state.logicFrequency + 60);
     });
 
     const logicFrequencyMinus = document.getElementById("logic-frequency-minus");
-    logicFrequencyMinus.addEventListener("click", (event) => {
+    logicFrequencyMinus.addEventListener("click", () => {
         setLogicFrequency(state.logicFrequency - 60);
     });
 
     const buttonPause = document.getElementById("button-pause");
-    buttonPause.addEventListener("click", (event) => {
+    buttonPause.addEventListener("click", () => {
         toggleRunning();
     });
 
     const buttonBenchmark = document.getElementById("button-benchmark");
-    buttonBenchmark.addEventListener("click", async (event) => {
+    buttonBenchmark.addEventListener("click", () => {
         buttonBenchmark.classList.add("enabled");
         pause();
         try {
             const initial = Date.now();
             const count = 500000000;
-            for(let i = 0; i < count; i++) {
+            for (let i = 0; i < count; i++) {
                 state.chip8.clock_ws();
             }
             const delta = (Date.now() - initial) / 1000;
             const frequency_mhz = count / delta / 1000 / 1000;
-            showToast(`Took ${delta.toFixed(2)} seconds to run ${count} ticks (${frequency_mhz.toFixed(2)} Mhz)!`);
+            showToast(`Took ${delta.toFixed(2)} seconds to run ${count} ticks (${frequency_mhz.toFixed(2)} Mhz)!`, undefined, 7500);
         } finally {
             resume();
             buttonBenchmark.classList.remove("enabled");
@@ -230,13 +239,13 @@ const registerButtons = () => {
     });
 
     const buttonFullscreen = document.getElementById("button-fullscreen");
-    buttonFullscreen.addEventListener("click", (event) => {
+    buttonFullscreen.addEventListener("click", () => {
         const chipCanvas = document.getElementById("chip-canvas");
         chipCanvas.classList.add("fullscreen");
     });
 
     const buttonInformation = document.getElementById("button-information");
-    buttonInformation.addEventListener("click", (event) => {
+    buttonInformation.addEventListener("click", () => {
         const sectionDiag = document.getElementById("section-diag");
         const separatorDiag = document.getElementById("separator-diag");
         if (buttonInformation.classList.contains("enabled")) {
@@ -248,6 +257,14 @@ const registerButtons = () => {
             separatorDiag.style.display = "block";
             buttonInformation.classList.add("enabled");
         }
+    });
+
+    const buttonTheme = document.getElementById("button-theme");
+    buttonTheme.addEventListener("click", () => {
+        state.background_index = (state.background_index + 1) % BACKGROUNDS.length;
+        const background = BACKGROUNDS[state.background_index];
+        document.body.style.backgroundColor = `#${background}`;
+        document.getElementById("footer").style.backgroundColor = `#${background}`;
     });
 };
 
@@ -297,12 +314,14 @@ const toggleRunning = () => {
 const pause = () => {
     state.paused = true;
     const buttonPause = document.getElementById("button-pause");
+    buttonPause.classList.add("enabled");
     buttonPause.textContent = "Resume";
 }
 
 const resume = () => {
     state.paused = false;
     const buttonPause = document.getElementById("button-pause");
+    buttonPause.classList.remove("enabled");
     buttonPause.textContent = "Pause";
 }
 
