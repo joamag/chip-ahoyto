@@ -10,6 +10,8 @@ const LOGIC_HZ = 600;
 const VISUAL_HZ = 60;
 const TIMER_HZ = 60;
 
+const FREQUENCY_DELTA = 60
+
 const DISPLAY_WIDTH = 64;
 const DISPLAY_HEIGHT = 32;
 
@@ -58,7 +60,9 @@ const state = {
     toastTimeout: null,
     paused: false,
     background_index: 0,
-    nextTickTime: 0
+    nextTickTime: 0,
+    fps: VISUAL_HZ,
+    frameCount: 0
 };
 
 (async () => {
@@ -99,6 +103,8 @@ const state = {
 
         const currentTime = new Date().getTime();
 
+        // in case the time to draw the next frame has been
+        // reached the flush of the logic and visuals is done
         if (currentTime >= state.nextTickTime) {
             const ratioLogic = state.logicFrequency / VISUAL_HZ;
             for (let i = 0; i < ratioLogic; i++) {
@@ -114,6 +120,9 @@ const state = {
             // updates the canvas object with the new
             // visual information coming in
             updateCanvas(state.chip8.vram_ws());
+
+            state.frameCount += 1;
+
 
             // updates the next update time reference to the current
             // time so that it can be used from game loop control
@@ -192,11 +201,11 @@ const registerKeys = () => {
 
         switch (event.key) {
             case "+":
-                setLogicFrequency(state.logicFrequency + 60);
+                setLogicFrequency(state.logicFrequency + FREQUENCY_DELTA);
                 break;
 
             case "-":
-                setLogicFrequency(state.logicFrequency - 60);
+                setLogicFrequency(state.logicFrequency - FREQUENCY_DELTA);
                 break;
 
             case "Escape":
@@ -218,12 +227,12 @@ const registerKeys = () => {
 const registerButtons = () => {
     const logicFrequencyPlus = document.getElementById("logic-frequency-plus");
     logicFrequencyPlus.addEventListener("click", () => {
-        setLogicFrequency(state.logicFrequency + 60);
+        setLogicFrequency(state.logicFrequency + FREQUENCY_DELTA);
     });
 
     const logicFrequencyMinus = document.getElementById("logic-frequency-minus");
     logicFrequencyMinus.addEventListener("click", () => {
-        setLogicFrequency(state.logicFrequency - 60);
+        setLogicFrequency(state.logicFrequency - FREQUENCY_DELTA);
     });
 
     const buttonPause = document.getElementById("button-pause");
@@ -312,6 +321,13 @@ const setLogicFrequency = (value) => {
     value = Math.max(value, 0);
     state.logicFrequency = value;
     document.getElementById("logic-frequency").textContent = value;
+};
+
+const setFps = (value) => {
+    if (value < 0) showToast("Invalid FPS value!", true);
+    value = Math.max(value, 0);
+    state.fps = value;
+    document.getElementById("fps-count").textContent = value;
 };
 
 const toggleRunning = () => {
