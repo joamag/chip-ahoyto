@@ -45,8 +45,6 @@ const KEYS: Record<string, number> = {
 
 const ROM_PATH = "res/roms/pong.ch8";
 
-const ROM_NAME = "pong.ch8";
-
 type State = {
     chip8: Chip8Neo | Chip8Classic,
     logicFrequency: number,
@@ -98,25 +96,12 @@ const state: State = {
 
     // initializes the complete set of sub-systems
     // and registers the event handlers
-    init();
-    register();
+    await init();
+    await register();
 
-    // loads the ROM data and converts it into the
-    // target u8 array buffer
-    const response = await fetch(ROM_PATH);
-    const blob = await response.blob();
-    const arrayBuffer = await blob.arrayBuffer();
-    const data = new Uint8Array(arrayBuffer);
-
-    // updates the ROM information on display
-    setRom(ROM_NAME, data.length);
-    setLogicFrequency(state.logicFrequency);
-    setFps(state.fps);
-
-    // creates the CHIP-8 instance and resets it
-    state.chip8 = new Chip8Neo();
-    state.chip8.reset_hard_ws();
-    state.chip8.load_rom_ws(data);
+    // start the emulator subsystem with the initial
+    // ROM retrieved from a remote data source
+    await start();
 
     // runs the sequence as an infinite loop, running
     // the associated CPU cycles accordingly
@@ -189,11 +174,51 @@ const state: State = {
     }
 })();
 
-const register = () => {
+const start = async ({ romPath = ROM_PATH, engine = "neo" } = {} ) => {
+    // extracts the name of the ROM from the provided
+    // path by splitting its structure
+    const romPathS = romPath.split(/\//g);
+    const romName = romPathS[romPathS.length - 1];
+
+    // loads the ROM data and converts it into the
+    // target byte array buffer (to be used by WASM)
+    const response = await fetch(ROM_PATH);
+    const blob = await response.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    const data = new Uint8Array(arrayBuffer);
+
+    // updates the ROM information on display
+    setRom(romName, data.length);
+    setLogicFrequency(state.logicFrequency);
+    setFps(state.fps);
+
+    // selects the proper engine for execution
+    // and builds a new instance of it
+    switch(engine) {
+        case "neo":
+            state.chip8 = new Chip8Neo();
+            break;
+
+        case "classic":
+            state.chip8 = new Chip8Classic();
+            break;
+    }
+
+    // resets the CHIP-8 engine to restore it into
+    // a valid state ready to be used
+    state.chip8.reset_hard_ws();
+    state.chip8.load_rom_ws(data);
+}
+
+const register = async () => {
     registerDrop();
     registerKeys();
     registerButtons();
     registerToast();
+};
+
+const init = async () => {
+    initCanvas();
 };
 
 const registerDrop = () => {
@@ -348,6 +373,33 @@ const registerToast = () => {
     });
 };
 
+
+const initCanvas = () => {
+    // initializes the off-screen canvas that is going to be
+    // used in the drawing process
+    state.canvas = document.createElement("canvas");
+    state.canvas.width = DISPLAY_WIDTH;
+    state.canvas.height = DISPLAY_HEIGHT;
+    state.canvasCtx = state.canvas.getContext("2d");
+
+    state.canvasScaled = document.getElementById("chip-canvas") as HTMLCanvasElement;
+    state.canvasScaledCtx = state.canvasScaled.getContext("2d");
+
+    state.canvasScaledCtx.scale(state.canvasScaled.width / state.canvas.width, state.canvasScaled.height / state.canvas.height);
+    state.canvasScaledCtx.imageSmoothingEnabled = false;
+
+    state.image = state.canvasCtx.createImageData(state.canvas.width, state.canvas.height);
+    state.videoBuff = new DataView(state.image.data.buffer);
+};
+
+const updateCanvas = (pixels: Uint8Array) => {
+    for (let i = 0; i < pixels.length; i++) {
+        state.videoBuff.setUint32(i * 4, pixels[i] ? PIXEL_SET_COLOR : PIXEL_UNSET_COLOR);
+    }
+    state.canvasCtx.putImageData(state.image, 0, 0);
+    state.canvasScaledCtx.drawImage(state.canvas, 0, 0);
+};
+
 const showToast = async (message: string, error = false, timeout = 3500) => {
     const toast = document.getElementById("toast");
     toast.classList.remove("error");
@@ -405,33 +457,3 @@ const resume = () => {
     buttonPause.classList.remove("enabled");
     buttonPause.textContent = "Pause";
 }
-
-const init = () => {
-    initCanvas();
-};
-
-const initCanvas = () => {
-    // initializes the off-screen canvas that is going to be
-    // used in the drawing process
-    state.canvas = document.createElement("canvas");
-    state.canvas.width = DISPLAY_WIDTH;
-    state.canvas.height = DISPLAY_HEIGHT;
-    state.canvasCtx = state.canvas.getContext("2d");
-
-    state.canvasScaled = document.getElementById("chip-canvas") as HTMLCanvasElement;
-    state.canvasScaledCtx = state.canvasScaled.getContext("2d");
-
-    state.canvasScaledCtx.scale(state.canvasScaled.width / state.canvas.width, state.canvasScaled.height / state.canvas.height);
-    state.canvasScaledCtx.imageSmoothingEnabled = false;
-
-    state.image = state.canvasCtx.createImageData(state.canvas.width, state.canvas.height);
-    state.videoBuff = new DataView(state.image.data.buffer);
-};
-
-const updateCanvas = (pixels: Uint8Array) => {
-    for (let i = 0; i < pixels.length; i++) {
-        state.videoBuff.setUint32(i * 4, pixels[i] ? PIXEL_SET_COLOR : PIXEL_UNSET_COLOR);
-    }
-    state.canvasCtx.putImageData(state.image, 0, 0);
-    state.canvasScaledCtx.drawImage(state.canvas, 0, 0);
-};
