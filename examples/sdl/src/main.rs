@@ -25,6 +25,8 @@ const COLORS: [[u8; 3]; 6] = [
     [0, 0, 255],
 ];
 
+const BACKGROUNDS: [[u8; 3]; 2] = [[27, 26, 23], [0, 0, 0]];
+
 const LOGIC_HZ: u32 = 600;
 const VISUAL_HZ: u32 = 60;
 const IDLE_HZ: u32 = 60;
@@ -98,6 +100,7 @@ pub struct State {
     frame_start: u32,
     fps: u32,
     pixel_color: [u8; 3],
+    background_color: [u8; 3],
     diag_color: [u8; 3],
     pixel_color_index: usize,
     title: String,
@@ -146,6 +149,7 @@ fn main() {
         frame_start: 0,
         fps: 0,
         pixel_color: COLORS[0],
+        background_color: BACKGROUNDS[0],
         diag_color: COLORS[1],
         pixel_color_index: 0,
         title: String::from(TITLE_INITIAL),
@@ -429,9 +433,21 @@ fn main() {
             let mut rgb_pixels = vec![];
             for p in state.system.vram() {
                 rgb_pixels.extend_from_slice(&[
-                    p * state.pixel_color[0],
-                    p * state.pixel_color[1],
-                    p * state.pixel_color[2],
+                    if p == 1 {
+                        state.pixel_color[0]
+                    } else {
+                        state.background_color[0]
+                    },
+                    if p == 1 {
+                        state.pixel_color[1]
+                    } else {
+                        state.background_color[1]
+                    },
+                    if p == 1 {
+                        state.pixel_color[2]
+                    } else {
+                        state.background_color[2]
+                    },
                 ])
             }
 
