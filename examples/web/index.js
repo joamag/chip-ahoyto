@@ -45,7 +45,8 @@ const state = {
     canvasScaledCtx: null,
     image: null,
     videoBuff: null,
-    toastTimeout: null
+    toastTimeout: null,
+    paused: false
 };
 
 (async () => {
@@ -76,6 +77,13 @@ const state = {
     // runs the sequence as an infinite loop, running
     // the associated CPU cycles accordingly
     while (true) {
+        if (state.paused) {
+            await new Promise((resolve) => {
+                setTimeout(resolve, 100);
+            });
+            continue;
+        }
+
         const ratioLogic = state.logicFrequency / VISUAL_HZ;
         for (let i = 0; i < ratioLogic; i++) {
             state.chip8.clock_ws();
@@ -93,7 +101,7 @@ const state = {
 
         // waits a little bit for the next frame to be draw
         // @todo NEED TO DEFINE A TARGET TIME
-        await new Promise((resolve, reject) => {
+        await new Promise((resolve) => {
             setTimeout(resolve, 1000 / VISUAL_HZ);
         });
     }
@@ -197,9 +205,28 @@ const registerButtons = () => {
         setLogicFrequency(state.logicFrequency - 60);
     });
 
+    const buttonPause = document.getElementById("button-pause");
+    buttonPause.addEventListener("click", (event) => {
+        toggleRunning();
+    });
+
     const buttonBenchmark = document.getElementById("button-benchmark");
-    buttonBenchmark.addEventListener("click", (event) => {
-        console.info("Going to benchmark stuff");
+    buttonBenchmark.addEventListener("click", async (event) => {
+        buttonBenchmark.classList.add("enabled");
+        pause();
+        try {
+            const initial = Date.now();
+            const count = 500000000;
+            for(let i = 0; i < count; i++) {
+                state.chip8.clock_ws();
+            }
+            const delta = (Date.now() - initial) / 1000;
+            const frequency_mhz = count / delta / 1000 / 1000;
+            showToast(`Took ${delta.toFixed(2)} seconds to run ${count} ticks (${frequency_mhz.toFixed(2)} Mhz)!`);
+        } finally {
+            resume();
+            buttonBenchmark.classList.remove("enabled");
+        }
     });
 
     const buttonFullscreen = document.getElementById("button-fullscreen");
@@ -257,6 +284,27 @@ const setLogicFrequency = (value) => {
     state.logicFrequency = value;
     document.getElementById("logic-frequency").textContent = value;
 };
+
+const toggleRunning = () => {
+    const buttonPause = document.getElementById("button-pause");
+    if (buttonPause.textContent === "Resume") {
+        resume();
+    } else {
+        pause();
+    }
+};
+
+const pause = () => {
+    state.paused = true;
+    const buttonPause = document.getElementById("button-pause");
+    buttonPause.textContent = "Resume";
+}
+
+const resume = () => {
+    state.paused = false;
+    const buttonPause = document.getElementById("button-pause");
+    buttonPause.textContent = "Pause";
+}
 
 const init = () => {
     initCanvas();
