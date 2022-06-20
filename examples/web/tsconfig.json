@@ -1,11 +1,9 @@
 {
     "compilerOptions": {
-        "module": "ES2015",
-        "esModuleInterop": true,
+        "module": "es2015",
         "allowSyntheticDefaultImports": true,
         "target": "es6",
         "noImplicitAny": true,
-        "moduleResolution": "Classic",
         "sourceMap": true,
         "outDir": ".",
         "baseUrl": ".",
