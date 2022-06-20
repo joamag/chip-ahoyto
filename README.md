@@ -6,6 +6,8 @@ The goal of this project is purely experimental and a learning tool for rust.
 
 The work of this emulator was inspired/started by [jc-chip8](https://github.com/joao-conde/jc-chip8).
 
+**You can check a working version of the emulator at [chip-aoyto.joao.me](https://chip-aoyto.joao.me)**
+
 ## Goals
 
 * Performance 🏎
