@@ -8,9 +8,14 @@ stages:
   - deploy
 
 before_script:
-  - apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q pkg-config nodejs npm
+  - apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q pkg-config
   - curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y
   - export PATH=$PATH:$HOME/.cargo/bin
+  - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+  - export NVM_DIR="$HOME/.nvm"
+  - \[ -s "$NVM_DIR/nvm.sh" \] && \\. "$NVM_DIR/nvm.sh"
+  - \[ -s "$NVM_DIR/bash_completion" \] && \\. "$NVM_DIR/bash_completion"
+  - nvm install 16
 
 build-rust:
   stage: build
@@ -43,13 +48,13 @@ build-wasm:
 deploy-netlify-preview:
   stage: deploy
   script:
-    - cd examples/web && npx --package=netlify-cli netlify deploy --dir=.
+    - cd examples/web && npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=.
   only:
     - master
 
 deploy-netlify-prod:
   stage: deploy
   script:
-    - cd examples/web && npx --package=netlify-cli netlify deploy --dir=. --prod
+    - cd examples/web && npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=. --prod
   only:
     - tags
