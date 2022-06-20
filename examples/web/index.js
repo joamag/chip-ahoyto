@@ -6,9 +6,22 @@ import {
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
 
-let LOGIC_HZ = 480;
-const TIMER_HZ = 60;
+const LOGIC_HZ = 600;
 const VISUAL_HZ = 60;
+const TIMER_HZ = 60;
+
+const FREQUENCY_DELTA = 60
+
+const DISPLAY_WIDTH = 64;
+const DISPLAY_HEIGHT = 32;
+
+const BACKGROUNDS = [
+    "1b1a17",
+    "023047",
+    "bc6c25",
+    "264653",
+    "283618"
+]
 
 const KEYS = {
     "1": 0x01,
@@ -29,16 +42,28 @@ const KEYS = {
     "v": 0x0f
 }
 
-const ROM = "res/roms/pong.ch8";
+const ROM_PATH = "res/roms/pong.ch8";
+
+const ROM_NAME = "pong.ch8";
 
 const state = {
     chip8: null,
+    logicFrequency: LOGIC_HZ,
+    visualFrequency: VISUAL_HZ,
+    timerFrequency: TIMER_HZ,
     canvas: null,
     canvasScaled: null,
     canvasCtx: null,
     canvasScaledCtx: null,
     image: null,
-    videoBuff: null
+    videoBuff: null,
+    toastTimeout: null,
+    paused: false,
+    background_index: 0,
+    nextTickTime: 0,
+    fps: VISUAL_HZ,
+    frameStart: new Date().getTime(),
+    frameCount: 0
 };
 
 (async () => {
@@ -52,11 +77,16 @@ const state = {
     register();
 
     // loads the ROM data and converts it into the
-    // target u8 array bufffer
-    const response = await fetch(ROM);
+    // target u8 array buffer
+    const response = await fetch(ROM_PATH);
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     const data = new Uint8Array(arrayBuffer);
+
+    // updates the ROM information on display
+    setRom(ROM_NAME, data.length);
+    setLogicFrequency(state.logicFrequency);
+    setFps(state.fps);
 
     // creates the CHIP-8 instance and resets it
     state.chip8 = new Chip8Neo();
@@ -65,64 +95,127 @@ const state = {
 
     // runs the sequence as an infinite loop, running
     // the associated CPU cycles accordingly
-    while (true) {        
-        const ratioLogic = LOGIC_HZ / VISUAL_HZ;
-        for(let i = 0; i < ratioLogic; i++) {
-            state.chip8.clock_ws();
+    while (true) {
+        if (state.paused) {
+            await new Promise((resolve) => {
+                setTimeout(resolve, 100);
+            });
+            continue;
         }
 
-        const ratioTimer = TIMER_HZ / VISUAL_HZ;
-        for(let i = 0; i < ratioTimer; i++) {
-            state.chip8.clock_dt_ws();
-            state.chip8.clock_st_ws();
+        let currentTime = new Date().getTime();
+
+        // in case the time to draw the next frame has been
+        // reached the flush of the logic and visuals is done
+        if (currentTime >= state.nextTickTime) {
+            // calculates the number of ticks that have elapsed since the
+            // last draw operation, this is critical to be able to properly
+            // operate the clock of the CPU in frame drop situations
+            if (state.nextTickTime === 0) state.nextTickTime = currentTime;
+            let ticks = Math.ceil((currentTime - state.nextTickTime) / (1 / state.visualFrequency * 1000));
+            ticks = Math.max(ticks, 1);
+
+            const ratioLogic = state.logicFrequency / state.visualFrequency * ticks;
+            for (let i = 0; i < ratioLogic; i++) {
+                state.chip8.clock_ws();
+            }
+
+            const ratioTimer = state.timerFrequency / state.visualFrequency * ticks;
+            for (let i = 0; i < ratioTimer; i++) {
+                state.chip8.clock_dt_ws();
+                state.chip8.clock_st_ws();
+            }
+
+            // updates the canvas object with the new
+            // visual information coming in
+            updateCanvas(state.chip8.vram_ws());
+
+            // increments the number of frames rendered in the current
+            // section, this value is going to be used to calculate FPS
+            state.frameCount += 1;
+
+            // in case the target number of frames for FPS control
+            // has been reached calculates the number of FPS and
+            // flushes the value to the screen
+            if (state.frameCount === state.visualFrequency * 2) {
+                const currentTime = new Date().getTime();
+                const deltaTime = (currentTime - state.frameStart) / 1000;
+                const fps = parseInt(Math.round(state.frameCount / deltaTime));
+                setFps(fps);
+                state.frameCount = 0;
+                state.frameStart = currentTime;
+            }
+
+            // updates the next update time reference to the, so that it
+            // can be used to control the game loop
+            state.nextTickTime = Math.max(
+                state.nextTickTime + 1000 / state.visualFrequency,
+                currentTime
+            );
         }
 
-        // updates the canvas object with the new
-        // visual information comming in
-        updateCanvas(state.chip8.vram_ws());
-        
-        // waits a little bit for the next frame to be draw
-        // @todo need to define target time for draw
-        await new Promise((resolve, reject) => {
-            setTimeout(resolve, 1000 / VISUAL_HZ);
-        })
+        // calculates the amount of time until the next draw operation
+        // this is the amount of time that is going to be pending
+        currentTime = new Date().getTime();
+        const pendingTime = Math.max(state.nextTickTime - currentTime, 0);
+
+        // waits a little bit for the next frame to be draw,
+        // this should control the flow of render
+        await new Promise((resolve) => {
+            setTimeout(resolve, pendingTime);
+        });
     }
 })();
 
 const register = () => {
     registerDrop();
     registerKeys();
-}
+    registerButtons();
+    registerToast();
+};
 
 const registerDrop = () => {
     document.addEventListener("drop", async (event) => {
+        if (!event.dataTransfer.files || event.dataTransfer.files.length === 0) return;
+
         event.preventDefault();
         event.stopPropagation();
 
         const overlay = document.getElementById("overlay");
         overlay.classList.remove("visible");
 
-        if (!event.dataTransfer.files) return;
-
         const file = event.dataTransfer.files[0];
+
+        if (!file.name.endsWith(".ch8")) {
+            showToast("This is probably not a CHIP-8 ROM file!", true);
+            return;
+        }
 
         const arrayBuffer = await file.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);
 
         state.chip8.reset_hard_ws();
         state.chip8.load_rom_ws(data);
+
+        setRom(file.name, file.size);
+
+        showToast(`Loaded ${file.name} ROM successfully!`);
     });
     document.addEventListener("dragover", async (event) => {
+        if (!event.dataTransfer.items || event.dataTransfer.items[0].type) return;
+
         event.preventDefault();
 
         const overlay = document.getElementById("overlay");
         overlay.classList.add("visible");
     });
     document.addEventListener("dragenter", async (event) => {
+        if (!event.dataTransfer.items || event.dataTransfer.items[0].type) return;
         const overlay = document.getElementById("overlay");
         overlay.classList.add("visible");
     });
     document.addEventListener("dragleave", async (event) => {
+        if (!event.dataTransfer.items || event.dataTransfer.items[0].type) return;
         const overlay = document.getElementById("overlay");
         overlay.classList.remove("visible");
     });
@@ -136,13 +229,18 @@ const registerKeys = () => {
             return;
         }
 
-        switch(event.key) {
+        switch (event.key) {
             case "+":
-                LOGIC_HZ += 60;
+                setLogicFrequency(state.logicFrequency + FREQUENCY_DELTA);
                 break;
 
             case "-":
-                LOGIC_HZ += 60;
+                setLogicFrequency(state.logicFrequency - FREQUENCY_DELTA);
+                break;
+
+            case "Escape":
+                const chipCanvas = document.getElementById("chip-canvas");
+                chipCanvas.classList.remove("fullscreen");
                 break;
         }
     });
@@ -154,18 +252,147 @@ const registerKeys = () => {
             return;
         }
     });
+};
+
+const registerButtons = () => {
+    const logicFrequencyPlus = document.getElementById("logic-frequency-plus");
+    logicFrequencyPlus.addEventListener("click", () => {
+        setLogicFrequency(state.logicFrequency + FREQUENCY_DELTA);
+    });
+
+    const logicFrequencyMinus = document.getElementById("logic-frequency-minus");
+    logicFrequencyMinus.addEventListener("click", () => {
+        setLogicFrequency(state.logicFrequency - FREQUENCY_DELTA);
+    });
+
+    const buttonPause = document.getElementById("button-pause");
+    buttonPause.addEventListener("click", () => {
+        toggleRunning();
+    });
+
+    const buttonBenchmark = document.getElementById("button-benchmark");
+    buttonBenchmark.addEventListener("click", () => {
+        buttonBenchmark.classList.add("enabled");
+        pause();
+        try {
+            const initial = Date.now();
+            const count = 500000000;
+            for (let i = 0; i < count; i++) {
+                state.chip8.clock_ws();
+            }
+            const delta = (Date.now() - initial) / 1000;
+            const frequency_mhz = count / delta / 1000 / 1000;
+            showToast(`Took ${delta.toFixed(2)} seconds to run ${count} ticks (${frequency_mhz.toFixed(2)} Mhz)!`, undefined, 7500);
+        } finally {
+            resume();
+            buttonBenchmark.classList.remove("enabled");
+        }
+    });
+
+    const buttonFullscreen = document.getElementById("button-fullscreen");
+    buttonFullscreen.addEventListener("click", () => {
+        const chipCanvas = document.getElementById("chip-canvas");
+        chipCanvas.classList.add("fullscreen");
+    });
+
+    const buttonInformation = document.getElementById("button-information");
+    buttonInformation.addEventListener("click", () => {
+        const sectionDiag = document.getElementById("section-diag");
+        const separatorDiag = document.getElementById("separator-diag");
+        if (buttonInformation.classList.contains("enabled")) {
+            sectionDiag.style.display = "none";
+            separatorDiag.style.display = "none";
+            buttonInformation.classList.remove("enabled");
+        } else {
+            sectionDiag.style.display = "block";
+            separatorDiag.style.display = "block";
+            buttonInformation.classList.add("enabled");
+        }
+    });
+
+    const buttonTheme = document.getElementById("button-theme");
+    buttonTheme.addEventListener("click", () => {
+        state.background_index = (state.background_index + 1) % BACKGROUNDS.length;
+        const background = BACKGROUNDS[state.background_index];
+        document.body.style.backgroundColor = `#${background}`;
+        document.getElementById("footer").style.backgroundColor = `#${background}`;
+    });
+};
+
+const registerToast = () => {
+    const toast = document.getElementById("toast");
+    toast.addEventListener("click", (event) => {
+        toast.classList.remove("visible");
+    });
+};
+
+const showToast = async (message, error = false, timeout = 3500) => {
+    const toast = document.getElementById("toast");
+    toast.classList.remove("error");
+    if (error) toast.classList.add("error");
+    toast.classList.add("visible");
+    toast.textContent = message;
+    if (state.toastTimeout) clearTimeout(state.toastTimeout);
+    state.toastTimeout = setTimeout(() => {
+        toast.classList.remove("visible");
+        state.toastTimeout = null;
+    }, timeout);
+}
+
+const setRom = (name, size) => {
+    state.romName = name;
+    state.romSize = size;
+    document.getElementById("rom-name").textContent = name;
+    document.getElementById("rom-size").textContent = String(size);
+};
+
+const setLogicFrequency = (value) => {
+    if (value < 0) showToast("Invalid frequency value!", true);
+    value = Math.max(value, 0);
+    state.logicFrequency = value;
+    document.getElementById("logic-frequency").textContent = value;
+};
+
+const setFps = (value) => {
+    if (value < 0) showToast("Invalid FPS value!", true);
+    value = Math.max(value, 0);
+    state.fps = value;
+    document.getElementById("fps-count").textContent = value;
+};
+
+const toggleRunning = () => {
+    const buttonPause = document.getElementById("button-pause");
+    if (buttonPause.textContent === "Resume") {
+        resume();
+    } else {
+        pause();
+    }
+};
+
+const pause = () => {
+    state.paused = true;
+    const buttonPause = document.getElementById("button-pause");
+    buttonPause.classList.add("enabled");
+    buttonPause.textContent = "Resume";
+}
+
+const resume = () => {
+    state.paused = false;
+    const buttonPause = document.getElementById("button-pause");
+    buttonPause.classList.remove("enabled");
+    buttonPause.textContent = "Pause";
 }
 
 const init = () => {
     initCanvas();
-}
+};
 
 const initCanvas = () => {
     // initializes the off-screen canvas that is going to be
-    // used in the drawing proces
+    // used in the drawing process
     state.canvas = document.createElement("canvas");
-    state.canvas.width = 64;
-    state.canvas.height = 32;
+    state.canvas.width = DISPLAY_WIDTH;
+    state.canvas.height = DISPLAY_HEIGHT;
     state.canvasCtx = state.canvas.getContext("2d");
 
     state.canvasScaled = document.getElementById("chip-canvas");

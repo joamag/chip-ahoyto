@@ -2,13 +2,64 @@
 <html>
     <head>
         <title>CHIP-Ahoyto</title>
+        <meta charset="utf-8">
         <link rel="icon" href="res/icon.png" />
         <link rel="stylesheet" href="index.css" />
     </head>
     <body>
-        <canvas id="chip-canvas" width="960" height="480"></canvas>
+        <div class="main">
+            <div class="side-right">
+                <canvas class="canvas" id="chip-canvas" width="640" height="320"></canvas>
+            </div>
+            <div class="side-left">
+                <h1>CHIP-Ahoyto <img class="logo-image" src="res/thunder.png" /></h1>
+                <div class="separator"></div>
+                <p>This is a <a href="https://en.wikipedia.org/wiki/CHIP-8" target="_blank">CHIP-8</a> emulator built using the <a href="https://www.rust-lang.org" target="_blank">Rust Programming Language</a> and is running inside this browser with the help of <a href="https://webassembly.org/" target="_blank">WebAssembly</a>.</p>
+                <p>You can check the source code of it at <a href="https://gitlab.stage.hive.pt/joamag/chip-ahoyto" target="_blank">GitLab</a>.</p>
+                <p>TIP: Drag and Drop ROM files to the Browser to load the ROM.</p>
+                <div class="separator"></div>
+                <div id="section-diag" class="section">
+                    <dl class="diag">
+                        <dt>Engine</dt>
+                        <dd>NEO</dd>
+                        <dt>ROM</dt>
+                        <dd id="rom-name">-</dd>
+                        <dt>ROM Size</dt>
+                        <dd><span id="rom-size">-</span> bytes</dd>
+                        <dt>CPU Frequency</dt>
+                        <dd>
+                            <span id="logic-frequency-minus" class="tiny-button tiny-button-left">-</span>
+                            <span id="logic-frequency">-</span> Hz
+                            <span id="logic-frequency-plus" class="tiny-button tiny-button-right">+</span></dd>
+                        <dt>Framerate</dt>
+                        <dd><span id="fps-count">60</span> fps</dd>
+                    </dl>
+                </div>
+                <div id="separator-diag" class="separator"></div>
+                <div class="section">
+                    <span id="button-pause" class="tiny-button tiny-button-left border padded">Pause</span>
+                    <span id="button-benchmark" class="tiny-button tiny-button-left border padded">Benchmark</span>
+                    <span id="button-fullscreen" class="tiny-button tiny-button-left border padded">Fullscreen</span>
+                    <span id="button-information" class="tiny-button tiny-button-left border padded enabled">Information</span>
+                    <span id="button-theme" class="tiny-button tiny-button-left border padded">Theme</span>
+                </div>
+            </div>
+        </div>
+        <div id="toast" class="toast">
+            There was an error loading the ROM file
+        </div>
         <div id="overlay" class="overlay">
-            Drag to load ROM
+            <div class="overlay-container">
+                <div class="overlay-text">
+                    Drag to load ROM <span id="rom-name"></span>
+                </div>
+                <div class="overlay-image">
+                    <img src="res/sunglasses.png" />
+                </div>
+            </div>
+        </div>
+        <div id="footer" class="footer">
+            Built with ❤️ by <a href="https://joao.me" target="_blank">João Magalhães</a>
         </div>
         <script type="module" src="index.js"></script>
     </body>

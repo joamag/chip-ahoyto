@@ -7,7 +7,7 @@ use sdl2::{
     keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
     surface::Surface, ttf::Hinting,
 };
-use std::{env::args, path::Path};
+use std::{cmp, env::args, path::Path};
 
 // handle the annoying Rect i32
 macro_rules! rect(
@@ -25,7 +25,7 @@ const COLORS: [[u8; 3]; 6] = [
     [0, 0, 255],
 ];
 
-const LOGIC_HZ: u32 = 480;
+const LOGIC_HZ: u32 = 600;
 const VISUAL_HZ: u32 = 60;
 const IDLE_HZ: u32 = 60;
 const TIMER_HZ: u32 = 60;
@@ -91,8 +91,12 @@ pub struct State {
     timer_frequency: u32,
     screen_scale: f32,
     beep_duration: f32,
-    next_tick_time: u32,
+    next_tick_time: f32,
+    next_tick_time_i: u32,
     beep_ticks: u32,
+    frame_count: u32,
+    frame_start: u32,
+    fps: u32,
     pixel_color: [u8; 3],
     diag_color: [u8; 3],
     pixel_color_index: usize,
@@ -135,8 +139,12 @@ fn main() {
         timer_frequency: TIMER_HZ,
         screen_scale: SCREEN_SCALE,
         beep_duration: BEEP_DURATION,
-        next_tick_time: 0,
+        next_tick_time: 0.0,
+        next_tick_time_i: 0,
         beep_ticks: 0,
+        frame_count: 0,
+        frame_start: 0,
+        fps: 0,
         pixel_color: COLORS[0],
         diag_color: COLORS[1],
         pixel_color_index: 0,
@@ -341,7 +349,7 @@ fn main() {
             .window_mut()
             .set_title(&format!(
                 "{} [{} hz, {} fps]",
-                state.title, state.logic_frequency, state.visual_frequency
+                state.title, state.logic_frequency, state.fps
             ))
             .unwrap();
 
@@ -360,14 +368,29 @@ fn main() {
 
         let current_time = timer_subsystem.ticks();
 
-        if current_time >= state.next_tick_time {
+        if current_time >= state.next_tick_time_i {
+            // makes sure that the next tick time is a valid number so
+            // that some of the calculus are valid
+            if state.next_tick_time_i == 0 {
+                state.next_tick_time = current_time as f32;
+                state.next_tick_time_i = current_time;
+            }
+
+            // calculates the number of ticks that have elapsed since the
+            // last draw operation, this is critical to be able to properly
+            // operate the clock of the CPU in frame drop situations
+            let mut ticks = ((current_time - state.next_tick_time_i) as f32
+                / (1.0 / state.visual_frequency as f32 * 1000.0))
+                .ceil() as u32;
+            ticks = cmp::max(ticks, 1);
+
             // allocates space for the variable that is going to control
             // if a new beep was requested by the CHIP-8 logic cycles
             let mut beep = false;
 
             // calculates the ratio between the logic and the visual frequency
             // to make sure that the proper number of updates are performed
-            let logic_visual_ratio = state.logic_frequency / state.visual_frequency;
+            let logic_visual_ratio = state.logic_frequency / state.visual_frequency * ticks;
             for _ in 0..logic_visual_ratio {
                 // runs the clock operation in the CHIP-8 system,
                 // effectively changing the logic state of the machine
@@ -376,7 +399,7 @@ fn main() {
 
             // calculates the ration between the timer and the visual frequency
             // so that the proper timer updates are rune
-            let timer_visual_ratio = state.timer_frequency / state.visual_frequency;
+            let timer_visual_ratio = state.timer_frequency / state.visual_frequency * ticks;
             for _ in 0..timer_visual_ratio {
                 // runs the clock for the timers (both sound and delay),
                 // after that tries to determine if a beep should be sounded
@@ -430,7 +453,7 @@ fn main() {
                     state.system.name(),
                     state.rom_name,
                     state.logic_frequency,
-                    state.visual_frequency,
+                    state.fps,
                     state.system.pc(),
                     state.system.sp()
                 );
@@ -461,13 +484,29 @@ fn main() {
             // information presented to the user
             canvas.present();
 
+            // increments the number of frames rendered in the current
+            // section, this value is going to be used to calculate FPS
+            state.frame_count += 1;
+
+            // in case the target number of frames for FPS control
+            // has been reached calculates the number of FPS and
+            // flushes the value to the screen
+            if state.frame_count == state.visual_frequency * 2 {
+                let current_time = timer_subsystem.ticks();
+                let delta_time = (current_time - state.frame_start) as f32 / 1000.0;
+                state.fps = (state.frame_count as f32 / delta_time).round() as u32;
+                state.frame_count = 0;
+                state.frame_start = current_time;
+            }
+
             // updates the next update time reference to the current
             // time so that it can be used from game loop control
-            state.next_tick_time = current_time + (1000 / state.visual_frequency);
+            state.next_tick_time += 1000.0 / state.visual_frequency as f32 * ticks as f32;
+            state.next_tick_time_i = state.next_tick_time.ceil() as u32;
         }
 
         let current_time = timer_subsystem.ticks();
-        let pending_time = state.next_tick_time.saturating_sub(current_time);
+        let pending_time = state.next_tick_time_i.saturating_sub(current_time);
         timer_subsystem.delay(pending_time);
     }
 }

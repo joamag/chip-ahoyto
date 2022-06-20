@@ -22,6 +22,7 @@ The work of this emulator was inspired/started by [jc-chip8](https://github.com/
 * Multiple engine implementations (classic and neo)
 * Full compliant with test CHIP-8 ROMs
 * RAM snapshot saving and loading
+* [WebAssembly](https://webassembly.org) support 🌐
 
 ## Build
 
