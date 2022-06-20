@@ -62,6 +62,7 @@ const state = {
     background_index: 0,
     nextTickTime: 0,
     fps: VISUAL_HZ,
+    frameStart: new Date().getTime(),
     frameCount: 0
 };
 
@@ -85,6 +86,7 @@ const state = {
     // updates the ROM information on display
     setRom(ROM_NAME, data.length);
     setLogicFrequency(state.logicFrequency);
+    setFps(state.fps);
 
     // creates the CHIP-8 instance and resets it
     state.chip8 = new Chip8Neo();
@@ -101,17 +103,17 @@ const state = {
             continue;
         }
 
-        const currentTime = new Date().getTime();
+        let currentTime = new Date().getTime();
 
         // in case the time to draw the next frame has been
         // reached the flush of the logic and visuals is done
         if (currentTime >= state.nextTickTime) {
-            const ratioLogic = state.logicFrequency / VISUAL_HZ;
+            const ratioLogic = state.logicFrequency / state.visualFrequency;
             for (let i = 0; i < ratioLogic; i++) {
                 state.chip8.clock_ws();
             }
 
-            const ratioTimer = TIMER_HZ / VISUAL_HZ;
+            const ratioTimer = state.timerFrequency / state.visualFrequency;
             for (let i = 0; i < ratioTimer; i++) {
                 state.chip8.clock_dt_ws();
                 state.chip8.clock_st_ws();
@@ -121,18 +123,36 @@ const state = {
             // visual information coming in
             updateCanvas(state.chip8.vram_ws());
 
+            if (state.frameCount === state.visualFrequency * 3) {
+                const currentTime = new Date().getTime();
+                const deltaTime = (currentTime - state.frameStart) / 1000;
+                const fps = parseInt(Math.round(state.frameCount / deltaTime));
+                setFps(fps);
+                state.frameCount = 0;
+                state.frameStart = new Date().getTime();
+            }
+
+            // increments the number of frames rendered in the current
+            // section, this value is going to be used to calculate FPS
             state.frameCount += 1;
 
-
-            // updates the next update time reference to the current
-            // time so that it can be used from game loop control
-            state.nextTickTime = currentTime + 1000 / state.visualFrequency;
+            // updates the next update time reference to the, so that it
+            // can be used to control the game loop
+            state.nextTickTime = Math.max(
+                state.nextTickTime + 1000 / state.visualFrequency,
+                currentTime
+            );
         }
 
+        // calculates the amount of time until the next draw operation
+        // this is the amount of time that is going to be pending
+        currentTime = new Date().getTime();
+        const pendingTime = Math.max(state.nextTickTime - currentTime, 0);
+
         // waits a little bit for the next frame to be draw,
-        // this should control 
+        // this should control the flow of render
         await new Promise((resolve) => {
-            window.requestAnimationFrame(resolve);
+            setTimeout(resolve, pendingTime);
         });
     }
 })();
