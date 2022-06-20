@@ -210,10 +210,6 @@ const start = async ({
         [romName, romData] = [state.romName, state.romData];
     }
 
-    // updates the name of the currently selected engine
-    // to the one that has been provided
-    state.engine = engine;
-
     // selects the proper engine for execution
     // and builds a new instance of it
     switch (engine) {
@@ -236,6 +232,10 @@ const start = async ({
     // a valid state ready to be used
     state.chip8.reset_hard_ws();
     state.chip8.load_rom_ws(romData);
+
+    // updates the name of the currently selected engine
+    // to the one that has been provided (logic change)
+    if (engine) state.engine = engine;
 
     // updates the complete set of global information that
     // is going to be displayed
