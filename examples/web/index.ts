@@ -82,7 +82,7 @@ const state: State = {
     paused: false,
     background_index: 0,
     nextTickTime: 0,
-    fps: VISUAL_HZ,
+    fps: 0,
     frameStart: new Date().getTime(),
     frameCount: 0,
     romName: null,
@@ -187,11 +187,6 @@ const start = async ({ romPath = ROM_PATH, engine = "neo" } = {} ) => {
     const arrayBuffer = await blob.arrayBuffer();
     const data = new Uint8Array(arrayBuffer);
 
-    // updates the ROM information on display
-    setRom(romName, data.length);
-    setLogicFrequency(state.logicFrequency);
-    setFps(state.fps);
-
     // selects the proper engine for execution
     // and builds a new instance of it
     switch(engine) {
@@ -208,6 +203,13 @@ const start = async ({ romPath = ROM_PATH, engine = "neo" } = {} ) => {
     // a valid state ready to be used
     state.chip8.reset_hard_ws();
     state.chip8.load_rom_ws(data);
+
+    // updates the complete set of global information that
+    // is going to be displayed
+    setEngine(engine);
+    setRom(romName, data.length);
+    setLogicFrequency(state.logicFrequency);
+    setFps(state.fps);
 }
 
 const register = async () => {
@@ -412,6 +414,11 @@ const showToast = async (message: string, error = false, timeout = 3500) => {
         state.toastTimeout = null;
     }, timeout);
 }
+
+const setEngine = (name: string, upper = true) => {
+    name = upper ? name.toUpperCase() : name;
+    document.getElementById("engine").textContent = name;
+};
 
 const setRom = (name: string, size: number) => {
     state.romName = name;
