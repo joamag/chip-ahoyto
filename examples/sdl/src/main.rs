@@ -7,7 +7,7 @@ use sdl2::{
     keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
     surface::Surface, ttf::Hinting,
 };
-use std::{env::args, path::Path};
+use std::{cmp, env::args, path::Path};
 
 // handle the annoying Rect i32
 macro_rules! rect(
@@ -361,13 +361,27 @@ fn main() {
         let current_time = timer_subsystem.ticks();
 
         if current_time >= state.next_tick_time {
+            // makes sure that the next tick time is a valid number so
+            // that some of the calculus are valid
+            if state.next_tick_time == 0 {
+                state.next_tick_time = current_time;
+            }
+
+            // calculates the number of ticks that have elapsed since the
+            // last draw operation, this is critical to be able to properly
+            // operate the clock of the CPU in frame drop situations
+            let mut ticks = ((current_time - state.next_tick_time) as f32
+                / (1.0 / state.visual_frequency as f32 * 1000.0))
+                .ceil() as u32;
+            ticks = cmp::max(ticks, 1);
+
             // allocates space for the variable that is going to control
             // if a new beep was requested by the CHIP-8 logic cycles
             let mut beep = false;
 
             // calculates the ratio between the logic and the visual frequency
             // to make sure that the proper number of updates are performed
-            let logic_visual_ratio = state.logic_frequency / state.visual_frequency;
+            let logic_visual_ratio = state.logic_frequency / state.visual_frequency * ticks;
             for _ in 0..logic_visual_ratio {
                 // runs the clock operation in the CHIP-8 system,
                 // effectively changing the logic state of the machine
@@ -376,7 +390,7 @@ fn main() {
 
             // calculates the ration between the timer and the visual frequency
             // so that the proper timer updates are rune
-            let timer_visual_ratio = state.timer_frequency / state.visual_frequency;
+            let timer_visual_ratio = state.timer_frequency / state.visual_frequency * ticks;
             for _ in 0..timer_visual_ratio {
                 // runs the clock for the timers (both sound and delay),
                 // after that tries to determine if a beep should be sounded
@@ -463,7 +477,10 @@ fn main() {
 
             // updates the next update time reference to the current
             // time so that it can be used from game loop control
-            state.next_tick_time = current_time + (1000 / state.visual_frequency);
+            state.next_tick_time = cmp::max(
+                state.next_tick_time + (1000 / state.visual_frequency),
+                current_time,
+            );
         }
 
         let current_time = timer_subsystem.ticks();

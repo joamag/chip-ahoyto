@@ -108,12 +108,19 @@ const state = {
         // in case the time to draw the next frame has been
         // reached the flush of the logic and visuals is done
         if (currentTime >= state.nextTickTime) {
-            const ratioLogic = state.logicFrequency / state.visualFrequency;
+            // calculates the number of ticks that have elapsed since the
+            // last draw operation, this is critical to be able to properly
+            // operate the clock of the CPU in frame drop situations
+            if (state.nextTickTime === 0) state.nextTickTime = currentTime;
+            let ticks = Math.ceil((currentTime - state.nextTickTime) / (1 / state.visualFrequency * 1000));
+            ticks = Math.max(ticks, 1);
+
+            const ratioLogic = state.logicFrequency / state.visualFrequency * ticks;
             for (let i = 0; i < ratioLogic; i++) {
                 state.chip8.clock_ws();
             }
 
-            const ratioTimer = state.timerFrequency / state.visualFrequency;
+            const ratioTimer = state.timerFrequency / state.visualFrequency * ticks;
             for (let i = 0; i < ratioTimer; i++) {
                 state.chip8.clock_dt_ws();
                 state.chip8.clock_st_ws();
@@ -123,7 +130,10 @@ const state = {
             // visual information coming in
             updateCanvas(state.chip8.vram_ws());
 
-            if (state.frameCount === state.visualFrequency * 3) {
+            // in case the target number of frames for FPS control
+            // has been reached calculates the number of FPS and
+            // flushes the value to the screen
+            if (state.frameCount === state.visualFrequency) {
                 const currentTime = new Date().getTime();
                 const deltaTime = (currentTime - state.frameStart) / 1000;
                 const fps = parseInt(Math.round(state.frameCount / deltaTime));
