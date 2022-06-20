@@ -25,7 +25,7 @@ const COLORS: [[u8; 3]; 6] = [
     [0, 0, 255],
 ];
 
-const LOGIC_HZ: u32 = 480;
+const LOGIC_HZ: u32 = 600;
 const VISUAL_HZ: u32 = 60;
 const IDLE_HZ: u32 = 60;
 const TIMER_HZ: u32 = 60;

@@ -6,9 +6,9 @@ import {
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
 
-const LOGIC_HZ = 480;
-const TIMER_HZ = 60;
+const LOGIC_HZ = 600;
 const VISUAL_HZ = 60;
+const TIMER_HZ = 60;
 
 const DISPLAY_WIDTH = 64;
 const DISPLAY_HEIGHT = 32;
@@ -47,6 +47,8 @@ const ROM_NAME = "pong.ch8";
 const state = {
     chip8: null,
     logicFrequency: LOGIC_HZ,
+    visualFrequency: VISUAL_HZ,
+    timerFrequency: TIMER_HZ,
     canvas: null,
     canvasScaled: null,
     canvasCtx: null,
@@ -55,7 +57,8 @@ const state = {
     videoBuff: null,
     toastTimeout: null,
     paused: false,
-    background_index: 0
+    background_index: 0,
+    nextTickTime: 0
 };
 
 (async () => {
@@ -93,25 +96,33 @@ const state = {
             continue;
         }
 
-        const ratioLogic = state.logicFrequency / VISUAL_HZ;
-        for (let i = 0; i < ratioLogic; i++) {
-            state.chip8.clock_ws();
+        const currentTime = new Date().getTime();
+
+        if (currentTime >= state.nextTickTime) {
+            const ratioLogic = state.logicFrequency / VISUAL_HZ;
+            for (let i = 0; i < ratioLogic; i++) {
+                state.chip8.clock_ws();
+            }
+
+            const ratioTimer = TIMER_HZ / VISUAL_HZ;
+            for (let i = 0; i < ratioTimer; i++) {
+                state.chip8.clock_dt_ws();
+                state.chip8.clock_st_ws();
+            }
+
+            // updates the canvas object with the new
+            // visual information coming in
+            updateCanvas(state.chip8.vram_ws());
+
+            // updates the next update time reference to the current
+            // time so that it can be used from game loop control
+            state.nextTickTime = currentTime + 1000 / state.visualFrequency;
         }
 
-        const ratioTimer = TIMER_HZ / VISUAL_HZ;
-        for (let i = 0; i < ratioTimer; i++) {
-            state.chip8.clock_dt_ws();
-            state.chip8.clock_st_ws();
-        }
-
-        // updates the canvas object with the new
-        // visual information coming in
-        updateCanvas(state.chip8.vram_ws());
-
-        // waits a little bit for the next frame to be draw
-        // @todo NEED TO DEFINE A TARGET TIME
+        // waits a little bit for the next frame to be draw,
+        // this should control 
         await new Promise((resolve) => {
-            setTimeout(resolve, 1000 / VISUAL_HZ);
+            window.requestAnimationFrame(resolve);
         });
     }
 })();
