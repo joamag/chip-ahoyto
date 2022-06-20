@@ -80,6 +80,7 @@ const state = {
 
     // updates the ROM information on display
     setRom(ROM_NAME, data.length);
+    setLogicFrequency(state.logicFrequency);
 
     // creates the CHIP-8 instance and resets it
     state.chip8 = new Chip8Neo();
