@@ -378,6 +378,10 @@ impl Chip8Neo {
         self.reset_hard()
     }
 
+    pub fn beep_ws(&self) -> bool {
+        self.beep()
+    }
+
     pub fn vram_ws(&self) -> Vec<u8> {
         self.vram()
     }

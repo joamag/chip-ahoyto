@@ -331,7 +331,6 @@ impl Chip8Classic {
     }
 }
 
-
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Classic {
     pub fn load_rom_ws(&mut self, rom: &[u8]) {
@@ -344,6 +343,10 @@ impl Chip8Classic {
 
     pub fn reset_hard_ws(&mut self) {
         self.reset_hard()
+    }
+
+    pub fn beep_ws(&self) -> bool {
+        self.beep()
     }
 
     pub fn vram_ws(&self) -> Vec<u8> {
