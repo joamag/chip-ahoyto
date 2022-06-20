@@ -43,15 +43,13 @@ build-wasm:
 deploy-netlify-preview:
   stage: deploy
   script:
-    - npm install netlify-cli -g
-    - cd examples/web && netlify deploy --dir=.
+    - cd examples/web && npx --package=netlify-cli netlify deploy --dir=.
   only:
     - master
 
 deploy-netlify-prod:
   stage: deploy
   script:
-    - npm install netlify-cli -g
-    - cd examples/web && netlify deploy --dir=. --prod
+    - cd examples/web && npx --package=netlify-cli netlify deploy --dir=. --prod
   only:
     - tags
