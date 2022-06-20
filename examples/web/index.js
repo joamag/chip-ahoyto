@@ -130,21 +130,21 @@ const state = {
             // visual information coming in
             updateCanvas(state.chip8.vram_ws());
 
+            // increments the number of frames rendered in the current
+            // section, this value is going to be used to calculate FPS
+            state.frameCount += 1;
+
             // in case the target number of frames for FPS control
             // has been reached calculates the number of FPS and
             // flushes the value to the screen
-            if (state.frameCount === state.visualFrequency) {
+            if (state.frameCount === state.visualFrequency * 2) {
                 const currentTime = new Date().getTime();
                 const deltaTime = (currentTime - state.frameStart) / 1000;
                 const fps = parseInt(Math.round(state.frameCount / deltaTime));
                 setFps(fps);
                 state.frameCount = 0;
-                state.frameStart = new Date().getTime();
+                state.frameStart = currentTime;
             }
-
-            // increments the number of frames rendered in the current
-            // section, this value is going to be used to calculate FPS
-            state.frameCount += 1;
 
             // updates the next update time reference to the, so that it
             // can be used to control the game loop

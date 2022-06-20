@@ -93,6 +93,9 @@ pub struct State {
     beep_duration: f32,
     next_tick_time: u32,
     beep_ticks: u32,
+    frame_count: u32,
+    frame_start: u32,
+    fps: u32,
     pixel_color: [u8; 3],
     diag_color: [u8; 3],
     pixel_color_index: usize,
@@ -137,6 +140,9 @@ fn main() {
         beep_duration: BEEP_DURATION,
         next_tick_time: 0,
         beep_ticks: 0,
+        frame_count: 0,
+        frame_start: 0,
+        fps: 0,
         pixel_color: COLORS[0],
         diag_color: COLORS[1],
         pixel_color_index: 0,
@@ -444,7 +450,7 @@ fn main() {
                     state.system.name(),
                     state.rom_name,
                     state.logic_frequency,
-                    state.visual_frequency,
+                    state.fps,
                     state.system.pc(),
                     state.system.sp()
                 );
@@ -474,6 +480,21 @@ fn main() {
             // presents the canvas effectively updating the screen
             // information presented to the user
             canvas.present();
+
+            // increments the number of frames rendered in the current
+            // section, this value is going to be used to calculate FPS
+            state.frame_count += 1;
+
+            // in case the target number of frames for FPS control
+            // has been reached calculates the number of FPS and
+            // flushes the value to the screen
+            if state.frame_count == state.visual_frequency * 2 {
+                let current_time = timer_subsystem.ticks();
+                let delta_time = (current_time - state.frame_start) as f32 / 1000.0;
+                state.fps = (state.frame_count as f32 / delta_time).round() as u32;
+                state.frame_count = 0;
+                state.frame_start = current_time;
+            }
 
             // updates the next update time reference to the current
             // time so that it can be used from game loop control
