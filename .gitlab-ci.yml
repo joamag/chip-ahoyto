@@ -1,7 +1,11 @@
 image: hivesolutions/ubuntu_dev
 
+variables:
+  NETLIFY_SITE_ID: chip-ahoyto
+
 stages:
   - build
+  - deploy
 
 before_script:
   - apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q pkg-config nodejs npm
@@ -35,3 +39,19 @@ build-wasm:
   artifacts:
     paths:
       - examples/web
+
+deploy-netlify-preview:
+  stage: deploy
+  script:
+    - npm install netlify-cli -g
+    - cd examples/web && netlify deploy --dir=.
+  only:
+    - master
+
+deploy-netlify-prod:
+  stage: deploy
+  script:
+    - npm install netlify-cli -g
+    - cd examples/web && netlify deploy --dir=. --prod
+  only:
+    - tags
