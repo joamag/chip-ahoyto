@@ -19,3 +19,18 @@ build-rust:
     - rustc --version
     - cargo build
     - cargo build --release
+
+build-wasm:
+  stage: build
+  parallel:
+    matrix:
+      - RUST_VERSION: ["1.60.0"]
+  script:
+    - rustup toolchain install $RUST_VERSION
+    - rustup override set $RUST_VERSION
+    - rustc --version
+    - cargo install wasm-pack
+    - wasm-pack build --release --target=web --out-dir=examples/web/lib -- --features wasm
+  artifacts:
+    paths:
+      - examples/web
