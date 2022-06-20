@@ -39,6 +39,7 @@ wasm-pack build --release --target=nodejs -- --features wasm
 cargo install wasm-pack
 wasm-pack build --release --target=web --out-dir=examples/web/lib -- --features wasm
 cd examples/web
+npm install && npm run build
 python3 -m http.server
 ```
 

@@ -31,6 +31,7 @@ build-wasm:
     - rustc --version
     - cargo install wasm-pack
     - wasm-pack build --release --target=web --out-dir=examples/web/lib -- --features wasm
+    - npm install && npm run build
   artifacts:
     paths:
       - examples/web
