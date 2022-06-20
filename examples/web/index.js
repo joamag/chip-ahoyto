@@ -1,7 +1,7 @@
 import {
     default as wasm,
     Chip8Neo
-} from "./chip_ahoyto.js";
+} from "./lib/chip_ahoyto.js";
 
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
