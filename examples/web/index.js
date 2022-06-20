@@ -75,14 +75,14 @@ const state = {
 
     // runs the sequence as an infinite loop, running
     // the associated CPU cycles accordingly
-    while (true) {        
+    while (true) {
         const ratioLogic = state.logicFrequency / VISUAL_HZ;
-        for(let i = 0; i < ratioLogic; i++) {
+        for (let i = 0; i < ratioLogic; i++) {
             state.chip8.clock_ws();
         }
 
         const ratioTimer = TIMER_HZ / VISUAL_HZ;
-        for(let i = 0; i < ratioTimer; i++) {
+        for (let i = 0; i < ratioTimer; i++) {
             state.chip8.clock_dt_ws();
             state.chip8.clock_st_ws();
         }
@@ -90,9 +90,9 @@ const state = {
         // updates the canvas object with the new
         // visual information coming in
         updateCanvas(state.chip8.vram_ws());
-        
+
         // waits a little bit for the next frame to be draw
-        // @todo need to define target time for draw
+        // @todo NEED TO DEFINE A TARGET TIME
         await new Promise((resolve, reject) => {
             setTimeout(resolve, 1000 / VISUAL_HZ);
         });
@@ -128,7 +128,7 @@ const registerDrop = () => {
 
         state.chip8.reset_hard_ws();
         state.chip8.load_rom_ws(data);
-        
+
         setRom(file.name, file.size);
 
         showToast(`Loaded ${file.name} ROM successfully!`);
@@ -161,8 +161,7 @@ const registerKeys = () => {
             return;
         }
 
-        
-        switch(event.key) {
+        switch (event.key) {
             case "+":
                 setLogicFrequency(state.logicFrequency + 60);
                 break;
