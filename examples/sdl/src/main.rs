@@ -91,7 +91,8 @@ pub struct State {
     timer_frequency: u32,
     screen_scale: f32,
     beep_duration: f32,
-    next_tick_time: u32,
+    next_tick_time: f32,
+    next_tick_time_i: u32,
     beep_ticks: u32,
     frame_count: u32,
     frame_start: u32,
@@ -138,7 +139,8 @@ fn main() {
         timer_frequency: TIMER_HZ,
         screen_scale: SCREEN_SCALE,
         beep_duration: BEEP_DURATION,
-        next_tick_time: 0,
+        next_tick_time: 0.0,
+        next_tick_time_i: 0,
         beep_ticks: 0,
         frame_count: 0,
         frame_start: 0,
@@ -347,7 +349,7 @@ fn main() {
             .window_mut()
             .set_title(&format!(
                 "{} [{} hz, {} fps]",
-                state.title, state.logic_frequency, state.visual_frequency
+                state.title, state.logic_frequency, state.fps
             ))
             .unwrap();
 
@@ -366,17 +368,18 @@ fn main() {
 
         let current_time = timer_subsystem.ticks();
 
-        if current_time >= state.next_tick_time {
+        if current_time >= state.next_tick_time_i {
             // makes sure that the next tick time is a valid number so
             // that some of the calculus are valid
-            if state.next_tick_time == 0 {
-                state.next_tick_time = current_time;
+            if state.next_tick_time_i == 0 {
+                state.next_tick_time = current_time as f32;
+                state.next_tick_time_i = current_time;
             }
 
             // calculates the number of ticks that have elapsed since the
             // last draw operation, this is critical to be able to properly
             // operate the clock of the CPU in frame drop situations
-            let mut ticks = ((current_time - state.next_tick_time) as f32
+            let mut ticks = ((current_time - state.next_tick_time_i) as f32
                 / (1.0 / state.visual_frequency as f32 * 1000.0))
                 .ceil() as u32;
             ticks = cmp::max(ticks, 1);
@@ -498,14 +501,12 @@ fn main() {
 
             // updates the next update time reference to the current
             // time so that it can be used from game loop control
-            state.next_tick_time = cmp::max(
-                state.next_tick_time + (1000 / state.visual_frequency),
-                current_time,
-            );
+            state.next_tick_time += 1000.0 / state.visual_frequency as f32 * ticks as f32;
+            state.next_tick_time_i = state.next_tick_time.ceil() as u32;
         }
 
         let current_time = timer_subsystem.ticks();
-        let pending_time = state.next_tick_time.saturating_sub(current_time);
+        let pending_time = state.next_tick_time_i.saturating_sub(current_time);
         timer_subsystem.delay(pending_time);
     }
 }
