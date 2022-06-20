@@ -331,6 +331,46 @@ impl Chip8Classic {
     }
 }
 
+
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
+impl Chip8Classic {
+    pub fn load_rom_ws(&mut self, rom: &[u8]) {
+        self.load_rom(rom)
+    }
+
+    pub fn reset_ws(&mut self) {
+        self.reset()
+    }
+
+    pub fn reset_hard_ws(&mut self) {
+        self.reset_hard()
+    }
+
+    pub fn vram_ws(&self) -> Vec<u8> {
+        self.vram()
+    }
+
+    pub fn clock_ws(&mut self) {
+        self.clock()
+    }
+
+    pub fn clock_dt_ws(&mut self) {
+        self.clock_dt()
+    }
+
+    pub fn clock_st_ws(&mut self) {
+        self.clock_st()
+    }
+
+    pub fn key_press_ws(&mut self, key: u8) {
+        self.key_press(key)
+    }
+
+    pub fn key_lift_ws(&mut self, key: u8) {
+        self.key_lift(key)
+    }
+}
+
 impl Default for Chip8Classic {
     fn default() -> Chip8Classic {
         Chip8Classic::new()

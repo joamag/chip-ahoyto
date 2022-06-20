@@ -1,6 +1,7 @@
 import {
     default as wasm,
-    Chip8Neo
+    Chip8Neo,
+    Chip8Classic
 } from "./lib/chip_ahoyto.js";
 
 const PIXEL_SET_COLOR = 0x50cb93ff;
@@ -47,7 +48,7 @@ const ROM_PATH = "res/roms/pong.ch8";
 const ROM_NAME = "pong.ch8";
 
 type State = {
-    chip8: Chip8Neo,
+    chip8: Chip8Neo | Chip8Classic,
     logicFrequency: number,
     visualFrequency: number,
     timerFrequency: number,
