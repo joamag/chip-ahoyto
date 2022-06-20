@@ -148,10 +148,7 @@ const state = {
 
             // updates the next update time reference to the, so that it
             // can be used to control the game loop
-            state.nextTickTime = Math.max(
-                state.nextTickTime + 1000 / state.visualFrequency,
-                currentTime
-            );
+            state.nextTickTime += 1000 / state.visualFrequency * ticks;
         }
 
         // calculates the amount of time until the next draw operation
@@ -378,6 +375,7 @@ const pause = () => {
 
 const resume = () => {
     state.paused = false;
+    state.nextTickTime = new Date().getTime();
     const buttonPause = document.getElementById("button-pause");
     buttonPause.classList.remove("enabled");
     buttonPause.textContent = "Pause";
