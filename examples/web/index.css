@@ -22,7 +22,6 @@ html {
 body {
     font-family: "VT323", "Robot", "Open Sans", Arial, Helvetica, sans-serif;
     margin: 0px 0px 0px 0px;
-    background-color: #1b1a17;
     color: #ffffff;
     padding: 12px 12px 52px 12px;
 }
@@ -148,7 +147,6 @@ p {
     padding: 0px 22px 0px 22px;
     text-align: center;
     line-height: 40px;
-    background-color: #1b1a17;
 }
 
 .toast {
