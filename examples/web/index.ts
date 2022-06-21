@@ -268,6 +268,7 @@ const register = async () => {
         registerDrop(),
         registerKeys(),
         registerButtons(),
+        registerKeyboard(),
         registerCanvas(),
         registerToast(),
         registerModal()
@@ -466,6 +467,23 @@ const registerButtons = () => {
         start({ engine: null, romName: file.name, romData: romData });
 
         showToast(`Loaded ${file.name} ROM successfully!`);
+    });
+};
+
+const registerKeyboard = () => {
+    const keyboard = document.getElementById("keyboard");
+    const keys = keyboard.getElementsByClassName("key");
+
+    Array.prototype.forEach.call(keys, (k: Element) => {
+        k.addEventListener("mousedown", function () {
+            const keyCode = KEYS[this.textContent.toLowerCase()];
+            state.chip8.key_press_ws(keyCode);
+        });
+
+        k.addEventListener("mouseup", function () {
+            const keyCode = KEYS[this.textContent.toLowerCase()];
+            state.chip8.key_lift_ws(keyCode);
+        });
     });
 };
 
