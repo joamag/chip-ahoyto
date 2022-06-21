@@ -246,14 +246,16 @@ const start = async ({
 };
 
 const register = async () => {
-    registerDrop();
-    registerKeys();
-    registerButtons();
-    registerToast();
+    await Promise.all([
+        registerDrop(),
+        registerKeys(),
+        registerButtons(),
+        registerToast()
+    ]);
 };
 
 const init = async () => {
-    initCanvas();
+    await Promise.all([initBase(), initCanvas()]);
 };
 
 const registerDrop = () => {
@@ -437,7 +439,13 @@ const registerToast = () => {
     });
 };
 
-const initCanvas = () => {
+const initBase = async () => {
+    const response = await fetch("package.json");
+    const info = await response.json();
+    setVersion(info.version);
+};
+
+const initCanvas = async () => {
     // initializes the off-screen canvas that is going to be
     // used in the drawing process
     state.canvas = document.createElement("canvas");
@@ -485,6 +493,10 @@ const showToast = async (message: string, error = false, timeout = 3500) => {
         toast.classList.remove("visible");
         state.toastTimeout = null;
     }, timeout);
+};
+
+const setVersion = (value: string) => {
+    document.getElementById("version").textContent = value;
 };
 
 const setEngine = (name: string, upper = true) => {
