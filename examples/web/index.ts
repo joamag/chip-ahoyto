@@ -257,7 +257,7 @@ const start = async ({
 
     // updates the complete set of global information that
     // is going to be displayed
-    setEngine(engine);
+    setEngine(state.engine);
     setRom(romName, romData);
     setLogicFrequency(state.logicFrequency);
     setFps(state.fps);
@@ -280,8 +280,12 @@ const init = async () => {
 
 const registerDrop = () => {
     document.addEventListener("drop", async (event) => {
-        if (!event.dataTransfer.files || event.dataTransfer.files.length === 0)
+        if (
+            !event.dataTransfer.files ||
+            event.dataTransfer.files.length === 0
+        ) {
             return;
+        }
 
         event.preventDefault();
         event.stopPropagation();
@@ -299,10 +303,7 @@ const registerDrop = () => {
         const arrayBuffer = await file.arrayBuffer();
         const romData = new Uint8Array(arrayBuffer);
 
-        state.chip8.reset_hard_ws();
-        state.chip8.load_rom_ws(romData);
-
-        setRom(file.name, romData);
+        start({ engine: null, romName: file.name, romData: romData });
 
         showToast(`Loaded ${file.name} ROM successfully!`);
     });
@@ -451,6 +452,20 @@ const registerButtons = () => {
             (state.background_index + 1) % BACKGROUNDS.length;
         const background = BACKGROUNDS[state.background_index];
         setBackground(background);
+    });
+
+    const buttonUploadFile = document.getElementById(
+        "button-upload-file"
+    ) as HTMLInputElement;
+    buttonUploadFile.addEventListener("change", async () => {
+        const file = buttonUploadFile.files[0];
+
+        const arrayBuffer = await file.arrayBuffer();
+        const romData = new Uint8Array(arrayBuffer);
+
+        start({ engine: null, romName: file.name, romData: romData });
+
+        showToast(`Loaded ${file.name} ROM successfully!`);
     });
 };
 
