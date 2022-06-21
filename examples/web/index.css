@@ -83,10 +83,8 @@ p {
 
 .main > .side-left .canvas-container.fullscreen > .canvas {
     border: none;
-    height: 100%;
     margin: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
-    width: 100%;
 }
 
 .main > .side-right {
@@ -286,8 +284,16 @@ p {
     background-color: #50cb93;
 }
 
+.tiny-button.red:hover {
+    background-color: #e63946;
+}
+
 .tiny-button:active {
     background-color: #2a9d8f;
+}
+
+.tiny-button.red:active {
+    background-color: #bf2a37;
 }
 
 .tiny-button > img {
@@ -454,6 +460,7 @@ p {
 
 .modal-container > .modal .modal-text {
     font-size: 20px;
+    line-height: 26px;
 }
 
 .modal-container > .modal .modal-buttons {
@@ -464,6 +471,7 @@ p {
 
 .modal-container > .modal .modal-buttons > .tiny-button {
     margin-right: 12px;
+    min-width: 120px;
 }
 
 .modal-container > .modal .modal-buttons > .tiny-button:last-child {

@@ -395,7 +395,7 @@ const registerButtons = () => {
     const buttonBenchmark = document.getElementById("button-benchmark");
     buttonBenchmark.addEventListener("click", async () => {
         const result = await showModal(
-            "Are you sure you want to start a benchmark?",
+            "Are you sure you want to start a benchmark?\nThe benchmark is considered an expensive operation!",
             "Confirm"
         );
         if (!result) return;
@@ -475,6 +475,12 @@ const registerModal = () => {
     modalConfirm.addEventListener("click", () => {
         hideModal(true);
     });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            hideModal(false);
+        }
+    });
 };
 
 const initBase = async () => {
@@ -542,7 +548,7 @@ const showModal = async (
     const modalText = document.getElementById("modal-text");
     modalContainer.classList.add("visible");
     modalTitle.textContent = title;
-    modalText.textContent = message;
+    modalText.innerHTML = message.replace(/\n/g, "<br/>");
     const result = (await new Promise((resolve) => {
         global.modalCallback = resolve;
     })) as boolean;
@@ -553,6 +559,7 @@ const hideModal = async (result = true) => {
     const modalContainer = document.getElementById("modal-container");
     modalContainer.classList.remove("visible");
     if (global.modalCallback) global.modalCallback(result);
+    global.modalCallback = null;
 };
 
 const setVersion = (value: string) => {
