@@ -357,12 +357,7 @@ p {
     height: 100%;
     justify-content: center;
     left: 0px;
-    opacity: 0;
-    -o-opacity: 0;
-    -ms-opacity: 0;
-    -moz-opacity: 0;
-    -khtml-opacity: 0;
-    -webkit-opacity: 0;
+    opacity: 1;
     pointer-events: none;
     position: fixed;
     text-align: center;
@@ -399,6 +394,8 @@ p {
 
 .modal-container > .modal .modal-top-buttons {
     float: right;
+    margin-top: -10px;
+    margin-right: -10px;
 }
 
 .modal-container > .modal .modal-title {
