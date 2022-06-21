@@ -75,6 +75,10 @@ type State = {
     romSize: number;
 };
 
+type Global = {
+    modalCallback: Function;
+};
+
 const state: State = {
     chip8: null,
     engine: null,
@@ -97,6 +101,10 @@ const state: State = {
     romName: null,
     romData: null,
     romSize: 0
+};
+
+const global: Global = {
+    modalCallback: null
 };
 
 const sound = ((data = SOUND_DATA, volume = 0.2) => {
@@ -260,7 +268,8 @@ const register = async () => {
         registerDrop(),
         registerKeys(),
         registerButtons(),
-        registerToast()
+        registerToast(),
+        registerModal()
     ]);
 };
 
@@ -384,7 +393,12 @@ const registerButtons = () => {
     });
 
     const buttonBenchmark = document.getElementById("button-benchmark");
-    buttonBenchmark.addEventListener("click", () => {
+    buttonBenchmark.addEventListener("click", async () => {
+        const result = await showModal(
+            "Are you sure you want to start a benchmark?",
+            "Confirm"
+        );
+        if (!result) return;
         buttonBenchmark.classList.add("enabled");
         pause();
         try {
@@ -441,8 +455,25 @@ const registerButtons = () => {
 
 const registerToast = () => {
     const toast = document.getElementById("toast");
-    toast.addEventListener("click", (event) => {
+    toast.addEventListener("click", () => {
         toast.classList.remove("visible");
+    });
+};
+
+const registerModal = () => {
+    const modalClose = document.getElementById("modal-close");
+    modalClose.addEventListener("click", () => {
+        hideModal(false);
+    });
+
+    const modalCancel = document.getElementById("modal-cancel");
+    modalCancel.addEventListener("click", () => {
+        hideModal(false);
+    });
+
+    const modalConfirm = document.getElementById("modal-confirm");
+    modalConfirm.addEventListener("click", () => {
+        hideModal(true);
     });
 };
 
@@ -500,6 +531,28 @@ const showToast = async (message: string, error = false, timeout = 3500) => {
         toast.classList.remove("visible");
         state.toastTimeout = null;
     }, timeout);
+};
+
+const showModal = async (
+    message: string,
+    title = "Alert"
+): Promise<boolean> => {
+    const modalContainer = document.getElementById("modal-container");
+    const modalTitle = document.getElementById("modal-title");
+    const modalText = document.getElementById("modal-text");
+    modalContainer.classList.add("visible");
+    modalTitle.textContent = title;
+    modalText.textContent = message;
+    const result = (await new Promise((resolve) => {
+        global.modalCallback = resolve;
+    })) as boolean;
+    return result;
+};
+
+const hideModal = async (result = true) => {
+    const modalContainer = document.getElementById("modal-container");
+    modalContainer.classList.remove("visible");
+    if (global.modalCallback) global.modalCallback(result);
 };
 
 const setVersion = (value: string) => {
