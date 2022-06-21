@@ -1,4 +1,5 @@
 import { default as wasm, Chip8Neo, Chip8Classic } from "./lib/chip_ahoyto.js";
+import info from "./package.json";
 
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
@@ -39,7 +40,8 @@ const KEYS: Record<string, number> = {
     v: 0x0f
 };
 
-const ROM_PATH = "res/roms/pong.ch8";
+// @ts-ignore: ts(2580)
+const ROM_PATH = require("../../res/roms/pong.ch8");
 
 type State = {
     chip8: Chip8Neo | Chip8Classic;
@@ -440,8 +442,6 @@ const registerToast = () => {
 };
 
 const initBase = async () => {
-    const response = await fetch("package.json");
-    const info = await response.json();
     setVersion(info.version);
 };
 
@@ -607,7 +607,9 @@ const fetchRom = async (romPath: string): Promise<[string, Uint8Array]> => {
     // extracts the name of the ROM from the provided
     // path by splitting its structure
     const romPathS = romPath.split(/\//g);
-    const romName = romPathS[romPathS.length - 1];
+    let romName = romPathS[romPathS.length - 1].split("?")[0];
+    const romNameS = romName.split(/\./g);
+    romName = `${romNameS[0]}.${romNameS[romNameS.length - 1]}`;
 
     // loads the ROM data and converts it into the
     // target byte array buffer (to be used by WASM)

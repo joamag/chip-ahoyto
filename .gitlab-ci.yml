@@ -40,7 +40,7 @@ build-wasm:
     - rustc --version
     - cargo install wasm-pack
     - wasm-pack build --release --target=web --out-dir=examples/web/lib -- --features wasm
-    - cd examples/web && npm install && npm run build && rm -rf node_modules package-lock.json
+    - cd examples/web && npm install && npm run build
   artifacts:
     paths:
       - examples/web
@@ -48,7 +48,7 @@ build-wasm:
 deploy-netlify-preview:
   stage: deploy
   script:
-    - cd examples/web
+    - cd examples/web/dist
     - npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=.
   only:
     - master
@@ -56,7 +56,7 @@ deploy-netlify-preview:
 deploy-netlify-prod:
   stage: deploy
   script:
-    - cd examples/web
+    - cd examples/web/dist
     - npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=. --prod
   only:
     - tags
