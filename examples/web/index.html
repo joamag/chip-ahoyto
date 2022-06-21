@@ -12,6 +12,9 @@
         <div class="main">
             <div class="side-left">
                 <div id="canvas-container" class="canvas-container">
+                    <span id="canvas-close" class="magnify-button canvas-close">
+                        <img class="large" src="res/minimise.svg"/>
+                    </span>
                     <canvas id="chip-canvas" class="canvas" width="640" height="320"></canvas>
                 </div>
             </div>
@@ -75,7 +78,7 @@
             <div id="modal" class="modal">
                 <div class="modal-top-buttons">
                     <span id="modal-close" class="tiny-button rounded no-text">
-                        <img class="large" src="res/close.svg"/>
+                        <img class="medium" src="res/close.svg"/>
                     </span>
                 </div>
                 <h2 id="modal-title" class="modal-title">Alert</h2>
@@ -96,6 +99,7 @@
                 </div>
             </div>
         </div>
+        <div id="footer-background" class="footer-background"></div>
         <div id="footer" class="footer">
             Built with ❤️ by <a href="https://joao.me" target="_blank">João Magalhães</a>
         </div>

@@ -268,6 +268,7 @@ const register = async () => {
         registerDrop(),
         registerKeys(),
         registerButtons(),
+        registerCanvas(),
         registerToast(),
         registerModal()
     ]);
@@ -453,6 +454,13 @@ const registerButtons = () => {
     });
 };
 
+const registerCanvas = () => {
+    const canvasClose = document.getElementById("canvas-close");
+    canvasClose.addEventListener("click", () => {
+        minimize();
+    });
+};
+
 const registerToast = () => {
     const toast = document.getElementById("toast");
     toast.addEventListener("click", () => {
@@ -595,7 +603,9 @@ const setFps = (value: number) => {
 
 const setBackground = (value: string) => {
     document.body.style.backgroundColor = `#${value}`;
-    document.getElementById("footer").style.backgroundColor = `#${value}`;
+    document.getElementById(
+        "footer-background"
+    ).style.backgroundColor = `#${value}f2`;
 };
 
 const toggleRunning = () => {
