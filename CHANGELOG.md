@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *
 
+## [0.3.0] - 2022-06-21
+
+### Changed
+
+* Started using [parcel](https://parceljs.org) for bundling resources
+
 ## [0.2.0] - 2022-06-21
 
 ### Added
