@@ -379,9 +379,3 @@ impl Default for Chip8Classic {
         Chip8Classic::new()
     }
 }
-
-impl Display for Chip8Classic {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "PC: 0x{:04x}\nSP: 0x{:04x}", self.pc, self.sp)
-    }
-}
