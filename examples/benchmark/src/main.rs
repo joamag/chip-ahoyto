@@ -8,7 +8,7 @@ const CYCLE_COUNT: u64 = 5_000_000_000;
 fn main() {
     let chips: [Box<dyn Chip8>; 2] = [Box::new(Chip8Classic::new()), Box::new(Chip8Neo::new())];
 
-    let rom_path = "./res/pong.ch8";
+    let rom_path = "../../res/roms/pong.ch8";
     let rom = read_file(rom_path);
 
     for mut chip8 in chips {

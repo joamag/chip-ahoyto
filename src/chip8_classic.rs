@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use crate::{chip8::Chip8, util::random};
 
 #[cfg(feature = "wasm")]
