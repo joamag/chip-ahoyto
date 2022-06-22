@@ -3,6 +3,7 @@ import info from "./package.json";
 
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
+const PIXEL_ERROR_COLOR = 0xe63946ff;
 
 const LOGIC_HZ = 600;
 const VISUAL_HZ = 60;
@@ -114,7 +115,7 @@ const sound = ((data = SOUND_DATA, volume = 0.2) => {
     return sound;
 })();
 
-(async () => {
+const main = async () => {
     // initializes the WASM module, this is required
     // so that the global symbols become available
     await wasm();
@@ -138,66 +139,37 @@ const sound = ((data = SOUND_DATA, volume = 0.2) => {
             continue;
         }
 
+        // obtains the current time, this value is going
+        // to be used to compute the need for tick computation
         let currentTime = new Date().getTime();
 
-        // in case the time to draw the next frame has been
-        // reached the flush of the logic and visuals is done
-        if (currentTime >= state.nextTickTime) {
-            // initializes the flag that is going to control is a beep
-            // is going to be issued
-            let beepFlag = false;
+        try {
+            tick(currentTime);
+        } catch (err) {
+            // sets the default error message to be displayed
+            // to the user
+            let message = String(err);
 
-            // calculates the number of ticks that have elapsed since the
-            // last draw operation, this is critical to be able to properly
-            // operate the clock of the CPU in frame drop situations
-            if (state.nextTickTime === 0) state.nextTickTime = currentTime;
-            let ticks = Math.ceil(
-                (currentTime - state.nextTickTime) /
-                    ((1 / state.visualFrequency) * 1000)
-            );
-            ticks = Math.max(ticks, 1);
-
-            const ratioLogic =
-                (state.logicFrequency / state.visualFrequency) * ticks;
-            for (let i = 0; i < ratioLogic; i++) {
-                state.chip8.clock_ws();
+            // verifies if the current issue is a panic one
+            // and if that's the case restarts the WASM sub
+            // system and the machine state (to be able to recover)
+            // also set the red color on screen to indicate the issue
+            const isPanic = err.message === "unreachable";
+            if (isPanic) {
+                await wasm();
+                await start({});
+                clearCanvas(PIXEL_ERROR_COLOR);
+                message = "Unrecoverable error, executing low level";
             }
 
-            const ratioTimer =
-                (state.timerFrequency / state.visualFrequency) * ticks;
-            for (let i = 0; i < ratioTimer; i++) {
-                state.chip8.clock_dt_ws();
-                state.chip8.clock_st_ws();
-                beepFlag ||= state.chip8.beep_ws();
-            }
+            // pauses the machine, allowing the end-user to act
+            // on the error
+            pause();
 
-            // in case the beep flag is active issue a sound during a bried
-            // period, to notify the user about a certain event
-            if (beepFlag) beep();
-
-            // updates the canvas object with the new
-            // visual information coming in
-            updateCanvas(state.chip8.vram_ws());
-
-            // increments the number of frames rendered in the current
-            // section, this value is going to be used to calculate FPS
-            state.frameCount += 1;
-
-            // in case the target number of frames for FPS control
-            // has been reached calculates the number of FPS and
-            // flushes the value to the screen
-            if (state.frameCount === state.visualFrequency * SAMPLE_RATE) {
-                const currentTime = new Date().getTime();
-                const deltaTime = (currentTime - state.frameStart) / 1000;
-                const fps = Math.round(state.frameCount / deltaTime);
-                setFps(fps);
-                state.frameCount = 0;
-                state.frameStart = currentTime;
-            }
-
-            // updates the next update time reference to the, so that it
-            // can be used to control the game loop
-            state.nextTickTime += (1000 / state.visualFrequency) * ticks;
+            // displays the error information to both the end-user
+            // and the developer (for dianostics)
+            showToast(message, true, 5000);
+            console.error(err);
         }
 
         // calculates the amount of time until the next draw operation
@@ -211,10 +183,71 @@ const sound = ((data = SOUND_DATA, volume = 0.2) => {
             setTimeout(resolve, pendingTime);
         });
     }
-})();
+};
+
+const tick = (currentTime: number) => {
+    // in case the time to draw the next frame has not been
+    // reached the flush of the "tick" logic is skiped
+    if (currentTime < state.nextTickTime) return;
+
+    // initializes the flag that is going to control is a beep
+    // is going to be issued
+    let beepFlag = false;
+
+    // calculates the number of ticks that have elapsed since the
+    // last draw operation, this is critical to be able to properly
+    // operate the clock of the CPU in frame drop situations
+    if (state.nextTickTime === 0) state.nextTickTime = currentTime;
+    let ticks = Math.ceil(
+        (currentTime - state.nextTickTime) /
+            ((1 / state.visualFrequency) * 1000)
+    );
+    ticks = Math.max(ticks, 1);
+
+    const ratioLogic = (state.logicFrequency / state.visualFrequency) * ticks;
+    for (let i = 0; i < ratioLogic; i++) {
+        state.chip8.clock_ws();
+    }
+
+    const ratioTimer = (state.timerFrequency / state.visualFrequency) * ticks;
+    for (let i = 0; i < ratioTimer; i++) {
+        state.chip8.clock_dt_ws();
+        state.chip8.clock_st_ws();
+        beepFlag ||= state.chip8.beep_ws();
+    }
+
+    // in case the beep flag is active issue a sound during a bried
+    // period, to notify the user about a certain event
+    if (beepFlag) beep();
+
+    // updates the canvas object with the new
+    // visual information coming in
+    updateCanvas(state.chip8.vram_ws());
+
+    // increments the number of frames rendered in the current
+    // section, this value is going to be used to calculate FPS
+    state.frameCount += 1;
+
+    // in case the target number of frames for FPS control
+    // has been reached calculates the number of FPS and
+    // flushes the value to the screen
+    if (state.frameCount === state.visualFrequency * SAMPLE_RATE) {
+        const currentTime = new Date().getTime();
+        const deltaTime = (currentTime - state.frameStart) / 1000;
+        const fps = Math.round(state.frameCount / deltaTime);
+        setFps(fps);
+        state.frameCount = 0;
+        state.frameStart = currentTime;
+    }
+
+    // updates the next update time reference to the, so that it
+    // can be used to control the game loop
+    state.nextTickTime += (1000 / state.visualFrequency) * ticks;
+};
 
 const start = async ({
     engine = "neo",
+    restore = true,
     loadRom = false,
     romPath = ROM_PATH,
     romName = null as string,
@@ -261,6 +294,10 @@ const start = async ({
     setRom(romName, romData);
     setLogicFrequency(state.logicFrequency);
     setFps(state.fps);
+
+    // in case the restore (state) flag is set
+    // then resumes the machine execution
+    if (restore) resume();
 };
 
 const register = async () => {
@@ -618,6 +655,14 @@ const updateCanvas = (pixels: Uint8Array) => {
     state.canvasScaledCtx.drawImage(state.canvas, 0, 0);
 };
 
+const clearCanvas = (color = PIXEL_UNSET_COLOR) => {
+    for (let i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT; i++) {
+        state.videoBuff.setUint32(i * 4, color);
+    }
+    state.canvasCtx.putImageData(state.image, 0, 0);
+    state.canvasScaledCtx.drawImage(state.canvas, 0, 0);
+};
+
 const showToast = async (message: string, error = false, timeout = 3500) => {
     const toast = document.getElementById("toast");
     toast.classList.remove("error");
@@ -795,3 +840,7 @@ const beep = async () => {
     sound.muted = false;
     await sound.play();
 };
+
+(async () => {
+    await main();
+})();
