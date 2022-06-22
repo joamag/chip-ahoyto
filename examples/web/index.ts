@@ -497,8 +497,18 @@ const registerKeyboard = () => {
     const keyboard = document.getElementById("keyboard");
     const keys = keyboard.getElementsByClassName("key");
 
+    keyboard.addEventListener("touchstart", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+
+    keyboard.addEventListener("touchend", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+
     Array.prototype.forEach.call(keys, (k: Element) => {
-        k.addEventListener("mousedown", function () {
+        k.addEventListener("mousedown", function (event) {
             const keyCode = KEYS[this.textContent.toLowerCase()];
             state.chip8.key_press_ws(keyCode);
             event.preventDefault();
@@ -512,14 +522,14 @@ const registerKeyboard = () => {
             event.stopPropagation();
         });
 
-        k.addEventListener("mouseup", function () {
+        k.addEventListener("mouseup", function (event) {
             const keyCode = KEYS[this.textContent.toLowerCase()];
             state.chip8.key_lift_ws(keyCode);
             event.preventDefault();
             event.stopPropagation();
         });
 
-        k.addEventListener("touchend", function () {
+        k.addEventListener("touchend", function (event) {
             const keyCode = KEYS[this.textContent.toLowerCase()];
             state.chip8.key_lift_ws(keyCode);
             event.preventDefault();
