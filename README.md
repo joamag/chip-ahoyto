@@ -28,8 +28,11 @@ You can check a working version of the emulator at **[chip-ahoyto.joao.me](https
 
 ## Deployments
 
-* Netlify - [chip-ahoyto.netlify.app](https://chip-ahoyto.netlify.app)
-* Cloudfare - [master.chip-ahoyto.pages.dev](https://master.chip-ahoyto.pages.dev)
+| Provider  | Stable  | URL                                                                  |
+| --------- | ------- | -------------------------------------------------------------------- |
+| Netlify   | `True`  | [chip-ahoyto.netlify.app](https://chip-ahoyto.netlify.app)           |
+| Cloudfare | `True`  | [chip-ahoyto.pages.dev](https://chip-ahoyto.pages.dev)               |
+| Cloudfare | `False` | [master.chip-ahoyto.pages.dev](https://master.chip-ahoyto.pages.dev) |
 
 ## Build
 
