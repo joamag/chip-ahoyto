@@ -493,11 +493,29 @@ const registerKeyboard = () => {
         k.addEventListener("mousedown", function () {
             const keyCode = KEYS[this.textContent.toLowerCase()];
             state.chip8.key_press_ws(keyCode);
+            event.preventDefault();
+            event.stopPropagation();
+        });
+
+        k.addEventListener("touchstart", function (event) {
+            const keyCode = KEYS[this.textContent.toLowerCase()];
+            state.chip8.key_press_ws(keyCode);
+            event.preventDefault();
+            event.stopPropagation();
         });
 
         k.addEventListener("mouseup", function () {
             const keyCode = KEYS[this.textContent.toLowerCase()];
             state.chip8.key_lift_ws(keyCode);
+            event.preventDefault();
+            event.stopPropagation();
+        });
+
+        k.addEventListener("touchend", function () {
+            const keyCode = KEYS[this.textContent.toLowerCase()];
+            state.chip8.key_lift_ws(keyCode);
+            event.preventDefault();
+            event.stopPropagation();
         });
     });
 };

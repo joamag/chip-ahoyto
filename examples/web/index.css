@@ -547,6 +547,18 @@ p {
 .keyboard {
     font-size: 0px;
     text-align: center;
+    touch-callout: none;
+    -o-touch-callout: none;
+    -ms-touch-callout: none;
+    -moz-touch-callout: none;
+    -khtml-touch-callout: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
 }
 
 .keyboard > .keyboard-line {
@@ -572,12 +584,6 @@ p {
     line-height: 46px;
     margin-right: 14px;
     text-align: center;
-    user-select: none;
-    -o-user-select: none;
-    -ms-user-select: none;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
     width: 48px;
 }
 
