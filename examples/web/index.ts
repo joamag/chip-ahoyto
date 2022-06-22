@@ -157,9 +157,9 @@ const main = async () => {
             const isPanic = err.message === "unreachable";
             if (isPanic) {
                 await wasm();
-                await start({});
-                clearCanvas(PIXEL_ERROR_COLOR);
-                message = "Unrecoverable error, executing low level";
+                await start();
+                clearCanvas();
+                message = "Unrecoverable error, restarting CHIP-8";
             }
 
             // pauses the machine, allowing the end-user to act
