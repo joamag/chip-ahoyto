@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+*
+
+### Fixed
+
+*
+
+## [0.3.2] - 2022-06-22
+
+### Changed
+
 * Improved loading speed and page score
 
 ### Fixed
