@@ -13,11 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-*
+* Improved loading speed and page score
 
 ### Fixed
 
-*
+* Issue related with flickering on page loading
 
 ## [0.3.1] - 2022-06-22
 
