@@ -426,7 +426,6 @@ p {
     align-items: center;
     background-color: rgba(20, 20, 20, 0.95);
     display: flex;
-    padding: 0px 12px 0px 12px;
     height: 100%;
     justify-content: center;
     left: 0px;
@@ -436,6 +435,7 @@ p {
     -moz-opacity: 0;
     -khtml-opacity: 0;
     -webkit-opacity: 0;
+    padding: 0px 12px 0px 12px;
     pointer-events: none;
     position: fixed;
     text-align: center;
@@ -479,7 +479,6 @@ p {
     -moz-box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.24);
     -khtml-box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.24);
     -webkit-box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.24);
-    width: 480px;
     max-width: 100%;
     padding: 24px 24px 24px 24px;
     text-align: left;
@@ -495,6 +494,7 @@ p {
     -moz-transition: transform 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
     -khtml-transition: transform 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
     -webkit-transition: transform 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+    width: 480px;
 }
 
 .modal-container.visible > .modal {
@@ -534,6 +534,12 @@ p {
     font-size: 22px;
     margin-top: 24px;
     text-align: center;
+    user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
 }
 
 .modal-container > .modal .modal-buttons > .tiny-button {
