@@ -1,6 +1,6 @@
 {
     "name": "chip-ahoyto-web",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "The web version of CHIP-Ahoyto",
     "repository": {
         "type": "git",

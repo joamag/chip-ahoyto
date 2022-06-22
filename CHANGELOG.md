@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+*
+
+### Changed
+
+*
+
+### Fixed
+
+*
+
+## [0.3.1] - 2022-06-22
+
+### Added
+
 * Support for on screen keyboard
 
 ### Changed
