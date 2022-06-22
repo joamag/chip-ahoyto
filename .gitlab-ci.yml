@@ -2,6 +2,8 @@ image: hivesolutions/ubuntu_dev
 
 variables:
   NETLIFY_SITE_ID: chip-ahoyto
+  NETLIFY_AUTH_TOKEN: $NETLIFY_AUTH_TOKEN
+  CLOUDFLARE_API_TOKEN: $CLOUDFLARE_API_TOKEN
 
 stages:
   - build
