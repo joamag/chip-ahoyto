@@ -26,6 +26,11 @@ You can check a working version of the emulator at **[chip-ahoyto.joao.me](https
 * RAM snapshot saving and loading
 * [WebAssembly](https://webassembly.org) support 🌐
 
+## Deployments
+
+* Netlify - [chip-ahoyto.netlify.app](https://chip-ahoyto.netlify.app)
+* Cloudfare - [master.chip-ahoyto.pages.dev](https://master.chip-ahoyto.pages.dev)
+
 ## Build
 
 ### WASM for Node.js
