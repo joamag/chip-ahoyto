@@ -432,6 +432,21 @@ const registerButtons = () => {
         maximize();
     });
 
+    const buttonKeyboard = document.getElementById("button-keyboard");
+    buttonKeyboard.addEventListener("click", () => {
+        const sectionKeyboard = document.getElementById("section-keyboard");
+        const separatorKeyboard = document.getElementById("separator-keyboard");
+        if (buttonKeyboard.classList.contains("enabled")) {
+            sectionKeyboard.style.display = "none";
+            separatorKeyboard.style.display = "none";
+            buttonKeyboard.classList.remove("enabled");
+        } else {
+            sectionKeyboard.style.display = "block";
+            separatorKeyboard.style.display = "block";
+            buttonKeyboard.classList.add("enabled");
+        }
+    });
+
     const buttonInformation = document.getElementById("button-information");
     buttonInformation.addEventListener("click", () => {
         const sectionDiag = document.getElementById("section-diag");

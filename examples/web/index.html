@@ -22,7 +22,8 @@
             </div>
         </div>
         <div class="side-right">
-            <h1>CHIP-Ahoyto <span id="version"></span> <img class="logo-image" src="res/thunder.png" alt="thunder" /></h1>
+            <h1>CHIP-Ahoyto <span id="version"></span> <img class="logo-image" src="res/thunder.png" alt="thunder" />
+            </h1>
             <div class="separator"></div>
             <p>This is a <a href="https://en.wikipedia.org/wiki/CHIP-8" target="_blank">CHIP-8</a> emulator built using
                 the <a href="https://www.rust-lang.org" target="_blank">Rust Programming Language</a> and is running
@@ -32,7 +33,7 @@
                     target="_blank">GitLab</a>.</p>
             <p>TIP: Drag and Drop ROM files to the Browser to load the ROM.</p>
             <div class="separator"></div>
-            <div if="section-keyboard" class="section">
+            <div id="section-keyboard" class="section" style="display: none;">
                 <div id="keyboard" class="keyboard">
                     <div class="keyboard-line">
                         <span class="key">1</span>
@@ -60,7 +61,7 @@
                     </div>
                 </div>
             </div>
-            <div class="separator"></div>
+            <div id="separator-keyboard" class="separator" style="display: none;"></div>
             <div id="section-diag" class="section">
                 <dl class="diag">
                     <dt>Engine</dt>
@@ -92,6 +93,9 @@
                     </span>
                     <span id="button-fullscreen" class="tiny-button border padded">
                         <img src="res/maximise.svg" alt="maximise" /><span>Fullscreen</span>
+                    </span>
+                    <span id="button-keyboard" class="tiny-button border padded">
+                        <img src="res/dialpad.svg" alt="info" /><span>Keyboard</span>
                     </span>
                     <span id="button-information" class="tiny-button border padded enabled">
                         <img src="res/info.svg" alt="info" /><span>Information</span>
