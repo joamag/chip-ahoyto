@@ -194,6 +194,7 @@ p {
     height: 0px;
     left: 0px;
     pointer-events: none;
+    padding: 0px 24px 0px 24px;
     position: fixed;
     text-align: center;
     top: 0px;
