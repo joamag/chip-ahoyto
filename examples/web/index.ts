@@ -436,13 +436,21 @@ const registerButtons = () => {
     buttonKeyboard.addEventListener("click", () => {
         const sectionKeyboard = document.getElementById("section-keyboard");
         const separatorKeyboard = document.getElementById("separator-keyboard");
+        const sectionNarrative = document.getElementById("section-narrative");
+        const separatorNarrative = document.getElementById(
+            "separator-narrative"
+        );
         if (buttonKeyboard.classList.contains("enabled")) {
             sectionKeyboard.style.display = "none";
             separatorKeyboard.style.display = "none";
+            sectionNarrative.style.display = "block";
+            separatorNarrative.style.display = "block";
             buttonKeyboard.classList.remove("enabled");
         } else {
             sectionKeyboard.style.display = "block";
             separatorKeyboard.style.display = "block";
+            sectionNarrative.style.display = "none";
+            separatorNarrative.style.display = "none";
             buttonKeyboard.classList.add("enabled");
         }
     });
