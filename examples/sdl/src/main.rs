@@ -1,6 +1,9 @@
 use chip_ahoyto::{
-    chip8::Chip8, chip8_classic::Chip8Classic, chip8_classic::SCREEN_PIXEL_HEIGHT,
-    chip8_classic::SCREEN_PIXEL_WIDTH, chip8_neo::Chip8Neo, util::read_file, util::save_snapshot,
+    chip8::{Chip8, DISPLAY_HEIGHT, DISPLAY_WIDTH},
+    chip8_classic::Chip8Classic,
+    chip8_neo::Chip8Neo,
+    util::read_file,
+    util::save_snapshot,
 };
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
@@ -186,8 +189,8 @@ fn main() {
     let mut window = video_subsystem
         .window(
             TITLE,
-            state.screen_scale as u32 * SCREEN_PIXEL_WIDTH as u32,
-            state.screen_scale as u32 * SCREEN_PIXEL_HEIGHT as u32,
+            state.screen_scale as u32 * DISPLAY_WIDTH as u32,
+            state.screen_scale as u32 * DISPLAY_HEIGHT as u32,
         )
         .resizable()
         .position_centered()
@@ -211,8 +214,8 @@ fn main() {
     let mut texture = texture_creator
         .create_texture_streaming(
             PixelFormatEnum::RGB24,
-            SCREEN_PIXEL_WIDTH as u32,
-            SCREEN_PIXEL_HEIGHT as u32,
+            DISPLAY_WIDTH as u32,
+            DISPLAY_HEIGHT as u32,
         )
         .unwrap();
 
@@ -458,7 +461,7 @@ fn main() {
             // creates a texture based on the RGB pixel buffer
             // and copies that to the canvas for presentation
             texture
-                .update(None, &rgb_pixels, SCREEN_PIXEL_WIDTH as usize * 3)
+                .update(None, &rgb_pixels, DISPLAY_WIDTH as usize * 3)
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
 

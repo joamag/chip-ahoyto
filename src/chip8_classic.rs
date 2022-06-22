@@ -1,13 +1,11 @@
-use crate::{chip8::Chip8, util::random};
+use crate::{
+    chip8::Chip8,
+    chip8::{DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
+    util::random,
+};
 
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
-
-/// The width of the screen in pixels.
-pub const SCREEN_PIXEL_WIDTH: usize = 64;
-
-/// The height of the screen in pixels.
-pub const SCREEN_PIXEL_HEIGHT: usize = 32;
 
 /// The number of keys to be allocated to the machine.
 const NUM_KEYS: usize = 16;
@@ -27,30 +25,9 @@ const RAM_SIZE: usize = 4096;
 /// the initial PC position.
 const ROM_START: usize = 0x200;
 
-/// Buffer that contains the base CHIP-8 font set that
-/// is going to be used to draw the font in the screen
-static FONT_SET: [u8; 80] = [
-    0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
-    0x20, 0x60, 0x20, 0x20, 0x70, // 1
-    0xf0, 0x10, 0xf0, 0x80, 0xf0, // 2
-    0xf0, 0x10, 0xf0, 0x10, 0xf0, // 3
-    0x90, 0x90, 0xf0, 0x10, 0x10, // 4
-    0xf0, 0x80, 0xf0, 0x10, 0xf0, // 5
-    0xf0, 0x80, 0xf0, 0x90, 0xf0, // 6
-    0xf0, 0x10, 0x20, 0x40, 0x40, // 7
-    0xf0, 0x90, 0xf0, 0x90, 0xf0, // 8
-    0xf0, 0x90, 0xf0, 0x10, 0xf0, // 9
-    0xf0, 0x90, 0xf0, 0x90, 0x90, // A
-    0xe0, 0x90, 0xe0, 0x90, 0xe0, // B
-    0xf0, 0x80, 0x80, 0x80, 0xf0, // C
-    0xe0, 0x90, 0x90, 0x90, 0xe0, // D
-    0xf0, 0x80, 0xf0, 0x80, 0xf0, // E
-    0xf0, 0x80, 0xf0, 0x80, 0x80, // F
-];
-
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Chip8Classic {
-    vram: [u8; SCREEN_PIXEL_WIDTH * SCREEN_PIXEL_HEIGHT],
+    vram: [u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
     ram: [u8; RAM_SIZE],
     registers: [u8; NUM_REGISTERS],
     stack: [u16; STACK_SIZE],
@@ -70,7 +47,7 @@ impl Chip8 for Chip8Classic {
     }
 
     fn reset(&mut self) {
-        self.vram = [0u8; SCREEN_PIXEL_WIDTH * SCREEN_PIXEL_HEIGHT];
+        self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT];
         self.registers = [0u8; NUM_REGISTERS];
         self.stack = [0u16; STACK_SIZE];
         self.i = 0;
@@ -154,7 +131,7 @@ impl Chip8Classic {
     #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new() -> Chip8Classic {
         let mut chip8 = Chip8Classic {
-            vram: [0u8; SCREEN_PIXEL_WIDTH * SCREEN_PIXEL_HEIGHT],
+            vram: [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
             ram: [0u8; RAM_SIZE],
             registers: [0u8; NUM_REGISTERS],
             stack: [0u16; STACK_SIZE],
@@ -181,7 +158,7 @@ impl Chip8Classic {
 
         match id {
             0x0000 => match byte {
-                0xe0 => self.vram = [0u8; SCREEN_PIXEL_WIDTH * SCREEN_PIXEL_HEIGHT],
+                0xe0 => self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
                 0xee => self.return_subroutine(),
                 _ => panic!("unknown opcode 0x{:04x}", opcode),
             },
@@ -311,9 +288,9 @@ impl Chip8Classic {
         for y in 0..height {
             let sprite_line = self.ram[self.i as usize + y];
             for x in 0..8 {
-                let xf = (x + x0) % SCREEN_PIXEL_WIDTH;
-                let yf = (y + y0) % SCREEN_PIXEL_HEIGHT;
-                let addr = yf * SCREEN_PIXEL_WIDTH + xf;
+                let xf = (x + x0) % DISPLAY_WIDTH;
+                let yf = (y + y0) % DISPLAY_HEIGHT;
+                let addr = yf * DISPLAY_WIDTH + xf;
                 if (sprite_line & (0x80 >> x)) != 0 {
                     if self.vram[addr] == 1 {
                         self.registers[0xf] = 1;
