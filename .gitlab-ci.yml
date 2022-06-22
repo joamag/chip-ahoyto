@@ -67,6 +67,6 @@ deploy-cloudfare-preview:
   stage: deploy
   script:
     - cd examples/web/dist
-    - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto
+    - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto --branch master
   only:
     - master
