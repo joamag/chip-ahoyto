@@ -2,8 +2,7 @@ use chip_ahoyto::{
     chip8::{Chip8, DISPLAY_HEIGHT, DISPLAY_WIDTH},
     chip8_classic::Chip8Classic,
     chip8_neo::Chip8Neo,
-    util::read_file,
-    util::save_snapshot,
+    util::{read_file, save_snapshot},
 };
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
