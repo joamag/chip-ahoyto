@@ -60,3 +60,11 @@ deploy-netlify-prod:
     - npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=. --prod
   only:
     - tags
+
+deploy-cloudfare-preview:
+  stage: deploy
+  script:
+    - cd examples/web/dist
+    - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto
+  only:
+    - master
