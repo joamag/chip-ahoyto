@@ -1,6 +1,6 @@
 # CHIP-Ahoyto 🍪
 
-CHIP-8 emulator written in rust 🦀.
+CHIP-8 emulator written in Rust 🦀.
 
 The goal of this project is purely experimental and a learning tool for rust.
 
