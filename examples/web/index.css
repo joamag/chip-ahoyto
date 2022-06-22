@@ -387,6 +387,10 @@ p {
     width: 100%;
 }
 
+.tiny-button.file > input[type="file"]::-webkit-file-upload-button  {
+    cursor: pointer;
+}
+
 .overlay {
     align-items: center;
     background-color: rgba(80, 203, 147, 0.95);
