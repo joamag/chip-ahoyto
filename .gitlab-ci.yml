@@ -44,6 +44,7 @@ build-wasm:
     - wasm-pack build --release --target=web --out-dir=examples/web/lib -- --features wasm
     - cd examples/web && npm install && npm run build
   artifacts:
+    expire_in: 1 day
     paths:
       - examples/web/dist
 
