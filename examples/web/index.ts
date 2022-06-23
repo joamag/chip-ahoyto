@@ -8,6 +8,7 @@ const PIXEL_ERROR_COLOR = 0xe63946ff;
 const LOGIC_HZ = 600;
 const VISUAL_HZ = 60;
 const TIMER_HZ = 60;
+const IDLE_HZ = 10;
 
 const FREQUENCY_DELTA = 60;
 
@@ -58,6 +59,7 @@ type State = {
     logicFrequency: number;
     visualFrequency: number;
     timerFrequency: number;
+    idleFrequency: number;
     canvas: HTMLCanvasElement;
     canvasScaled: HTMLCanvasElement;
     canvasCtx: CanvasRenderingContext2D;
@@ -86,6 +88,7 @@ const state: State = {
     logicFrequency: LOGIC_HZ,
     visualFrequency: VISUAL_HZ,
     timerFrequency: TIMER_HZ,
+    idleFrequency: IDLE_HZ,
     canvas: null,
     canvasScaled: null,
     canvasCtx: null,
@@ -132,9 +135,11 @@ const main = async () => {
     // runs the sequence as an infinite loop, running
     // the associated CPU cycles accordingly
     while (true) {
+        // in case the machin is paused we must delay the execution
+        // a little bit until the paused state is recovered
         if (state.paused) {
             await new Promise((resolve) => {
-                setTimeout(resolve, 100);
+                setTimeout(resolve, 1000 / state.idleFrequency);
             });
             continue;
         }
@@ -151,27 +156,34 @@ const main = async () => {
             let message = String(err);
 
             // verifies if the current issue is a panic one
-            // and if that's the case restarts the WASM sub
-            // system and the machine state (to be able to recover)
-            // also set the red color on screen to indicate the issue
-            const isPanic = (err as Error).message
-                .toLowerCase()
-                .startsWith("unreachable");
+            // and updates the message value if that's the case
+            const messageNormalized = (err as Error).message.toLowerCase();
+            const isPanic =
+                messageNormalized.startsWith("unreachable") ||
+                messageNormalized.startsWith("recursive use of an object");
             if (isPanic) {
-                await wasm();
-                await start();
-                clearCanvas();
                 message = "Unrecoverable error, restarting CHIP-8";
             }
-
-            // pauses the machine, allowing the end-user to act
-            // on the error
-            pause();
 
             // displays the error information to both the end-user
             // and the developer (for dianostics)
             showToast(message, true, 5000);
             console.error(err);
+
+            // pauses the machine, allowing the end-user to act
+            // on the error in a proper fashion
+            pause();
+
+            // if we're talking about a panic proper action must be taken
+            // which in this case it means restarting both the WASM sub
+            // system and the machine state (to be able to recover)
+            // also sets the default color on screen to indicate the issue
+            if (isPanic) {
+                clearCanvas();
+
+                await wasm();
+                await start({ restore: false });
+            }
         }
 
         // calculates the amount of time until the next draw operation
@@ -521,6 +533,10 @@ const registerButtons = () => {
         "button-upload-file"
     ) as HTMLInputElement;
     buttonUploadFile.addEventListener("change", async () => {
+        if (buttonUploadFile.files || buttonUploadFile.files.length === 0) {
+            return;
+        }
+
         const file = buttonUploadFile.files[0];
 
         const arrayBuffer = await file.arrayBuffer();
