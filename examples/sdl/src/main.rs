@@ -116,6 +116,32 @@ pub struct State {
 }
 
 impl State {
+    pub fn new(system: Box<dyn Chip8>) -> State {
+        State {
+            system: system,
+            logic_frequency: LOGIC_HZ,
+            visual_frequency: VISUAL_HZ,
+            idle_frequency: IDLE_HZ,
+            timer_frequency: TIMER_HZ,
+            screen_scale: SCREEN_SCALE,
+            beep_duration: BEEP_DURATION,
+            next_tick_time: 0.0,
+            next_tick_time_i: 0,
+            beep_ticks: 0,
+            frame_count: 0,
+            frame_start: 0,
+            fps: 0,
+            pixel_color: COLORS[0],
+            background_color: BACKGROUNDS[0],
+            diag_color: COLORS[1],
+            pixel_color_index: 0,
+            title: String::from(TITLE_INITIAL),
+            rom_name: String::from("unloaded"),
+            rom_loaded: false,
+            diag: false,
+        }
+    }
+
     pub fn set_title(&mut self, title: &String) {
         self.title = title.to_string();
     }
@@ -140,29 +166,7 @@ fn main() {
 
     // builds the CHIP-8 machine, this is the instance that
     // is going to logically represent the CHIP-8
-    let mut state = State {
-        system: system,
-        logic_frequency: LOGIC_HZ,
-        visual_frequency: VISUAL_HZ,
-        idle_frequency: IDLE_HZ,
-        timer_frequency: TIMER_HZ,
-        screen_scale: SCREEN_SCALE,
-        beep_duration: BEEP_DURATION,
-        next_tick_time: 0.0,
-        next_tick_time_i: 0,
-        beep_ticks: 0,
-        frame_count: 0,
-        frame_start: 0,
-        fps: 0,
-        pixel_color: COLORS[0],
-        background_color: BACKGROUNDS[0],
-        diag_color: COLORS[1],
-        pixel_color_index: 0,
-        title: String::from(TITLE_INITIAL),
-        rom_name: String::from("unloaded"),
-        rom_loaded: false,
-        diag: false,
-    };
+    let mut state = State::new(system);
 
     // initializes the SDL sub-system
     let sdl = sdl2::init().unwrap();
