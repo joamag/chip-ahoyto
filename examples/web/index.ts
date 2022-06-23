@@ -533,7 +533,7 @@ const registerButtons = () => {
         "button-upload-file"
     ) as HTMLInputElement;
     buttonUploadFile.addEventListener("change", async () => {
-        if (buttonUploadFile.files || buttonUploadFile.files.length === 0) {
+        if (!buttonUploadFile.files || buttonUploadFile.files.length === 0) {
             return;
         }
 
@@ -541,6 +541,8 @@ const registerButtons = () => {
 
         const arrayBuffer = await file.arrayBuffer();
         const romData = new Uint8Array(arrayBuffer);
+
+        buttonUploadFile.value = "";
 
         start({ engine: null, romName: file.name, romData: romData });
 
