@@ -154,7 +154,9 @@ const main = async () => {
             // and if that's the case restarts the WASM sub
             // system and the machine state (to be able to recover)
             // also set the red color on screen to indicate the issue
-            const isPanic = err.message === "unreachable";
+            const isPanic = (err as Error).message
+                .toLowerCase()
+                .startsWith("unreachable");
             if (isPanic) {
                 await wasm();
                 await start();

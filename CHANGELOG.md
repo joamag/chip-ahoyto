@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Upload ROM button issue in Safari mobile
+* Panic error testing improved to catch more complex scenarios
 
 ## [0.3.2] - 2022-06-22
 
