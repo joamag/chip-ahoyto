@@ -53,6 +53,8 @@ deploy-netlify-preview:
   script:
     - cd examples/web/dist
     - npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=.
+  dependencies:
+    - build-wasm
   only:
     - master
 
@@ -61,6 +63,8 @@ deploy-netlify-prod:
   script:
     - cd examples/web/dist
     - npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=. --prod
+  dependencies:
+    - build-wasm
   only:
     - tags
 
@@ -69,5 +73,7 @@ deploy-cloudfare-preview:
   script:
     - cd examples/web/dist
     - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto --branch master
+  dependencies:
+    - build-wasm
   only:
     - master
