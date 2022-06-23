@@ -178,7 +178,7 @@ const main = async () => {
             // system and the machine state (to be able to recover)
             // also sets the default color on screen to indicate the issue
             if (isPanic) {
-                clearCanvas(undefined, {
+                await clearCanvas(undefined, {
                     // @ts-ignore: ts(2580)
                     image: require("./res/storm.png"),
                     imageScale: 0.4
@@ -682,7 +682,7 @@ const updateCanvas = (pixels: Uint8Array) => {
     state.canvasScaledCtx.drawImage(state.canvas, 0, 0);
 };
 
-const clearCanvas = (
+const clearCanvas = async (
     color = PIXEL_UNSET_COLOR,
     { image = null as string, imageScale = 1 } = {}
 ) => {
@@ -697,33 +697,30 @@ const clearCanvas = (
     // in case an image was requested then uses that to load
     // an image at the center of the screen
     if (image) {
-        const img = new Image();
-        img.onload = () => {
-            const [imgWidth, imgHeight] = [
-                img.width * imageScale,
-                img.height * imageScale
-            ];
-            const [x0, y0] = [
-                state.canvasScaled.width / 2 - imgWidth / 2,
-                state.canvasScaled.height / 2 - imgHeight / 2
-            ];
-            state.canvasScaledCtx.setTransform(1, 0, 0, 1, 0, 0);
-            try {
-                state.canvasScaledCtx.drawImage(
-                    img,
-                    x0,
-                    y0,
-                    imgWidth,
-                    imgHeight
-                );
-            } finally {
-                state.canvasScaledCtx.scale(
-                    state.canvasScaled.width / state.canvas.width,
-                    state.canvasScaled.height / state.canvas.height
-                );
-            }
-        };
-        img.src = image;
+        const img = await new Promise<HTMLImageElement>((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                resolve(img);
+            };
+            img.src = image;
+        });
+        const [imgWidth, imgHeight] = [
+            img.width * imageScale,
+            img.height * imageScale
+        ];
+        const [x0, y0] = [
+            state.canvasScaled.width / 2 - imgWidth / 2,
+            state.canvasScaled.height / 2 - imgHeight / 2
+        ];
+        state.canvasScaledCtx.setTransform(1, 0, 0, 1, 0, 0);
+        try {
+            state.canvasScaledCtx.drawImage(img, x0, y0, imgWidth, imgHeight);
+        } finally {
+            state.canvasScaledCtx.scale(
+                state.canvasScaled.width / state.canvas.width,
+                state.canvasScaled.height / state.canvas.height
+            );
+        }
     }
 };
 
