@@ -45,7 +45,7 @@ build-wasm:
     - cd examples/web && npm install && npm run build
   artifacts:
     paths:
-      - examples/web
+      - examples/web/dist
 
 deploy-netlify-preview:
   stage: deploy
