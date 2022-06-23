@@ -9,11 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Better display of panic like errors
+*
 
 ### Changed
 
 *
+
+### Fixed
+
+*
+
+## [0.3.3] - 2022-06-23
+
+### Added
+
+* Better display of panic like errors
 
 ### Fixed
 
