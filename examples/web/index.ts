@@ -3,7 +3,6 @@ import info from "./package.json";
 
 const PIXEL_SET_COLOR = 0x50cb93ff;
 const PIXEL_UNSET_COLOR = 0x1b1a17ff;
-const PIXEL_ERROR_COLOR = 0xe63946ff;
 
 const LOGIC_HZ = 600;
 const VISUAL_HZ = 60;
@@ -179,7 +178,11 @@ const main = async () => {
             // system and the machine state (to be able to recover)
             // also sets the default color on screen to indicate the issue
             if (isPanic) {
-                clearCanvas();
+                clearCanvas(undefined, {
+                    // @ts-ignore: ts(2580)
+                    image: require("./res/storm.png"),
+                    imageScale: 0.4
+                });
 
                 await wasm();
                 await start({ restore: false });
@@ -649,6 +652,10 @@ const initCanvas = async () => {
     state.canvasScaled = document.getElementById(
         "chip-canvas"
     ) as HTMLCanvasElement;
+    state.canvasScaled.width =
+        state.canvasScaled.width * window.devicePixelRatio;
+    state.canvasScaled.height =
+        state.canvasScaled.height * window.devicePixelRatio;
     state.canvasScaledCtx = state.canvasScaled.getContext("2d");
 
     state.canvasScaledCtx.scale(
@@ -675,12 +682,49 @@ const updateCanvas = (pixels: Uint8Array) => {
     state.canvasScaledCtx.drawImage(state.canvas, 0, 0);
 };
 
-const clearCanvas = (color = PIXEL_UNSET_COLOR) => {
-    for (let i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT; i++) {
-        state.videoBuff.setUint32(i * 4, color);
+const clearCanvas = (
+    color = PIXEL_UNSET_COLOR,
+    { image = null as string, imageScale = 1 } = {}
+) => {
+    state.canvasScaledCtx.fillStyle = `#${color.toString(16).toUpperCase()}`;
+    state.canvasScaledCtx.fillRect(
+        0,
+        0,
+        state.canvasScaled.width,
+        state.canvasScaled.height
+    );
+
+    // in case an image was requested then uses that to load
+    // an image at the center of the screen
+    if (image) {
+        const img = new Image();
+        img.onload = () => {
+            const [imgWidth, imgHeight] = [
+                img.width * imageScale,
+                img.height * imageScale
+            ];
+            const [x0, y0] = [
+                state.canvasScaled.width / 2 - imgWidth / 2,
+                state.canvasScaled.height / 2 - imgHeight / 2
+            ];
+            state.canvasScaledCtx.setTransform(1, 0, 0, 1, 0, 0);
+            try {
+                state.canvasScaledCtx.drawImage(
+                    img,
+                    x0,
+                    y0,
+                    imgWidth,
+                    imgHeight
+                );
+            } finally {
+                state.canvasScaledCtx.scale(
+                    state.canvasScaled.width / state.canvas.width,
+                    state.canvasScaled.height / state.canvas.height
+                );
+            }
+        };
+        img.src = image;
     }
-    state.canvasCtx.putImageData(state.image, 0, 0);
-    state.canvasScaledCtx.drawImage(state.canvas, 0, 0);
 };
 
 const showToast = async (message: string, error = false, timeout = 3500) => {
