@@ -331,11 +331,11 @@ impl Chip8Neo {
         for y in 0..height {
             let line_byte = self.ram[(self.i as usize + y)];
             for x in 0..8 {
-                let yf = (y0 + y) % DISPLAY_HEIGHT;
-                let xf = (x0 + x) % DISPLAY_WIDTH;
                 if line_byte & (0x80 >> x) == 0 {
                     continue;
                 }
+                let yf = (y0 + y) % DISPLAY_HEIGHT;
+                let xf = (x0 + x) % DISPLAY_WIDTH;
                 let addr = yf * DISPLAY_WIDTH + xf;
                 if self.vram[addr] == 1 {
                     self.regs[0xf] = 1;
