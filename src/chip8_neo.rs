@@ -22,7 +22,7 @@ const ROM_START: usize = 0x200;
 enum WaitVblank {
     NotWaiting,
     Waiting,
-    Vblank
+    Vblank,
 }
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -430,6 +430,14 @@ impl Chip8Neo {
         self.reset_hard()
     }
 
+    pub fn pause_ws(&mut self) {
+        self.pause()
+    }
+
+    pub fn paused_ws(&mut self) -> bool {
+        self.paused()
+    }
+
     pub fn beep_ws(&self) -> bool {
         self.beep()
     }
@@ -456,6 +464,10 @@ impl Chip8Neo {
 
     pub fn key_lift_ws(&mut self, key: u8) {
         self.key_lift(key)
+    }
+
+    pub fn vblank_ws(&mut self) {
+        self.vblank()
     }
 }
 

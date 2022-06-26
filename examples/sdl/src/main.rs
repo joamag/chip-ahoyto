@@ -402,10 +402,6 @@ fn main() {
             // if a new beep was requested by the CHIP-8 logic cycles
             let mut beep = false;
 
-            // marks the vertical blank interrupt effectively indicating
-            // that a new frame can be drawn from a logical point of view
-            state.system.vblank();
-
             // calculates the ratio between the logic and the visual frequency
             // to make sure that the proper number of updates are performed
             let logic_visual_ratio = state.logic_frequency / state.visual_frequency * ticks;
@@ -513,6 +509,10 @@ fn main() {
             // presents the canvas effectively updating the screen
             // information presented to the user
             canvas.present();
+
+            // marks the vertical blank interrupt effectively indicating
+            // that a new frame can be drawn from a logical point of view
+            state.system.vblank();
 
             // increments the number of frames rendered in the current
             // section, this value is going to be used to calculate FPS
