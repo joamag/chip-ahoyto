@@ -18,6 +18,13 @@ const KEYS_SIZE: usize = 16;
 /// the initial PC position for execution.
 const ROM_START: usize = 0x200;
 
+#[derive(PartialEq)]
+enum WaitVblank {
+    NotWaiting,
+    Waiting,
+    Vblank
+}
+
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Chip8Neo {
     ram: [u8; RAM_SIZE],
@@ -32,7 +39,7 @@ pub struct Chip8Neo {
     keys: [bool; KEYS_SIZE],
     last_key: u8,
     paused: bool,
-    wait_vblank: u8,
+    wait_vblank: WaitVblank,
     quirk_display: bool,
 }
 
@@ -53,7 +60,7 @@ impl Chip8 for Chip8Neo {
         self.keys = [false; KEYS_SIZE];
         self.last_key = 0x0;
         self.paused = false;
-        self.wait_vblank = 0;
+        self.wait_vblank = WaitVblank::Waiting;
         self.load_default_font();
     }
 
@@ -327,11 +334,13 @@ impl Chip8 for Chip8Neo {
     }
 
     fn vblank(&mut self) {
-        if self.wait_vblank != 1 {
-            return;
+        match self.wait_vblank {
+            WaitVblank::Waiting => {
+                self.wait_vblank = WaitVblank::Vblank;
+                self.paused = false;
+            }
+            _ => {}
         }
-        self.wait_vblank = 2;
-        self.paused = false;
     }
 }
 
@@ -352,7 +361,7 @@ impl Chip8Neo {
             keys: [false; KEYS_SIZE],
             last_key: 0x0,
             paused: false,
-            wait_vblank: 0,
+            wait_vblank: WaitVblank::NotWaiting,
             quirk_display: false,
         };
         chip8.load_default_font();
@@ -374,11 +383,11 @@ impl Chip8Neo {
 
     #[inline(always)]
     fn draw_sprite(&mut self, addr: usize, x0: usize, y0: usize, height: usize) {
-        if self.quirk_display && self.wait_vblank != 2 {
+        if self.quirk_display && self.wait_vblank != WaitVblank::Vblank {
             self.pause_vblank();
             return;
         }
-        self.wait_vblank = 0;
+        self.wait_vblank = WaitVblank::NotWaiting;
         self.regs[0xf] = 0;
         for y in 0..height {
             let line_byte = self.ram[(addr + y)];
@@ -402,7 +411,7 @@ impl Chip8Neo {
 
     fn pause_vblank(&mut self) {
         self.paused = true;
-        self.wait_vblank = 1;
+        self.wait_vblank = WaitVblank::Waiting;
         self.pc -= 2;
     }
 }
