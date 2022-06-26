@@ -179,9 +179,18 @@ impl Chip8 for Chip8Neo {
             0x7000 => self.regs[x] = self.regs[x].wrapping_add(byte),
             0x8000 => match nibble {
                 0x0 => self.regs[x] = self.regs[y],
-                0x1 => self.regs[x] |= self.regs[y],
-                0x2 => self.regs[x] &= self.regs[y],
-                0x3 => self.regs[x] ^= self.regs[y],
+                0x1 => {
+                    self.regs[x] |= self.regs[y];
+                    self.regs[0xf] = 0;
+                }
+                0x2 => {
+                    self.regs[x] &= self.regs[y];
+                    self.regs[0xf] = 0;
+                }
+                0x3 => {
+                    self.regs[x] ^= self.regs[y];
+                    self.regs[0xf] = 0;
+                }
                 0x4 => {
                     let (result, overflow) = self.regs[x].overflowing_add(self.regs[y]);
                     self.regs[x] = result;
@@ -193,7 +202,7 @@ impl Chip8 for Chip8Neo {
                 }
                 0x6 => {
                     self.regs[0xf] = self.regs[x] & 0x01;
-                    self.regs[x] >>= 1;
+                    self.regs[x] = self.regs[y] >> 1;
                 }
                 0x7 => {
                     self.regs[0xf] = (self.regs[y] > self.regs[x]) as u8;
@@ -201,7 +210,7 @@ impl Chip8 for Chip8Neo {
                 }
                 0xe => {
                     self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
-                    self.regs[x] <<= 1;
+                    self.regs[x] = self.regs[y] << 1;
                 }
                 _ => panic!(
                     "unimplemented instruction 0x8000, instruction 0x{:04x}",
@@ -251,10 +260,16 @@ impl Chip8 for Chip8Neo {
                     self.ram[self.i as usize + 1] = (self.regs[x] / 10) % 10;
                     self.ram[self.i as usize + 2] = self.regs[x] % 10;
                 }
-                0x55 => self.ram[self.i as usize..self.i as usize + x + 1]
-                    .clone_from_slice(&self.regs[0..x + 1]),
-                0x65 => self.regs[0..x + 1]
-                    .clone_from_slice(&self.ram[self.i as usize..self.i as usize + x + 1]),
+                0x55 => {
+                    self.ram[self.i as usize..self.i as usize + x + 1]
+                        .clone_from_slice(&self.regs[0..x + 1]);
+                    self.i = self.i.saturating_add(1);
+                }
+                0x65 => {
+                    self.regs[0..x + 1]
+                        .clone_from_slice(&self.ram[self.i as usize..self.i as usize + x + 1]);
+                    self.i = self.i.saturating_add(1);
+                }
                 _ => panic!(
                     "unimplemented instruction 0xf000, instruction 0x{:04x}",
                     instruction
@@ -334,8 +349,11 @@ impl Chip8Neo {
                 if line_byte & (0x80 >> x) == 0 {
                     continue;
                 }
-                let yf = (y0 + y) % DISPLAY_HEIGHT;
+                let yf = y0 + y;
                 let xf = (x0 + x) % DISPLAY_WIDTH;
+                if yf >= DISPLAY_HEIGHT {
+                    continue;
+                }
                 let addr = yf * DISPLAY_WIDTH + xf;
                 if self.vram[addr] == 1 {
                     self.regs[0xf] = 1;
