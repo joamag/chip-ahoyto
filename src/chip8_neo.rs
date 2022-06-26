@@ -18,6 +18,13 @@ const KEYS_SIZE: usize = 16;
 /// the initial PC position for execution.
 const ROM_START: usize = 0x200;
 
+#[derive(PartialEq)]
+enum WaitVblank {
+    NotWaiting,
+    Waiting,
+    Vblank,
+}
+
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Chip8Neo {
     ram: [u8; RAM_SIZE],
@@ -31,6 +38,9 @@ pub struct Chip8Neo {
     st: u8,
     keys: [bool; KEYS_SIZE],
     last_key: u8,
+    paused: bool,
+    wait_vblank: WaitVblank,
+    quirk_display: bool,
 }
 
 impl Chip8 for Chip8Neo {
@@ -49,12 +59,22 @@ impl Chip8 for Chip8Neo {
         self.st = 0x0;
         self.keys = [false; KEYS_SIZE];
         self.last_key = 0x0;
+        self.paused = false;
+        self.wait_vblank = WaitVblank::Waiting;
         self.load_default_font();
     }
 
     fn reset_hard(&mut self) {
         self.ram = [0u8; RAM_SIZE];
         self.reset();
+    }
+
+    fn pause(&mut self) {
+        self.paused = true;
+    }
+
+    fn paused(&self) -> bool {
+        return self.paused;
     }
 
     fn beep(&self) -> bool {
@@ -141,6 +161,13 @@ impl Chip8 for Chip8Neo {
     }
 
     fn clock(&mut self) {
+        // in case the CPU is currently in the paused state
+        // the control flow is immediately returned as there's
+        // nothing pending to be done
+        if self.paused {
+            return;
+        }
+
         // fetches the current instruction and increments
         // the PC (program counter) accordingly
         let instruction =
@@ -223,6 +250,7 @@ impl Chip8 for Chip8Neo {
             0xc000 => self.regs[x] = byte & random(),
             0xd000 => {
                 self.draw_sprite(
+                    self.i as usize,
                     self.regs[x] as usize,
                     self.regs[y] as usize,
                     nibble as usize,
@@ -304,6 +332,16 @@ impl Chip8 for Chip8Neo {
         }
         self.keys[key as usize] = false;
     }
+
+    fn vblank(&mut self) {
+        match self.wait_vblank {
+            WaitVblank::Waiting => {
+                self.wait_vblank = WaitVblank::Vblank;
+                self.paused = false;
+            }
+            _ => {}
+        }
+    }
 }
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -322,6 +360,9 @@ impl Chip8Neo {
             st: 0x0,
             keys: [false; KEYS_SIZE],
             last_key: 0x0,
+            paused: false,
+            wait_vblank: WaitVblank::NotWaiting,
+            quirk_display: false,
         };
         chip8.load_default_font();
         chip8
@@ -341,10 +382,15 @@ impl Chip8Neo {
     }
 
     #[inline(always)]
-    fn draw_sprite(&mut self, x0: usize, y0: usize, height: usize) {
+    fn draw_sprite(&mut self, addr: usize, x0: usize, y0: usize, height: usize) {
+        if self.quirk_display && self.wait_vblank != WaitVblank::Vblank {
+            self.pause_vblank();
+            return;
+        }
+        self.wait_vblank = WaitVblank::NotWaiting;
         self.regs[0xf] = 0;
         for y in 0..height {
-            let line_byte = self.ram[(self.i as usize + y)];
+            let line_byte = self.ram[(addr + y)];
             for x in 0..8 {
                 if line_byte & (0x80 >> x) == 0 {
                     continue;
@@ -362,6 +408,12 @@ impl Chip8Neo {
             }
         }
     }
+
+    fn pause_vblank(&mut self) {
+        self.paused = true;
+        self.wait_vblank = WaitVblank::Waiting;
+        self.pc -= 2;
+    }
 }
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -376,6 +428,14 @@ impl Chip8Neo {
 
     pub fn reset_hard_ws(&mut self) {
         self.reset_hard()
+    }
+
+    pub fn pause_ws(&mut self) {
+        self.pause()
+    }
+
+    pub fn paused_ws(&mut self) -> bool {
+        self.paused()
     }
 
     pub fn beep_ws(&self) -> bool {
@@ -404,6 +464,10 @@ impl Chip8Neo {
 
     pub fn key_lift_ws(&mut self, key: u8) {
         self.key_lift(key)
+    }
+
+    pub fn vblank_ws(&mut self) {
+        self.vblank()
     }
 }
 

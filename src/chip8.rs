@@ -29,6 +29,8 @@ pub trait Chip8 {
     fn name(&self) -> &str;
     fn reset(&mut self);
     fn reset_hard(&mut self);
+    fn pause(&mut self);
+    fn paused(&self) -> bool;
     fn beep(&self) -> bool;
     fn pc(&self) -> u16;
     fn sp(&self) -> u8;
@@ -42,4 +44,5 @@ pub trait Chip8 {
     fn clock_st(&mut self);
     fn key_press(&mut self, key: u8);
     fn key_lift(&mut self, key: u8);
+    fn vblank(&mut self);
 }

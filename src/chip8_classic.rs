@@ -66,6 +66,12 @@ impl Chip8 for Chip8Classic {
         self.reset();
     }
 
+    fn pause(&mut self) {}
+
+    fn paused(&self) -> bool {
+        return false;
+    }
+
     fn beep(&self) -> bool {
         self.beep
     }
@@ -124,6 +130,8 @@ impl Chip8 for Chip8Classic {
             self.keys[key as usize] = false;
         }
     }
+
+    fn vblank(&mut self) {}
 }
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -320,6 +328,14 @@ impl Chip8Classic {
         self.reset_hard()
     }
 
+    pub fn pause_ws(&mut self) {
+        self.pause()
+    }
+
+    pub fn paused_ws(&mut self) -> bool {
+        self.paused()
+    }
+
     pub fn beep_ws(&self) -> bool {
         self.beep()
     }
@@ -346,6 +362,10 @@ impl Chip8Classic {
 
     pub fn key_lift_ws(&mut self, key: u8) {
         self.key_lift(key)
+    }
+
+    pub fn vblank_ws(&mut self) {
+        self.vblank()
     }
 }
 

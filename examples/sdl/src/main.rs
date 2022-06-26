@@ -510,6 +510,10 @@ fn main() {
             // information presented to the user
             canvas.present();
 
+            // marks the vertical blank interrupt effectively indicating
+            // that a new frame can be drawn from a logical point of view
+            state.system.vblank();
+
             // increments the number of frames rendered in the current
             // section, this value is going to be used to calculate FPS
             state.frame_count += 1;

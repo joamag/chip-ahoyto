@@ -241,6 +241,10 @@ const tick = (currentTime: number) => {
     // visual information coming in
     updateCanvas(state.chip8.vram_ws());
 
+    // marks the vertical blank interrupt effectively indicating
+    // that a new frame can be drawn from a logical point of view
+    state.chip8.vblank_ws();
+
     // increments the number of frames rendered in the current
     // section, this value is going to be used to calculate FPS
     state.frameCount += 1;
