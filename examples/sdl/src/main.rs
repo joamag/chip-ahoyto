@@ -246,6 +246,8 @@ fn main() {
         })
         .unwrap();
 
+    let mut pending_clocks = 0;
+
     'main: loop {
         if state.timer_frequency < state.visual_frequency {
             panic!("timer frequency must be higher or equal to visual frequency")
@@ -390,10 +392,6 @@ fn main() {
                 state.next_tick_time_i = current_time;
             }
 
-            // marks the vertical blank interrupt effectively indicating
-            // that a new frame can be drawn from a logical point of view
-            state.system.vblank();
-
             // calculates the number of ticks that have elapsed since the
             // last draw operation, this is critical to be able to properly
             // operate the clock of the CPU in frame drop situations
@@ -406,14 +404,25 @@ fn main() {
             // if a new beep was requested by the CHIP-8 logic cycles
             let mut beep = false;
 
+            // marks the vertical blank interrupt effectively indicating
+            // that a new frame can be drawn from a logical point of view
+            state.system.vblank();
+
+            let mut new_pending_clocks = 0;
+
             // calculates the ratio between the logic and the visual frequency
             // to make sure that the proper number of updates are performed
             let logic_visual_ratio = state.logic_frequency / state.visual_frequency * ticks;
-            for _ in 0..logic_visual_ratio {
+            for _ in 0..logic_visual_ratio + pending_clocks {
                 // runs the clock operation in the CHIP-8 system,
                 // effectively changing the logic state of the machine
                 state.system.clock();
+                if state.system.paused() {
+                    new_pending_clocks += 1;
+                }
             }
+
+            pending_clocks = new_pending_clocks;
 
             // calculates the ration between the timer and the visual frequency
             // so that the proper timer updates are rune

@@ -32,7 +32,7 @@ pub struct Chip8Neo {
     keys: [bool; KEYS_SIZE],
     last_key: u8,
     paused: bool,
-    wait_vblank: bool,
+    wait_vblank: u8,
     quirk_display: bool,
 }
 
@@ -53,13 +53,21 @@ impl Chip8 for Chip8Neo {
         self.keys = [false; KEYS_SIZE];
         self.last_key = 0x0;
         self.paused = false;
-        self.wait_vblank = false;
+        self.wait_vblank = 0;
         self.load_default_font();
     }
 
     fn reset_hard(&mut self) {
         self.ram = [0u8; RAM_SIZE];
         self.reset();
+    }
+
+    fn pause(&mut self) {
+        self.paused = true;
+    }
+
+    fn paused(&self) -> bool {
+        return self.paused;
     }
 
     fn beep(&self) -> bool {
@@ -319,10 +327,11 @@ impl Chip8 for Chip8Neo {
     }
 
     fn vblank(&mut self) {
-        if !self.wait_vblank {
+        if self.wait_vblank != 1 {
             return;
         }
-        self.resume_vblank();
+        self.wait_vblank = 2;
+        self.paused = false;
     }
 }
 
@@ -343,7 +352,7 @@ impl Chip8Neo {
             keys: [false; KEYS_SIZE],
             last_key: 0x0,
             paused: false,
-            wait_vblank: false,
+            wait_vblank: 0,
             quirk_display: true,
         };
         chip8.load_default_font();
@@ -365,11 +374,11 @@ impl Chip8Neo {
 
     #[inline(always)]
     fn draw_sprite(&mut self, addr: usize, x0: usize, y0: usize, height: usize) {
-        if self.quirk_display && !self.wait_vblank {
+        if self.quirk_display && self.wait_vblank != 2 {
             self.pause_vblank();
             return;
         }
-        self.wait_vblank = false;
+        self.wait_vblank = 0;
         self.regs[0xf] = 0;
         for y in 0..height {
             let line_byte = self.ram[(addr + y)];
@@ -393,12 +402,8 @@ impl Chip8Neo {
 
     fn pause_vblank(&mut self) {
         self.paused = true;
-        self.wait_vblank = true;
+        self.wait_vblank = 1;
         self.pc -= 2;
-    }
-
-    fn resume_vblank(&mut self) {
-        self.paused = false;
     }
 }
 

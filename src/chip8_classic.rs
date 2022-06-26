@@ -66,6 +66,12 @@ impl Chip8 for Chip8Classic {
         self.reset();
     }
 
+    fn pause(&mut self) {}
+
+    fn paused(&self) -> bool {
+        return false;
+    }
+
     fn beep(&self) -> bool {
         self.beep
     }
