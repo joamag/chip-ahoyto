@@ -353,7 +353,7 @@ impl Chip8Neo {
             last_key: 0x0,
             paused: false,
             wait_vblank: 0,
-            quirk_display: true,
+            quirk_display: false,
         };
         chip8.load_default_font();
         chip8

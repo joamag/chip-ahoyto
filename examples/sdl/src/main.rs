@@ -246,8 +246,6 @@ fn main() {
         })
         .unwrap();
 
-    let mut pending_clocks = 0;
-
     'main: loop {
         if state.timer_frequency < state.visual_frequency {
             panic!("timer frequency must be higher or equal to visual frequency")
@@ -408,21 +406,14 @@ fn main() {
             // that a new frame can be drawn from a logical point of view
             state.system.vblank();
 
-            let mut new_pending_clocks = 0;
-
             // calculates the ratio between the logic and the visual frequency
             // to make sure that the proper number of updates are performed
             let logic_visual_ratio = state.logic_frequency / state.visual_frequency * ticks;
-            for _ in 0..logic_visual_ratio + pending_clocks {
+            for _ in 0..logic_visual_ratio {
                 // runs the clock operation in the CHIP-8 system,
                 // effectively changing the logic state of the machine
                 state.system.clock();
-                if state.system.paused() {
-                    new_pending_clocks += 1;
-                }
             }
-
-            pending_clocks = new_pending_clocks;
 
             // calculates the ration between the timer and the visual frequency
             // so that the proper timer updates are rune
