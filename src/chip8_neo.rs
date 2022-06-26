@@ -1,4 +1,7 @@
-use std::io::{Cursor, Read};
+use std::{
+    io::{Cursor, Read},
+    vec,
+};
 
 use crate::{
     chip8::Chip8,
@@ -31,6 +34,7 @@ pub struct Chip8Neo {
     st: u8,
     keys: [bool; KEYS_SIZE],
     last_key: u8,
+    sprites: Vec<(usize, usize, usize)>,
 }
 
 impl Chip8 for Chip8Neo {
@@ -49,6 +53,7 @@ impl Chip8 for Chip8Neo {
         self.st = 0x0;
         self.keys = [false; KEYS_SIZE];
         self.last_key = 0x0;
+        self.sprites = vec![];
         self.load_default_font();
     }
 
@@ -222,11 +227,11 @@ impl Chip8 for Chip8Neo {
             0xb000 => self.pc = address + self.regs[0x0] as u16,
             0xc000 => self.regs[x] = byte & random(),
             0xd000 => {
-                self.draw_sprite(
+                self.sprites.push((
                     self.regs[x] as usize,
                     self.regs[y] as usize,
                     nibble as usize,
-                );
+                ));
             }
             0xe000 => match byte {
                 0x9e => {
@@ -304,6 +309,15 @@ impl Chip8 for Chip8Neo {
         }
         self.keys[key as usize] = false;
     }
+
+    fn vblank(&mut self) {
+        loop {
+            match self.sprites.p {  //@todo need to pop at front
+                Some((x0, y0, height)) => self.draw_sprite(x0, y0, height),
+                None => break,
+            }
+        }
+    }
 }
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -322,6 +336,7 @@ impl Chip8Neo {
             st: 0x0,
             keys: [false; KEYS_SIZE],
             last_key: 0x0,
+            sprites: vec![],
         };
         chip8.load_default_font();
         chip8
@@ -342,7 +357,7 @@ impl Chip8Neo {
 
     #[inline(always)]
     fn draw_sprite(&mut self, x0: usize, y0: usize, height: usize) {
-        self.regs[0xf] = 0;
+        self.regs[0xf] = 0; // @todo need to check this one
         for y in 0..height {
             let line_byte = self.ram[(self.i as usize + y)];
             for x in 0..8 {

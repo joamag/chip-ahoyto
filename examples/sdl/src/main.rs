@@ -390,6 +390,10 @@ fn main() {
                 state.next_tick_time_i = current_time;
             }
 
+            // marks the vertical blank interrupt effectively indicating
+            // that a new frame can be drawn from a logical point of view
+            state.system.vblank();
+
             // calculates the number of ticks that have elapsed since the
             // last draw operation, this is critical to be able to properly
             // operate the clock of the CPU in frame drop situations

@@ -42,4 +42,5 @@ pub trait Chip8 {
     fn clock_st(&mut self);
     fn key_press(&mut self, key: u8);
     fn key_lift(&mut self, key: u8);
+    fn vblank(&mut self);
 }

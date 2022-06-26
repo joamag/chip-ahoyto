@@ -124,6 +124,8 @@ impl Chip8 for Chip8Classic {
             self.keys[key as usize] = false;
         }
     }
+
+    fn vblank(&mut self) {}
 }
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
