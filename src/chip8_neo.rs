@@ -1,7 +1,4 @@
-use std::{
-    io::{Cursor, Read},
-    vec,
-};
+use std::io::{Cursor, Read};
 
 use crate::{
     chip8::Chip8,
@@ -34,7 +31,9 @@ pub struct Chip8Neo {
     st: u8,
     keys: [bool; KEYS_SIZE],
     last_key: u8,
-    sprites: Vec<(usize, usize, usize)>,
+    paused: bool,
+    wait_vblank: bool,
+    quirk_display: bool,
 }
 
 impl Chip8 for Chip8Neo {
@@ -53,7 +52,8 @@ impl Chip8 for Chip8Neo {
         self.st = 0x0;
         self.keys = [false; KEYS_SIZE];
         self.last_key = 0x0;
-        self.sprites = vec![];
+        self.paused = false;
+        self.wait_vblank = false;
         self.load_default_font();
     }
 
@@ -146,6 +146,13 @@ impl Chip8 for Chip8Neo {
     }
 
     fn clock(&mut self) {
+        // in case the CPU is currently in the paused state
+        // the control flow is immediately returned as there's
+        // nothing pending to be done
+        if self.paused {
+            return;
+        }
+
         // fetches the current instruction and increments
         // the PC (program counter) accordingly
         let instruction =
@@ -227,11 +234,12 @@ impl Chip8 for Chip8Neo {
             0xb000 => self.pc = address + self.regs[0x0] as u16,
             0xc000 => self.regs[x] = byte & random(),
             0xd000 => {
-                self.sprites.push((
+                self.draw_sprite(
+                    self.i as usize,
                     self.regs[x] as usize,
                     self.regs[y] as usize,
                     nibble as usize,
-                ));
+                );
             }
             0xe000 => match byte {
                 0x9e => {
@@ -311,12 +319,10 @@ impl Chip8 for Chip8Neo {
     }
 
     fn vblank(&mut self) {
-        loop {
-            match self.sprites.p {  //@todo need to pop at front
-                Some((x0, y0, height)) => self.draw_sprite(x0, y0, height),
-                None => break,
-            }
+        if !self.wait_vblank {
+            return;
         }
+        self.resume_vblank();
     }
 }
 
@@ -336,7 +342,9 @@ impl Chip8Neo {
             st: 0x0,
             keys: [false; KEYS_SIZE],
             last_key: 0x0,
-            sprites: vec![],
+            paused: false,
+            wait_vblank: false,
+            quirk_display: true,
         };
         chip8.load_default_font();
         chip8
@@ -356,10 +364,15 @@ impl Chip8Neo {
     }
 
     #[inline(always)]
-    fn draw_sprite(&mut self, x0: usize, y0: usize, height: usize) {
-        self.regs[0xf] = 0; // @todo need to check this one
+    fn draw_sprite(&mut self, addr: usize, x0: usize, y0: usize, height: usize) {
+        if self.quirk_display && !self.wait_vblank {
+            self.pause_vblank();
+            return;
+        }
+        self.wait_vblank = false;
+        self.regs[0xf] = 0;
         for y in 0..height {
-            let line_byte = self.ram[(self.i as usize + y)];
+            let line_byte = self.ram[(addr + y)];
             for x in 0..8 {
                 if line_byte & (0x80 >> x) == 0 {
                     continue;
@@ -376,6 +389,16 @@ impl Chip8Neo {
                 self.vram[addr] ^= 1
             }
         }
+    }
+
+    fn pause_vblank(&mut self) {
+        self.paused = true;
+        self.wait_vblank = true;
+        self.pc -= 2;
+    }
+
+    fn resume_vblank(&mut self) {
+        self.paused = false;
     }
 }
 
