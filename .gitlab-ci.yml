@@ -5,6 +5,7 @@ variables:
   NETLIFY_AUTH_TOKEN: $NETLIFY_AUTH_TOKEN
   CLOUDFLARE_API_TOKEN: $CLOUDFLARE_API_TOKEN
   CRATES_TOKEN: $CRATES_TOKEN
+  NPM_TOKEN: $NPM_TOKEN
 
 stages:
   - build
@@ -96,5 +97,15 @@ deploy-crate:
     - cargo publish --no-verify
   dependencies:
     - build-rust
+  only:
+    - tags
+
+deploy-npm:
+  stage: deploy
+  script:
+    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+    - cd examples/web && npm publish
+  dependencies:
+    - build-wasm
   only:
     - tags
