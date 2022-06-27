@@ -1,6 +1,6 @@
 use crate::{
     chip8::Chip8,
-    chip8::{DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
+    chip8::{Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
     util::random,
 };
 
@@ -91,6 +91,8 @@ impl Chip8 for Chip8Classic {
     fn vram(&self) -> Vec<u8> {
         self.vram.to_vec()
     }
+
+    fn set_quirk(&mut self, _quirk: Quirk, _value: bool) {}
 
     fn get_state(&self) -> Vec<u8> {
         panic!("not implemented")

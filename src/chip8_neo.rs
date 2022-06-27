@@ -2,7 +2,7 @@ use std::io::{Cursor, Read};
 
 use crate::{
     chip8::Chip8,
-    chip8::{DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
+    chip8::{Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
     util::random,
 };
 
@@ -25,17 +25,13 @@ enum WaitVblank {
     Vblank,
 }
 
-enum Quirks {
-    VfReset,
-    Memory,
-    DisplayBlank,
-    Clipping,
-    Shifting,
-    Jumping,
-}
-
-pub struct QuirksFlags {
+pub struct QuirkFlags {
+    vf_reset: bool,
+    memory: bool,
     display_blank: bool,
+    clipping: bool,
+    shifting: bool,
+    jumping: bool,
 }
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -53,7 +49,7 @@ pub struct Chip8Neo {
     last_key: u8,
     paused: bool,
     wait_vblank: WaitVblank,
-    quirks: QuirksFlags,
+    quirks: QuirkFlags,
 }
 
 impl Chip8 for Chip8Neo {
@@ -108,6 +104,17 @@ impl Chip8 for Chip8Neo {
 
     fn vram(&self) -> Vec<u8> {
         self.vram.to_vec()
+    }
+
+    fn set_quirk(&mut self, quirk: Quirk, value: bool) {
+        match quirk {
+            Quirk::VfReset => self.quirks.vf_reset = value,
+            Quirk::Memory => self.quirks.memory = value,
+            Quirk::DisplayBlank => self.quirks.display_blank = value,
+            Quirk::Clipping => self.quirks.clipping = value,
+            Quirk::Shifting => self.quirks.shifting = value,
+            Quirk::Jumping => self.quirks.jumping = value,
+        }
     }
 
     fn get_state(&self) -> Vec<u8> {
@@ -221,15 +228,21 @@ impl Chip8 for Chip8Neo {
                 0x0 => self.regs[x] = self.regs[y],
                 0x1 => {
                     self.regs[x] |= self.regs[y];
-                    self.regs[0xf] = 0;
+                    if self.quirks.vf_reset {
+                        self.regs[0xf] = 0;
+                    }
                 }
                 0x2 => {
                     self.regs[x] &= self.regs[y];
-                    self.regs[0xf] = 0;
+                    if self.quirks.vf_reset {
+                        self.regs[0xf] = 0;
+                    }
                 }
                 0x3 => {
                     self.regs[x] ^= self.regs[y];
-                    self.regs[0xf] = 0;
+                    if self.quirks.vf_reset {
+                        self.regs[0xf] = 0;
+                    }
                 }
                 0x4 => {
                     let (result, overflow) = self.regs[x].overflowing_add(self.regs[y]);
@@ -242,7 +255,11 @@ impl Chip8 for Chip8Neo {
                 }
                 0x6 => {
                     self.regs[0xf] = self.regs[x] & 0x01;
-                    self.regs[x] = self.regs[y] >> 1;
+                    if self.quirks.shifting {
+                        self.regs[x] >>= 1;
+                    } else {
+                        self.regs[x] = self.regs[y] >> 1;
+                    }
                 }
                 0x7 => {
                     self.regs[0xf] = (self.regs[y] > self.regs[x]) as u8;
@@ -250,7 +267,11 @@ impl Chip8 for Chip8Neo {
                 }
                 0xe => {
                     self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
-                    self.regs[x] = self.regs[y] << 1;
+                    if self.quirks.shifting {
+                        self.regs[x] <<= 1;
+                    } else {
+                        self.regs[x] = self.regs[y] << 1;
+                    }
                 }
                 _ => panic!(
                     "unimplemented instruction 0x8000, instruction 0x{:04x}",
@@ -259,7 +280,13 @@ impl Chip8 for Chip8Neo {
             },
             0x9000 => self.pc += if self.regs[x] != self.regs[y] { 2 } else { 0 },
             0xa000 => self.i = address,
-            0xb000 => self.pc = address + self.regs[0x0] as u16,
+            0xb000 => {
+                if self.quirks.jumping {
+                    self.pc = address + self.regs[x] as u16;
+                } else {
+                    self.pc = address + self.regs[0x0] as u16;
+                }
+            }
             0xc000 => self.regs[x] = byte & random(),
             0xd000 => {
                 self.draw_sprite(
@@ -304,12 +331,16 @@ impl Chip8 for Chip8Neo {
                 0x55 => {
                     self.ram[self.i as usize..self.i as usize + x + 1]
                         .clone_from_slice(&self.regs[0..x + 1]);
-                    self.i = self.i.saturating_add(1);
+                    if self.quirks.memory {
+                        self.i = self.i.saturating_add(1);
+                    }
                 }
                 0x65 => {
                     self.regs[0..x + 1]
                         .clone_from_slice(&self.ram[self.i as usize..self.i as usize + x + 1]);
-                    self.i = self.i.saturating_add(1);
+                    if self.quirks.memory {
+                        self.i = self.i.saturating_add(1);
+                    }
                 }
                 _ => panic!(
                     "unimplemented instruction 0xf000, instruction 0x{:04x}",
@@ -375,8 +406,13 @@ impl Chip8Neo {
             last_key: 0x0,
             paused: false,
             wait_vblank: WaitVblank::NotWaiting,
-            quirks: QuirksFlags {
+            quirks: QuirkFlags {
+                vf_reset: true,
+                memory: true,
                 display_blank: false,
+                clipping: true,
+                shifting: false,
+                jumping: false,
             },
         };
         chip8.load_default_font();
@@ -410,11 +446,16 @@ impl Chip8Neo {
                 if line_byte & (0x80 >> x) == 0 {
                     continue;
                 }
-                let yf = y0 + y;
-                let xf = (x0 + x) % DISPLAY_WIDTH;
-                if yf >= DISPLAY_HEIGHT {
-                    continue;
+                let yf;
+                if self.quirks.clipping {
+                    yf = y0 + y;
+                    if yf >= DISPLAY_HEIGHT {
+                        continue;
+                    }
+                } else {
+                    yf = (y0 + y) % DISPLAY_HEIGHT;
                 }
+                let xf = (x0 + x) % DISPLAY_WIDTH;
                 let addr = yf * DISPLAY_WIDTH + xf;
                 if self.vram[addr] == 1 {
                     self.regs[0xf] = 1;

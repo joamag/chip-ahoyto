@@ -25,6 +25,15 @@ pub static FONT_SET: [u8; 80] = [
     0xf0, 0x80, 0xf0, 0x80, 0x80, // F
 ];
 
+pub enum Quirk {
+    VfReset,
+    Memory,
+    DisplayBlank,
+    Clipping,
+    Shifting,
+    Jumping,
+}
+
 pub trait Chip8 {
     fn name(&self) -> &str;
     fn reset(&mut self);
@@ -36,6 +45,7 @@ pub trait Chip8 {
     fn sp(&self) -> u8;
     fn ram(&self) -> Vec<u8>;
     fn vram(&self) -> Vec<u8>;
+    fn set_quirk(&mut self, quirk: Quirk, value: bool);
     fn get_state(&self) -> Vec<u8>;
     fn set_state(&mut self, state: &[u8]);
     fn load_rom(&mut self, rom: &[u8]);
