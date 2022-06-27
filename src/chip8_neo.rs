@@ -324,16 +324,10 @@ impl Chip8 for Chip8Neo {
     }
 
     fn clock_dt(&mut self) {
-        if self.paused {
-            return;
-        }
         self.dt = self.dt.saturating_sub(1)
     }
 
     fn clock_st(&mut self) {
-        if self.paused {
-            return;
-        }
         self.st = self.st.saturating_sub(1)
     }
 
