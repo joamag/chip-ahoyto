@@ -77,3 +77,13 @@ deploy-cloudfare-preview:
     - build-wasm
   only:
     - master
+
+deploy-cloudfare-prod:
+  stage: deploy
+  script:
+    - cd examples/web/dist
+    - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto --branch stable
+  dependencies:
+    - build-wasm
+  only:
+    - tags
