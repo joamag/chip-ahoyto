@@ -48,6 +48,7 @@ build-wasm:
   artifacts:
     paths:
       - examples/web/dist
+      - examples/web/lib
     expire_in: 1 day
 
 deploy-netlify-preview:
@@ -98,7 +99,7 @@ deploy-crates:
   dependencies:
     - build-rust
   only:
-    - tags
+    - master
 
 deploy-npm:
   stage: deploy
@@ -108,4 +109,4 @@ deploy-npm:
   dependencies:
     - build-wasm
   only:
-    - tags
+    - master
