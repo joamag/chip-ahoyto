@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Added support for NPM
+*
 
 ### Changed
 
@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 *
+
+## [0.3.5] - 2022-06-27
+
+### Added
+
+* Added support for NPM
+
+### Fixed
+
+* Issue with crates.io deployment
 
 ## [0.3.4] - 2022-06-27
 
