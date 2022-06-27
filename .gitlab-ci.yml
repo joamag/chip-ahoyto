@@ -90,7 +90,7 @@ deploy-cloudfare-prod:
   only:
     - tags
 
-deploy-crate:
+deploy-crates:
   stage: deploy
   script:
     - cargo login ${{ secrets.CRATES_TOKEN }}
@@ -104,7 +104,7 @@ deploy-npm:
   stage: deploy
   script:
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-    - cd examples/web && npm publish
+    - cd examples/web/lib && npm publish
   dependencies:
     - build-wasm
   only:
