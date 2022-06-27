@@ -54,7 +54,7 @@ macro_rules! display_blank {
 
 #[cfg(feature = "quirks")]
 #[macro_export]
-macro_rules! display_blank {
+macro_rules! clipping {
     ( $self:expr, $y:expr, $y0:expr, $yf:expr ) => {
         if $self.quirks.clipping {
             $yf = $y0 + $y;
