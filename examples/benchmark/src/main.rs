@@ -1,3 +1,5 @@
+use std::env;
+
 use chip_ahoyto::{
     chip8::Chip8, chip8_classic::Chip8Classic, chip8_neo::Chip8Neo, util::read_file,
 };
@@ -6,6 +8,13 @@ use time::Instant;
 const CYCLE_COUNT: u64 = 5_000_000_000;
 
 fn main() {
+    let mut cycles = CYCLE_COUNT;
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() > 1 {
+        cycles = u64::from_str_radix(&args[1], 10).unwrap();
+    }
+
     let chips: [Box<dyn Chip8>; 2] = [Box::new(Chip8Classic::new()), Box::new(Chip8Neo::new())];
 
     let rom_path = "../../res/roms/pong.ch8";
@@ -17,8 +26,6 @@ fn main() {
 
         let instant = Instant::now();
 
-        let cycles = CYCLE_COUNT;
-
         println!(
             "[{}] Running {} cycles for {}",
             chip8.name(),
@@ -26,7 +33,7 @@ fn main() {
             rom_path
         );
 
-        for _ in 0..CYCLE_COUNT {
+        for _ in 0..cycles {
             chip8.clock();
         }
 
