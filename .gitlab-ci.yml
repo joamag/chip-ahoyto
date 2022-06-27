@@ -99,7 +99,7 @@ deploy-crates:
   dependencies:
     - build-rust
   only:
-    - master
+    - tags
 
 deploy-npm:
   stage: deploy
@@ -109,4 +109,4 @@ deploy-npm:
   dependencies:
     - build-wasm
   only:
-    - master
+    - tags
