@@ -93,7 +93,7 @@ deploy-cloudfare-prod:
 deploy-crates:
   stage: deploy
   script:
-    - cargo login ${{ secrets.CRATES_TOKEN }}
+    - cargo login $CRATES_TOKEN
     - cargo publish --no-verify
   dependencies:
     - build-rust
