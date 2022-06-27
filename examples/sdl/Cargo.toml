@@ -1,6 +1,6 @@
 [package]
 name = "chip-ahoyto-sdl"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["João Magalhães <joamag@gmail.com>"]
 description = "CHIP-8 Emulator SDL (Desktop) Application"
 license = "Apache-2.0"

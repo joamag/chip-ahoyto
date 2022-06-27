@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Support for control of CHIP-8 quirks in Neo engine
-* Initial support for crates.io
+*
 
 ### Changed
 
@@ -19,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 *
+
+## [0.3.4] - 2022-06-27
+
+### Added
+
+* Support for control of CHIP-8 quirks in Neo engine
+* Initial support for crates.io
 
 ## [0.3.3] - 2022-06-23
 
