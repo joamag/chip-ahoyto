@@ -4,6 +4,7 @@ variables:
   NETLIFY_SITE_ID: chip-ahoyto
   NETLIFY_AUTH_TOKEN: $NETLIFY_AUTH_TOKEN
   CLOUDFLARE_API_TOKEN: $CLOUDFLARE_API_TOKEN
+  CRATES_TOKEN: $CRATES_TOKEN
 
 stages:
   - build
@@ -85,5 +86,15 @@ deploy-cloudfare-prod:
     - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto --branch stable
   dependencies:
     - build-wasm
+  only:
+    - tags
+
+deploy-crate:
+  stage: deploy
+  script:
+    - cargo login ${{ secrets.CRATES_TOKEN }}
+    - cargo publish --no-verify
+  dependencies:
+    - build-rust
   only:
     - tags
