@@ -75,7 +75,7 @@ macro_rules! clipping {
         if $yf >= DISPLAY_HEIGHT {
             continue;
         }
-    }
+    };
 }
 
 #[cfg(feature = "quirks")]

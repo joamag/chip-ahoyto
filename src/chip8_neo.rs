@@ -3,9 +3,9 @@ use std::io::{Cursor, Read};
 use crate::{
     chip8::Chip8,
     chip8::{Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
-    display_blank, jumping, memory, shifting,
+    clipping, display_blank, jumping, memory, shifting,
     util::random,
-    vf_reset, clipping,
+    vf_reset,
 };
 
 #[cfg(feature = "wasm")]
@@ -183,11 +183,13 @@ impl Chip8 for Chip8Neo {
     }
 
     fn clock(&mut self) {
-        // in case the CPU is currently in the paused state
-        // the control flow is immediately returned as there's
-        // nothing pending to be done
-        if self.paused {
-            return;
+        if cfg!(feature = "quirks") {
+            // in case the CPU is currently in the paused state
+            // the control flow is immediately returned as there's
+            // nothing pending to be done
+            if self.paused {
+                return;
+            }
         }
 
         // fetches the current instruction and increments
