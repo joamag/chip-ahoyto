@@ -81,7 +81,11 @@ impl Chip8 for Chip8Neo {
     }
 
     fn pause(&mut self) {
-        self.paused = true;
+        if cfg!(feature = "quirks") {
+            self.paused = true;
+        } else {
+            panic!("no pause support available");
+        }
     }
 
     fn paused(&self) -> bool {
