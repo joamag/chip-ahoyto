@@ -3,7 +3,7 @@ name = "chip-ahoyto"
 version = "0.3.5"
 authors = ["João Magalhães <joamag@gmail.com>"]
 description = "CHIP-8 Emulator in Rust"
-license = "Apache"
+license = "Apache-2.0"
 keywords = ["chip-8", "emulator", "rust"]
 edition = "2018"
 
