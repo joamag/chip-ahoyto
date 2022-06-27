@@ -12,6 +12,7 @@ crate-type = ["cdylib", "rlib"]
 
 [features]
 wasm = ["wasm-bindgen"]
+quirks = []
 
 [dependencies]
 getrandom = { version = "0.2", features = ["js"] }

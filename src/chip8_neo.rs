@@ -18,6 +18,24 @@ const KEYS_SIZE: usize = 16;
 /// the initial PC position for execution.
 const ROM_START: usize = 0x200;
 
+#[cfg(feature = "quirks")]
+macro_rules! shifting {
+    ( $self:expr, $x:expr, $y:expr, $shift:tt ) => {
+        if $self.quirks.shifting {
+            $self.regs[$x] = $self.regs[$x] $shift 1;
+        } else {
+            $self.regs[$x] = $self.regs[$y] $shift 1;
+        }
+    }
+}
+
+#[cfg(not(feature = "quirks"))]
+macro_rules! shifting {
+    ( $self:expr, $x:expr, $y:expr, $shift:tt ) => {
+        $self.regs[$x] = $self.regs[$y] $shift 1;
+    }
+}
+
 #[derive(PartialEq)]
 enum WaitVblank {
     NotWaiting,
@@ -255,11 +273,7 @@ impl Chip8 for Chip8Neo {
                 }
                 0x6 => {
                     self.regs[0xf] = self.regs[x] & 0x01;
-                    if self.quirks.shifting {
-                        self.regs[x] >>= 1;
-                    } else {
-                        self.regs[x] = self.regs[y] >> 1;
-                    }
+                    shifting!(self, x, y, >>);
                 }
                 0x7 => {
                     self.regs[0xf] = (self.regs[y] > self.regs[x]) as u8;
@@ -267,11 +281,7 @@ impl Chip8 for Chip8Neo {
                 }
                 0xe => {
                     self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
-                    if self.quirks.shifting {
-                        self.regs[x] <<= 1;
-                    } else {
-                        self.regs[x] = self.regs[y] << 1;
-                    }
+                    shifting!(self, x, y, <<);
                 }
                 _ => panic!(
                     "unimplemented instruction 0x8000, instruction 0x{:04x}",
