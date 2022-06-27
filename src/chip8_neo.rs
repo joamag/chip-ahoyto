@@ -3,7 +3,9 @@ use std::io::{Cursor, Read};
 use crate::{
     chip8::Chip8,
     chip8::{Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
+    display_blank, jumping, memory, shifting,
     util::random,
+    vf_reset, clipping,
 };
 
 #[cfg(feature = "wasm")]
@@ -17,24 +19,6 @@ const KEYS_SIZE: usize = 16;
 /// The starting address for the ROM loading, should be
 /// the initial PC position for execution.
 const ROM_START: usize = 0x200;
-
-#[cfg(feature = "quirks")]
-macro_rules! shifting {
-    ( $self:expr, $x:expr, $y:expr, $shift:tt ) => {
-        if $self.quirks.shifting {
-            $self.regs[$x] = $self.regs[$x] $shift 1;
-        } else {
-            $self.regs[$x] = $self.regs[$y] $shift 1;
-        }
-    }
-}
-
-#[cfg(not(feature = "quirks"))]
-macro_rules! shifting {
-    ( $self:expr, $x:expr, $y:expr, $shift:tt ) => {
-        $self.regs[$x] = $self.regs[$y] $shift 1;
-    }
-}
 
 #[derive(PartialEq)]
 enum WaitVblank {
@@ -246,21 +230,15 @@ impl Chip8 for Chip8Neo {
                 0x0 => self.regs[x] = self.regs[y],
                 0x1 => {
                     self.regs[x] |= self.regs[y];
-                    if self.quirks.vf_reset {
-                        self.regs[0xf] = 0;
-                    }
+                    vf_reset!(self);
                 }
                 0x2 => {
                     self.regs[x] &= self.regs[y];
-                    if self.quirks.vf_reset {
-                        self.regs[0xf] = 0;
-                    }
+                    vf_reset!(self);
                 }
                 0x3 => {
                     self.regs[x] ^= self.regs[y];
-                    if self.quirks.vf_reset {
-                        self.regs[0xf] = 0;
-                    }
+                    vf_reset!(self);
                 }
                 0x4 => {
                     let (result, overflow) = self.regs[x].overflowing_add(self.regs[y]);
@@ -291,11 +269,7 @@ impl Chip8 for Chip8Neo {
             0x9000 => self.pc += if self.regs[x] != self.regs[y] { 2 } else { 0 },
             0xa000 => self.i = address,
             0xb000 => {
-                if self.quirks.jumping {
-                    self.pc = address + self.regs[x] as u16;
-                } else {
-                    self.pc = address + self.regs[0x0] as u16;
-                }
+                jumping!(self, address, x);
             }
             0xc000 => self.regs[x] = byte & random(),
             0xd000 => {
@@ -341,16 +315,12 @@ impl Chip8 for Chip8Neo {
                 0x55 => {
                     self.ram[self.i as usize..self.i as usize + x + 1]
                         .clone_from_slice(&self.regs[0..x + 1]);
-                    if self.quirks.memory {
-                        self.i = self.i.saturating_add(1);
-                    }
+                    memory!(self);
                 }
                 0x65 => {
                     self.regs[0..x + 1]
                         .clone_from_slice(&self.ram[self.i as usize..self.i as usize + x + 1]);
-                    if self.quirks.memory {
-                        self.i = self.i.saturating_add(1);
-                    }
+                    memory!(self);
                 }
                 _ => panic!(
                     "unimplemented instruction 0xf000, instruction 0x{:04x}",
@@ -444,11 +414,7 @@ impl Chip8Neo {
 
     #[inline(always)]
     fn draw_sprite(&mut self, addr: usize, x0: usize, y0: usize, height: usize) {
-        if self.quirks.display_blank && self.wait_vblank != WaitVblank::Vblank {
-            self.pause_vblank();
-            return;
-        }
-        self.wait_vblank = WaitVblank::NotWaiting;
+        display_blank!(self);
         self.regs[0xf] = 0;
         for y in 0..height {
             let line_byte = self.ram[(addr + y)];
@@ -457,14 +423,7 @@ impl Chip8Neo {
                     continue;
                 }
                 let yf;
-                if self.quirks.clipping {
-                    yf = y0 + y;
-                    if yf >= DISPLAY_HEIGHT {
-                        continue;
-                    }
-                } else {
-                    yf = (y0 + y) % DISPLAY_HEIGHT;
-                }
+                clipping!(self, y, y0, yf);
                 let xf = (x0 + x) % DISPLAY_WIDTH;
                 let addr = yf * DISPLAY_WIDTH + xf;
                 if self.vram[addr] == 1 {
@@ -475,6 +434,7 @@ impl Chip8Neo {
         }
     }
 
+    #[cfg(feature = "quirks")]
     fn pause_vblank(&mut self) {
         self.paused = true;
         self.wait_vblank = WaitVblank::Waiting;
