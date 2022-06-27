@@ -25,6 +25,19 @@ enum WaitVblank {
     Vblank,
 }
 
+enum Quirks {
+    VfReset,
+    Memory,
+    DisplayBlank,
+    Clipping,
+    Shifting,
+    Jumping,
+}
+
+pub struct QuirksFlags {
+    display_blank: bool,
+}
+
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Chip8Neo {
     ram: [u8; RAM_SIZE],
@@ -40,7 +53,7 @@ pub struct Chip8Neo {
     last_key: u8,
     paused: bool,
     wait_vblank: WaitVblank,
-    quirk_display: bool,
+    quirks: QuirksFlags,
 }
 
 impl Chip8 for Chip8Neo {
@@ -311,10 +324,16 @@ impl Chip8 for Chip8Neo {
     }
 
     fn clock_dt(&mut self) {
+        if self.paused {
+            return;
+        }
         self.dt = self.dt.saturating_sub(1)
     }
 
     fn clock_st(&mut self) {
+        if self.paused {
+            return;
+        }
         self.st = self.st.saturating_sub(1)
     }
 
@@ -362,7 +381,9 @@ impl Chip8Neo {
             last_key: 0x0,
             paused: false,
             wait_vblank: WaitVblank::NotWaiting,
-            quirk_display: false,
+            quirks: QuirksFlags {
+                display_blank: false,
+            },
         };
         chip8.load_default_font();
         chip8
@@ -383,7 +404,7 @@ impl Chip8Neo {
 
     #[inline(always)]
     fn draw_sprite(&mut self, addr: usize, x0: usize, y0: usize, height: usize) {
-        if self.quirk_display && self.wait_vblank != WaitVblank::Vblank {
+        if self.quirks.display_blank && self.wait_vblank != WaitVblank::Vblank {
             self.pause_vblank();
             return;
         }
