@@ -64,7 +64,7 @@ cd dist && python3 -m http.server
 
 And... yes this is the real inspiration behind the emulator's name:
 
-<img src="res/chips-ahoy.jpeg" alt="Chips Ahoy" width="200" />
+<img src="https://gitlab.stage.hive.pt/joamag/chip-ahoyto/raw/master/res/chips-ahoy.jpeg" alt="Chips Ahoy" width="200" />
 
 ## Inspiration
 
