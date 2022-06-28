@@ -85,3 +85,8 @@ Many articles and websites helped me in this quest to build the emulator these a
 ## License
 
 CHIP-Ahoyto is currently licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/).
+
+## Build Automation
+
+[![crates Status](https://img.shields.io/crates/v/chip-ahoyto)](https://crates.io/crates/chip-ahoyto)
+[![npm Status](https://img.shields.io/npm/v/chip-ahoyto.svg)](https://www.npmjs.com/package/chip-ahoyto)
