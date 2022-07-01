@@ -142,6 +142,8 @@ impl State {
         }
     }
 
+    /// Updates the title of the window to the one that has been
+    /// provided as an argument.
     pub fn set_title(&mut self, title: &String) {
         self.title = title.to_string();
     }
