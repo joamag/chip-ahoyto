@@ -11,7 +11,7 @@ use sdl2::{
 };
 use std::{cmp, env::args, path::Path};
 
-// handle the annoying Rect i32
+/// Generates a `Rect` from the provided arguments.
 macro_rules! rect(
     ($x:expr, $y:expr, $w:expr, $h:expr) => (
         Rect::new($x as i32, $y as i32, $w as u32, $h as u32)
