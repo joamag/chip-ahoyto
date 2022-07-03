@@ -181,7 +181,7 @@ const main = async () => {
                 await clearCanvas(undefined, {
                     // @ts-ignore: ts(2580)
                     image: require("./res/storm.png"),
-                    imageScale: 0.4
+                    imageScale: 0.2
                 });
 
                 await wasm();
@@ -709,8 +709,8 @@ const clearCanvas = async (
             img.src = image;
         });
         const [imgWidth, imgHeight] = [
-            img.width * imageScale,
-            img.height * imageScale
+            img.width * imageScale * window.devicePixelRatio,
+            img.height * imageScale * window.devicePixelRatio
         ];
         const [x0, y0] = [
             state.canvasScaled.width / 2 - imgWidth / 2,
