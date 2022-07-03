@@ -676,10 +676,10 @@ const initCanvas = async () => {
 };
 
 const updateCanvas = (pixels: Uint8Array) => {
-    for (let i = 0; i < pixels.length; i++) {
+    for (let index = 0; index < pixels.length; index++) {
         state.videoBuff.setUint32(
-            i * 4,
-            pixels[i] ? PIXEL_SET_COLOR : PIXEL_UNSET_COLOR
+            index * 4,
+            pixels[index] ? PIXEL_SET_COLOR : PIXEL_UNSET_COLOR
         );
     }
     state.canvasCtx.putImageData(state.image, 0, 0);
