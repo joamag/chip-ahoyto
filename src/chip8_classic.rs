@@ -139,8 +139,8 @@ impl Chip8 for Chip8Classic {
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Classic {
     #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
-    pub fn new() -> Chip8Classic {
-        let mut chip8 = Chip8Classic {
+    pub fn new() -> Self {
+        let mut chip8 = Self {
             vram: [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
             ram: [0u8; RAM_SIZE],
             registers: [0u8; NUM_REGISTERS],
@@ -372,7 +372,7 @@ impl Chip8Classic {
 }
 
 impl Default for Chip8Classic {
-    fn default() -> Chip8Classic {
-        Chip8Classic::new()
+    fn default() -> Self {
+        Self::new()
     }
 }

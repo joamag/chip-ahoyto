@@ -116,8 +116,8 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(system: Box<dyn Chip8>) -> State {
-        State {
+    pub fn new(system: Box<dyn Chip8>) -> Self {
+        Self {
             system: system,
             logic_frequency: LOGIC_HZ,
             visual_frequency: VISUAL_HZ,

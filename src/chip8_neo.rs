@@ -377,8 +377,8 @@ impl Chip8 for Chip8Neo {
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Neo {
     #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
-    pub fn new() -> Chip8Neo {
-        let mut chip8 = Chip8Neo {
+    pub fn new() -> Self {
+        let mut chip8 = Self {
             ram: [0u8; RAM_SIZE],
             vram: [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
             stack: [0u16; STACK_SIZE],
@@ -504,7 +504,7 @@ impl Chip8Neo {
 }
 
 impl Default for Chip8Neo {
-    fn default() -> Chip8Neo {
-        Chip8Neo::new()
+    fn default() -> Self {
+        Self::new()
     }
 }
