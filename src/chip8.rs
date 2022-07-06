@@ -31,22 +31,27 @@ pub enum Quirk {
     /// Resets the `v[f]` register of the machine
     /// whenever a logic operation is performed.
     VfReset,
+
     /// Increments the `i` register whenever a copy
     /// operation is performed.
     Memory,
+
     /// The display blank quirk which enforces
     /// waiting for a screen v-blank operation,
     /// effectively reducing the maximum frequency
     /// of the machine to the frequency of the display
     /// which is typically 60hz.
     DisplayBlank,
+
     /// Clips the sprite drawing operation around
     /// the Y axis upon overflowing.
     Clipping,
+
     /// Controls if the `x` register is going to be shifted
     /// by one bit (enabled) or if the `y` register is going
     /// to be shifted and then set in the `x` register.
     Shifting,
+
     /// If the jump operation is going to be done using the
     /// address plus the `x` register or only the address value.
     Jumping,
