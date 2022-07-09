@@ -1,3 +1,5 @@
+pub mod data;
+
 use chip_ahoyto::{
     chip8::{Chip8, DISPLAY_HEIGHT, DISPLAY_WIDTH},
     chip8_classic::Chip8Classic,
@@ -7,7 +9,7 @@ use chip_ahoyto::{
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
     keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
-    surface::Surface, ttf::Hinting, rwops::RWops, sys::image,
+    rwops::RWops, surface::Surface, sys::image, ttf::Hinting,
 };
 use std::{cmp, env::args, path::Path};
 
@@ -213,10 +215,7 @@ fn main() {
 
     // updates the icon of the window to reflect the image
     // and style of the emulator
-
-    println!("{:?}", read_file("./res/icon.png"));
-
-    let surface = Surface::from_file("./res/icon.png").unwrap();
+    let surface = surface_from_bytes(&data::ICON);
     window.set_icon(&surface);
 
     let mut canvas = window.into_canvas().accelerated().build().unwrap();
