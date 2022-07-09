@@ -7,7 +7,7 @@ use chip_ahoyto::{
 use sdl2::{
     audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
     keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
-    surface::Surface, ttf::Hinting,
+    surface::Surface, ttf::Hinting, rwops::RWops, sys::image,
 };
 use std::{cmp, env::args, path::Path};
 
@@ -55,6 +55,14 @@ static TITLE: &'static str = "CHIP-Ahoyto";
 
 /// The title that is going to be presented initially to the user.
 static TITLE_INITIAL: &'static str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
+
+pub fn surface_from_bytes(bytes: &[u8]) -> Surface {
+    unsafe {
+        let rw_ops = RWops::from_bytes(bytes).unwrap();
+        let raw_surface = image::IMG_Load_RW(rw_ops.raw(), 0);
+        Surface::from_ll(raw_surface)
+    }
+}
 
 pub struct BeepCallback {
     phase_inc: f32,
@@ -205,6 +213,9 @@ fn main() {
 
     // updates the icon of the window to reflect the image
     // and style of the emulator
+
+    println!("{:?}", read_file("./res/icon.png"));
+
     let surface = Surface::from_file("./res/icon.png").unwrap();
     window.set_icon(&surface);
 
