@@ -7,9 +7,9 @@ use chip_ahoyto::{
     util::{read_file, save_snapshot},
 };
 use sdl2::{
-    audio::AudioCallback, audio::AudioSpecDesired, event::Event, image::LoadSurface,
-    keyboard::Keycode, pixels::Color, pixels::PixelFormatEnum, rect::Rect, render::TextureQuery,
-    rwops::RWops, surface::Surface, sys::image, ttf::Hinting,
+    audio::AudioCallback, audio::AudioSpecDesired, event::Event, keyboard::Keycode, pixels::Color,
+    pixels::PixelFormatEnum, rect::Rect, render::TextureQuery, rwops::RWops, surface::Surface,
+    sys::image, ttf::Hinting,
 };
 use std::{cmp, env::args, path::Path};
 
