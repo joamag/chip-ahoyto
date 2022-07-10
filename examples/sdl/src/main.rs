@@ -266,12 +266,10 @@ fn main() {
         while let Some(event) = event_pump.poll_event() {
             match event {
                 Event::Quit { .. } => break 'main,
-
                 Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'main,
-
                 Event::KeyDown {
                     keycode: Some(Keycode::Plus),
                     ..
@@ -279,7 +277,6 @@ fn main() {
                     state.logic_frequency = state.logic_frequency.saturating_add(LOGIC_DELTA);
                     None
                 }
-
                 Event::KeyDown {
                     keycode: Some(Keycode::Minus),
                     ..
@@ -287,7 +284,6 @@ fn main() {
                     state.logic_frequency = state.logic_frequency.saturating_sub(LOGIC_DELTA);
                     None
                 }
-
                 Event::KeyDown {
                     keycode: Some(Keycode::M),
                     ..
@@ -297,7 +293,6 @@ fn main() {
                     }
                     None
                 }
-
                 Event::KeyDown {
                     keycode: Some(Keycode::O),
                     ..
@@ -305,7 +300,6 @@ fn main() {
                     state.system.reset();
                     None
                 }
-
                 Event::KeyDown {
                     keycode: Some(Keycode::P),
                     ..
@@ -316,7 +310,6 @@ fn main() {
                     state.diag_color = COLORS[diag_color_index];
                     None
                 }
-
                 Event::KeyDown {
                     keycode: Some(Keycode::T),
                     ..
@@ -324,7 +317,6 @@ fn main() {
                     state.diag = !state.diag;
                     None
                 }
-
                 Event::DropFile { filename, .. } => {
                     if filename.ends_with(".sv8") {
                         let system_state = read_file(&filename);
@@ -354,17 +346,14 @@ fn main() {
 
                     None
                 }
-
                 Event::KeyDown {
                     keycode: Some(keycode),
                     ..
                 } if state.rom_loaded => key_to_btn(keycode).map(|btn| state.system.key_press(btn)),
-
                 Event::KeyUp {
                     keycode: Some(keycode),
                     ..
                 } if state.rom_loaded => key_to_btn(keycode).map(|btn| state.system.key_lift(btn)),
-
                 _ => None,
             };
         }
