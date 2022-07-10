@@ -4,6 +4,7 @@ description = "A CHIP-8 emulator in Rust."
 version = "0.3.6"
 authors = ["João Magalhães <joamag@gmail.com>"]
 license = "Apache-2.0"
+repository = "https://gitlab.stage.hive.pt/joamag/chip-ahoyto"
 keywords = ["chip-8", "emulator", "rust"]
 edition = "2018"
 
