@@ -448,6 +448,7 @@ impl Chip8Neo {
     }
 }
 
+#[cfg(feature = "wasm")]
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Neo {
     pub fn load_rom_ws(&mut self, rom: &[u8]) {

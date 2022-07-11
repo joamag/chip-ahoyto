@@ -316,6 +316,7 @@ impl Chip8Classic {
     }
 }
 
+#[cfg(feature = "wasm")]
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Classic {
     pub fn load_rom_ws(&mut self, rom: &[u8]) {
