@@ -4,6 +4,7 @@ import {
     EmulatorBase,
     Entry,
     Feature,
+    Frequency,
     PixelFormat,
     RomInfo,
     Size
@@ -341,12 +342,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     get features(): Feature[] {
-        return [
-            Feature.Debug,
-            Feature.Benchmark,
-            Feature.Keyboard,
-            Feature.KeyboardChip8
-        ];
+        return [Feature.Benchmark, Feature.Keyboard, Feature.KeyboardChip8];
     }
 
     get engines(): string[] {
@@ -398,7 +394,15 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     set frequency(value: number) {
-        throw new Error("Method not implemented.");
+        this.logicFrequency = value;
+    }
+
+    get frequencyUnit(): Frequency | null {
+        return Frequency.Hz;
+    }
+
+    get frequencyDelta(): number | null {
+        return 60;
     }
 
     get framerate(): number {
@@ -413,8 +417,12 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         throw new Error("Method not implemented.");
     }
 
-    toggleRunning(): void {
-        throw new Error("Method not implemented.");
+    toggleRunning() {
+        if (this.paused) {
+            this.resume();
+        } else {
+            this.pause();
+        }
     }
 
     pause(): void {
