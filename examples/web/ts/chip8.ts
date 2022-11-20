@@ -9,7 +9,9 @@ import {
     RomInfo,
     Size
 } from "emukit";
-import { default as wasm, Chip8Neo, Chip8Classic } from "../lib/chip_ahoyto.js";
+import { PALETTES, PALETTES_MAP } from "./palettes";
+
+import { default as wasm, Chip8Neo, Chip8Classic } from "../lib/chip_ahoyto";
 import info from "../package.json";
 
 const LOGIC_HZ = 600;
@@ -48,14 +50,6 @@ const KEYS: Record<string, number> = {
 // @ts-ignore: ts(2580)
 const ROM_PATH = require("../../../res/roms/pong.ch8");
 
-type Global = {
-    modalCallback: Function;
-};
-
-const global: Global = {
-    modalCallback: null
-};
-
 const sound = ((data = SOUND_DATA, volume = 0.2) => {
     const sound = new Audio(data);
     sound.volume = volume;
@@ -86,6 +80,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     private fps: number = 0;
     private frameStart: number = new Date().getTime();
     private frameCount: number = 0;
+    private paletteIndex: number = 0;
 
     private romName: string | null = null;
     private romData: Uint8Array | null = null;
@@ -192,14 +187,14 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
         const ratioLogic = (this.logicFrequency / this.visualFrequency) * ticks;
         for (let i = 0; i < ratioLogic; i++) {
-            this.chip8.clock_ws();
+            this.chip8?.clock_ws();
         }
 
         const ratioTimer = (this.timerFrequency / this.visualFrequency) * ticks;
         for (let i = 0; i < ratioTimer; i++) {
-            this.chip8.clock_dt_ws();
-            this.chip8.clock_st_ws();
-            beepFlag ||= this.chip8.beep_ws();
+            this.chip8?.clock_dt_ws();
+            this.chip8?.clock_st_ws();
+            beepFlag ||= this.chip8?.beep_ws() ?? false;
         }
 
         // in case the beep flag is active issue a sound during a bried
@@ -212,7 +207,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
         // marks the vertical blank interrupt effectively indicating
         // that a new frame can be drawn from a logical point of view
-        this.chip8.vblank_ws();
+        this.chip8?.vblank_ws();
 
         // increments the number of frames rendered in the current
         // section, this value is going to be used to calculate FPS
@@ -291,7 +286,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         // resets the CHIP-8 engine to restore it into
         // a valid state ready to be used
         this.chip8.reset_hard_ws();
-        this.chip8.load_rom_ws(romData);
+        this.chip8.load_rom_ws(romData!);
 
         // updates the name of the currently selected engine
         // to the one that has been provided (logic change)
@@ -299,7 +294,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
         // updates the complete set of global information that
         // is going to be displayed
-        this.setRom(romName, romData);
+        this.setRom(romName!, romData!);
 
         // in case the restore (state) flag is set
         // then resumes the machine execution
@@ -342,7 +337,12 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     get features(): Feature[] {
-        return [Feature.Benchmark, Feature.Keyboard, Feature.KeyboardChip8];
+        return [
+            Feature.Palettes,
+            Feature.Benchmark,
+            Feature.Keyboard,
+            Feature.KeyboardChip8
+        ];
     }
 
     get engines(): string[] {
@@ -350,7 +350,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     get engine(): string {
-        return this._engine;
+        return this._engine ?? "neo";
     }
 
     get romExts(): string[] {
@@ -371,11 +371,12 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
     get imageBuffer(): Uint8Array {
         const bufferMapped: number[] = [];
-        this.chip8.vram_ws().forEach((value) => {
+        const palette = PALETTES[this.paletteIndex];
+        this.chip8?.vram_ws().forEach((value) => {
             if (value) {
-                bufferMapped.push(...[0x50, 0xcb, 0x93]);
+                bufferMapped.push(...palette.colors[0]);
             } else {
-                bufferMapped.push(...[0x1b, 0x1a, 0x17]);
+                bufferMapped.push(...palette.colors[1]);
             }
         });
         return new Uint8Array(bufferMapped);
@@ -413,6 +414,17 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         throw new Error("Method not implemented.");
     }
 
+    get palette(): string | undefined {
+        const paletteObj = PALETTES[this.paletteIndex];
+        return paletteObj.name;
+    }
+
+    set palette(value: string | undefined) {
+        if (value === undefined) return;
+        const paletteObj = PALETTES_MAP[value];
+        this.paletteIndex = PALETTES.indexOf(paletteObj);
+    }
+
     getTile(index: number): Uint8Array {
         throw new Error("Method not implemented.");
     }
@@ -441,13 +453,19 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     keyPress(key: string): void {
         const keyCode = KEYS[key];
         if (!keyCode) return;
-        this.chip8.key_press_ws(keyCode);
+        this.chip8?.key_press_ws(keyCode);
     }
 
     keyLift(key: string): void {
         const keyCode = KEYS[key];
         if (!keyCode) return;
-        this.chip8.key_lift_ws(keyCode);
+        this.chip8?.key_lift_ws(keyCode);
+    }
+
+    changePalette() {
+        this.paletteIndex += 1;
+        this.paletteIndex %= PALETTES.length;
+        return PALETTES[this.paletteIndex].name;
     }
 
     benchmark?: (count?: number) => BenchmarkResult;
