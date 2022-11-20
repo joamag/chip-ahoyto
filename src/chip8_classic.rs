@@ -7,6 +7,9 @@ use crate::{
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
+#[cfg(feature = "wasm")]
+use crate::chip8::Registers;
+
 /// The number of keys to be allocated to the machine.
 const NUM_KEYS: usize = 16;
 
@@ -319,6 +322,16 @@ impl Chip8Classic {
 #[cfg(feature = "wasm")]
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Classic {
+    pub fn registers_ws(&mut self) -> Registers {
+        Registers {
+            pc: self.pc,
+            i: self.i,
+            sp: self.sp,
+            dt: self.dt,
+            st: self.st,
+        }
+    }
+
     pub fn load_rom_ws(&mut self, rom: &[u8]) {
         self.load_rom(rom)
     }

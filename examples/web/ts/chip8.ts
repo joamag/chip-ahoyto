@@ -411,7 +411,14 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     get registers(): Record<string, string | number> {
-        throw new Error("Method not implemented.");
+        const registers = this.chip8?.registers_ws()!;
+        return {
+            pc: registers.pc,
+            i: registers.i,
+            sp: registers.sp,
+            dt: registers.dt,
+            st: registers.st
+        };
     }
 
     get palette(): string | undefined {
@@ -423,10 +430,6 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         if (value === undefined) return;
         const paletteObj = PALETTES_MAP[value];
         this.paletteIndex = PALETTES.indexOf(paletteObj);
-    }
-
-    getTile(index: number): Uint8Array {
-        throw new Error("Method not implemented.");
     }
 
     toggleRunning() {
@@ -462,13 +465,33 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         this.chip8?.key_lift_ws(keyCode);
     }
 
-    changePalette() {
+    changePalette(): string {
         this.paletteIndex += 1;
         this.paletteIndex %= PALETTES.length;
         return PALETTES[this.paletteIndex].name;
     }
 
-    benchmark?: (count?: number) => BenchmarkResult;
+    benchmark(count = 200000000): BenchmarkResult {
+        let cycles = 0;
+        this.pause();
+        try {
+            const initial = Date.now();
+            for (let i = 0; i < count; i++) {
+                this.chip8?.clock_ws();
+                cycles += 1;
+            }
+            const delta = (Date.now() - initial) / 1000;
+            const frequency_mhz = cycles / delta / 1000 / 1000;
+            return {
+                delta: delta,
+                count: count,
+                cycles: cycles,
+                frequency_mhz: frequency_mhz
+            };
+        } finally {
+            this.resume();
+        }
+    }
 
     private static async fetchRom(
         romPath: string

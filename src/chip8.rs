@@ -1,3 +1,6 @@
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::*;
+
 /// The width of the screen in pixels.
 pub const DISPLAY_WIDTH: usize = 64;
 
@@ -78,4 +81,13 @@ pub trait Chip8 {
     fn key_press(&mut self, key: u8);
     fn key_lift(&mut self, key: u8);
     fn vblank(&mut self);
+}
+
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
+pub struct Registers {
+    pub pc: u16,
+    pub i: u16,
+    pub sp: u8,
+    pub dt: u8,
+    pub st: u8,
 }
