@@ -395,7 +395,9 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     set frequency(value: number) {
+        value = Math.max(value, 0);
         this.logicFrequency = value;
+        this.trigger("frequency", value);
     }
 
     get frequencyUnit(): Frequency | null {
