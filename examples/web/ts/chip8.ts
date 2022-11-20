@@ -18,6 +18,7 @@ const IDLE_HZ = 10;
 
 const DISPLAY_WIDTH = 64;
 const DISPLAY_HEIGHT = 32;
+const DISPLAY_SCALE = 8;
 
 const SAMPLE_RATE = 2;
 
@@ -29,18 +30,18 @@ const KEYS: Record<string, number> = {
     "2": 0x02,
     "3": 0x03,
     "4": 0x0c,
-    q: 0x04,
-    w: 0x05,
-    e: 0x06,
-    r: 0x0d,
-    a: 0x07,
-    s: 0x08,
-    d: 0x09,
-    f: 0x0e,
-    z: 0x0a,
-    x: 0x00,
-    c: 0x0b,
-    v: 0x0f
+    Q: 0x04,
+    W: 0x05,
+    E: 0x06,
+    R: 0x0d,
+    A: 0x07,
+    S: 0x08,
+    D: 0x09,
+    F: 0x0e,
+    Z: 0x0a,
+    X: 0x00,
+    C: 0x0b,
+    V: 0x0f
 };
 
 // @ts-ignore: ts(2580)
@@ -368,7 +369,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         return {
             width: DISPLAY_WIDTH,
             height: DISPLAY_HEIGHT,
-            scale: 9
+            scale: DISPLAY_SCALE
         };
     }
 
