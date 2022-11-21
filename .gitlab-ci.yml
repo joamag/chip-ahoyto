@@ -51,10 +51,22 @@ build-wasm:
       - frontends/web/lib
     expire_in: 1 day
 
+test-rust:
+  stage: test
+  parallel:
+    matrix:
+      - RUST_VERSION: ["1.56.1", "1.60.0", "stable", "nightly"]
+  script:
+    - rustup toolchain install $RUST_VERSION
+    - rustup override set $RUST_VERSION
+    - rustc --version
+    - cargo test
+
 deploy-netlify-preview:
   stage: deploy
   script:
     - cd frontends/web/dist
+    - cp -rp ../static/* .
     - npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=.
   dependencies:
     - build-wasm
@@ -65,6 +77,7 @@ deploy-netlify-prod:
   stage: deploy
   script:
     - cd frontends/web/dist
+    - cp -rp ../static/* .
     - npm_config_yes=true npx --package=netlify-cli netlify deploy --dir=. --prod
   dependencies:
     - build-wasm
@@ -75,6 +88,7 @@ deploy-cloudfare-master:
   stage: deploy
   script:
     - cd frontends/web/dist
+    - cp -rp ../static/* .
     - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto --branch master
   dependencies:
     - build-wasm
@@ -85,6 +99,7 @@ deploy-cloudfare-stable:
   stage: deploy
   script:
     - cd frontends/web/dist
+    - cp -rp ../static/* .
     - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto --branch stable
   dependencies:
     - build-wasm
@@ -95,6 +110,7 @@ deploy-cloudfare-prod:
   stage: deploy
   script:
     - cd frontends/web/dist
+    - cp -rp ../static/* .
     - npm_config_yes=true npx wrangler pages publish . --project-name=chip-ahoyto --branch prod
   dependencies:
     - build-wasm
