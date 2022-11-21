@@ -30,7 +30,7 @@ You can check a working version of the emulator at **[chip-ahoyto.joao.me](https
 
 | Provider  | Stable  | URL                                                                  |
 | --------- | ------- | -------------------------------------------------------------------- |
-| Netlify   | `True`  | [chip-ahoyto.joao.me](chip-ahoyto.joao.me)                           |
+| Cloudfare | `True`  | [chip-ahoyto.joao.me](https://chip-ahoyto.joao.me)                   |
 | Netlify   | `True`  | [chip-ahoyto.netlify.app](https://chip-ahoyto.netlify.app)           |
 | Cloudfare | `True`  | [chip-ahoyto.joao.me](https://chip-ahoyto.joao.me)                   |
 | Cloudfare | `True`  | [chip-ahoyto.pages.dev](https://chip-ahoyto.pages.dev)               |
