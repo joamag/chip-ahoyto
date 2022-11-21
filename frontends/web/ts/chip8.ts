@@ -5,6 +5,7 @@ import {
     Entry,
     Feature,
     Frequency,
+    FrequencySpecs,
     PixelFormat,
     RomInfo,
     Size
@@ -400,12 +401,12 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         this.trigger("frequency", value);
     }
 
-    get frequencyUnit(): Frequency | null {
-        return Frequency.Hz;
-    }
-
-    get frequencyDelta(): number | null {
-        return 60;
+    get frequencySpecs(): FrequencySpecs {
+        return {
+            unit: Frequency.Hz,
+            delta: 60,
+            places: 0
+        };
     }
 
     get framerate(): number {
