@@ -1,6 +1,6 @@
 [package]
 name = "chip-ahoyto-benchmark"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["João Magalhães <joamag@gmail.com>"]
 description = "CHIP-8 Benchmark application"
 license = "Apache-2.0"

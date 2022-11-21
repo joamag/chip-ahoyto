@@ -1,12 +1,13 @@
 [package]
 name = "chip-ahoyto"
 description = "A CHIP-8 emulator in Rust."
-version = "0.4.0"
+version = "0.4.1"
 authors = ["João Magalhães <joamag@gmail.com>"]
 license = "Apache-2.0"
 repository = "https://gitlab.stage.hive.pt/joamag/chip-ahoyto"
 keywords = ["chip-8", "emulator", "rust"]
 edition = "2018"
+exclude = ["/frontends", "/res/roms"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
