@@ -27,6 +27,6 @@ opt-level = 3
 [workspace]
 members = [
     ".",
-    "examples/benchmark",
-    "examples/sdl",
+    "frontends/benchmark",
+    "frontends/sdl",
 ]

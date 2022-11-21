@@ -8,4 +8,4 @@ Cargo.lock
 /.idea
 
 /target
-/examples/*/target
+/frontends/*/target
