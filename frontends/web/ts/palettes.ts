@@ -19,6 +19,13 @@ export const PALETTES = [
             [0xff, 0x00, 0x00],
             [0x1b, 0x1a, 0x17]
         ]
+    },
+    {
+        name: "yellow",
+        colors: [
+            [0xff, 0xff, 0x00],
+            [0x00, 0x00, 0xff]
+        ]
     }
 ];
 

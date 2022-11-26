@@ -46,6 +46,12 @@ You can check a working version of the emulator at **[chip-ahoyto.joao.me](https
 
 ## Build
 
+### Library
+
+```bash
+cargo build
+```
+
 ### WASM for Node.js
 
 ```bash
