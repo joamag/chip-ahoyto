@@ -15,6 +15,9 @@ import { PALETTES, PALETTES_MAP } from "./palettes";
 import { default as wasm, Chip8Neo, Chip8Classic } from "../lib/chip_ahoyto";
 import info from "../package.json";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const require: any;
+
 const LOGIC_HZ = 600;
 const VISUAL_HZ = 60;
 const TIMER_HZ = 60;
@@ -48,7 +51,6 @@ const KEYS: Record<string, number> = {
     V: 0x0f
 };
 
-// @ts-ignore: ts(2580)
 const ROM_PATH = require("../../../res/roms/pong.ch8");
 
 const sound = ((data = SOUND_DATA, volume = 0.2) => {
@@ -71,21 +73,21 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
      */
     private _engine: string | null = null;
 
-    private logicFrequency: number = LOGIC_HZ;
-    private visualFrequency: number = VISUAL_HZ;
-    private idleFrequency: number = IDLE_HZ;
-    private timerFrequency: number = TIMER_HZ;
+    private logicFrequency = LOGIC_HZ;
+    private visualFrequency = VISUAL_HZ;
+    private idleFrequency = IDLE_HZ;
+    private timerFrequency = TIMER_HZ;
 
-    private paused: boolean = false;
-    private nextTickTime: number = 0;
-    private fps: number = 0;
-    private frameStart: number = new Date().getTime();
-    private frameCount: number = 0;
-    private paletteIndex: number = 0;
+    private paused = false;
+    private nextTickTime = 0;
+    private fps = 0;
+    private frameStart = new Date().getTime();
+    private frameCount = 0;
+    private paletteIndex = 0;
 
     private romName: string | null = null;
     private romData: Uint8Array | null = null;
-    private romSize: number = 0;
+    private romSize = 0;
 
     async main({ romUrl }: { romUrl?: string }) {
         // initializes the WASM module, this is required
@@ -94,7 +96,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
         // boots the emulator subsystem with the initial
         // ROM retrieved from a remote data source
-        await this.boot({ loadRom: true });
+        await this.boot({ loadRom: true, romPath: romUrl ?? undefined });
 
         // runs the sequence as an infinite loop, running
         // the associated CPU cycles accordingly
@@ -266,6 +268,12 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
             [romName, romData] = [this.romName, this.romData];
         }
 
+        // in case either the ROM's name or data is not available
+        // throws an error as the boot process is not possible
+        if (!romName || !romData) {
+            throw new Error("Unable to load initial ROM");
+        }
+
         // selects the proper engine for execution
         // and builds a new instance of it
         switch (engine) {
@@ -287,7 +295,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         // resets the CHIP-8 engine to restore it into
         // a valid state ready to be used
         this.chip8.reset_hard_ws();
-        this.chip8.load_rom_ws(romData!);
+        this.chip8.load_rom_ws(romData);
 
         // updates the name of the currently selected engine
         // to the one that has been provided (logic change)
@@ -295,7 +303,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
         // updates the complete set of global information that
         // is going to be displayed
-        this.setRom(romName!, romData!);
+        this.setRom(romName, romData);
 
         // in case the restore (state) flag is set
         // then resumes the machine execution
@@ -414,7 +422,8 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     get registers(): Record<string, string | number> {
-        const registers = this.chip8?.registers_ws()!;
+        const registers = this.chip8?.registers_ws();
+        if (!registers) return {};
         return {
             pc: registers.pc,
             i: registers.i,
