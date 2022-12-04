@@ -37,8 +37,9 @@ const IDLE_HZ: u32 = 60;
 const TIMER_HZ: u32 = 60;
 
 /// Controls the rate at which the FPS samples are going to
-/// be taken, should not be too small that too many resources are used.
-const SAMPLE_RATE: u32 = 2;
+/// be taken, should not be too small that the frame rate takes
+/// to long to be updated or too high as too many resources are used.
+const FPS_SAMPLE_RATE: u32 = 3;
 
 const BEEP_DURATION: f32 = 0.1;
 
@@ -522,7 +523,7 @@ fn main() {
             // in case the target number of frames for FPS control
             // has been reached calculates the number of FPS and
             // flushes the value to the screen
-            if state.frame_count == state.visual_frequency * SAMPLE_RATE {
+            if state.frame_count == state.visual_frequency * FPS_SAMPLE_RATE {
                 let current_time = timer_subsystem.ticks();
                 let delta_time = (current_time - state.frame_start) as f32 / 1000.0;
                 state.fps = (state.frame_count as f32 / delta_time).round() as u32;
