@@ -1,0 +1,60 @@
+name: Main Workflow
+on:
+  push:
+  schedule:
+    - cron: "0 0 * * 0"
+jobs:
+  build:
+    name: Build
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        rust-version: [
+          "1.56.1",
+          "1.60.0",
+          "1.62.0",
+          "1.63.0",
+          "1.64.0",
+          "1.65.0",
+          "latest"
+        ]
+    runs-on: ubuntu-latest
+    container: rust:${{ matrix.rust-version }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: |
+          rustup component add rustfmt
+          rustup component add clippy
+      - run: rustc --version
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy -- -D warnings
+      - run: cargo build
+      - run: cargo build --release
+  build-wasm:
+    name: Build WASM
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        rust-version: [
+          "1.56.1",
+          "1.60.0",
+          "1.62.0",
+          "1.63.0",
+          "1.64.0",
+          "1.65.0",
+          "latest"
+        ]
+    runs-on: ubuntu-latest
+    container: rust:${{ matrix.rust-version }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: |
+          rustup component add rustfmt
+          rustup component add clippy
+      - run: rustc --version
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy -- -D warnings
+      - run: cargo install wasm-pack
+      - run: wasm-pack build --release --target=web --out-dir=frontends/web/lib -- --features wasm
+      - run: apt-get update && apt-get install -y -q nodejs npm
+      - run: cd frontends/web && npm install && npm run build && npm run lint
