@@ -57,7 +57,7 @@ build-wasm:
     expire_in: 1 day
 
 test-rust:
-  stage: testhain install $RUST_VERSION
+  stage: test
   parallel:
     matrix:
       - RUST_VERSION: ["1.56.1", "1.60.0", "stable", "nightly"]
