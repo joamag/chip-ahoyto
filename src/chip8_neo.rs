@@ -416,6 +416,7 @@ impl Chip8Neo {
 
     #[inline(always)]
     fn draw_sprite(&mut self, addr: usize, x0: usize, y0: usize, height: usize) {
+        let mut yf;
         display_blank!(self);
         self.regs[0xf] = 0;
         for y in 0..height {
@@ -424,7 +425,6 @@ impl Chip8Neo {
                 if line_byte & (0x80 >> x) == 0 {
                     continue;
                 }
-                let yf: usize;
                 clipping!(self, y, y0, yf);
                 let xf = (x0 + x) % DISPLAY_WIDTH;
                 let addr = yf * DISPLAY_WIDTH + xf;
