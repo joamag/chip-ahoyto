@@ -30,7 +30,11 @@ build-rust:
   script:
     - rustup toolchain install $RUST_VERSION
     - rustup override set $RUST_VERSION
+    - rustup component add rustfmt
+    - rustup component add clippy
     - rustc --version
+    - cargo fmt --all -- --check
+    - cargo clippy -- -D warnings
     - cargo build
     - cargo build --release
 
@@ -53,7 +57,7 @@ build-wasm:
     expire_in: 1 day
 
 test-rust:
-  stage: test
+  stage: testhain install $RUST_VERSION
   parallel:
     matrix:
       - RUST_VERSION: ["1.56.1", "1.60.0", "stable", "nightly"]
