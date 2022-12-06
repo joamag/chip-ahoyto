@@ -92,7 +92,7 @@ impl Chip8 for Chip8Neo {
     }
 
     fn paused(&self) -> bool {
-        return self.paused;
+        self.paused
     }
 
     fn beep(&self) -> bool {
@@ -175,18 +175,14 @@ impl Chip8 for Chip8Neo {
         cursor.read_exact(&mut u8_buffer).unwrap();
         self.st = u8::from_le_bytes(u8_buffer);
         cursor.read_exact(&mut keys_buffer).unwrap();
-        self.keys.clone_from_slice(
-            keys_buffer
-                .map(|v| if v == 1 { true } else { false })
-                .iter()
-                .as_slice(),
-        );
+        self.keys
+            .clone_from_slice(keys_buffer.map(|v| v == 1).iter().as_slice());
         cursor.read_exact(&mut u8_buffer).unwrap();
         self.last_key = u8::from_le_bytes(u8_buffer);
     }
 
     fn load_rom(&mut self, rom: &[u8]) {
-        self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(&rom);
+        self.ram[ROM_START..ROM_START + rom.len()].clone_from_slice(rom);
     }
 
     fn clock(&mut self) {
@@ -367,12 +363,9 @@ impl Chip8 for Chip8Neo {
     }
 
     fn vblank(&mut self) {
-        match self.wait_vblank {
-            WaitVblank::Waiting => {
-                self.wait_vblank = WaitVblank::Vblank;
-                self.paused = false;
-            }
-            _ => {}
+        if self.wait_vblank == WaitVblank::Waiting {
+            self.wait_vblank = WaitVblank::Vblank;
+            self.paused = false;
         }
     }
 }
@@ -409,7 +402,7 @@ impl Chip8Neo {
     }
 
     fn load_font(&mut self, position: usize, font_set: &[u8]) {
-        self.ram[position..position + font_set.len()].clone_from_slice(&font_set);
+        self.ram[position..position + font_set.len()].clone_from_slice(font_set);
     }
 
     fn load_default_font(&mut self) {
@@ -431,7 +424,7 @@ impl Chip8Neo {
                 if line_byte & (0x80 >> x) == 0 {
                     continue;
                 }
-                let yf;
+                let yf: usize;
                 clipping!(self, y, y0, yf);
                 let xf = (x0 + x) % DISPLAY_WIDTH;
                 let addr = yf * DISPLAY_WIDTH + xf;
