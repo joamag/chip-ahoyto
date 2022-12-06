@@ -97,5 +97,7 @@ CHIP-Ahoyto is currently licensed under the [Apache License, Version 2.0](http:/
 
 ## Build Automation
 
+[![Build Status](https://github.com/joamag/chip-ahoyto/workflows/Main%20Workflow/badge.svg)](https://github.com/joamag/chip-ahoyto/actions)
 [![crates Status](https://img.shields.io/crates/v/chip-ahoyto)](https://crates.io/crates/chip-ahoyto)
 [![npm Status](https://img.shields.io/npm/v/chip-ahoyto.svg)](https://www.npmjs.com/package/chip-ahoyto)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/)
