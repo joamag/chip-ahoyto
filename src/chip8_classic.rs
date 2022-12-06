@@ -72,7 +72,7 @@ impl Chip8 for Chip8Classic {
     fn pause(&mut self) {}
 
     fn paused(&self) -> bool {
-        return false;
+        false
     }
 
     fn beep(&self) -> bool {
@@ -315,7 +315,7 @@ impl Chip8Classic {
     }
 
     fn load_font(&mut self, font_set: &[u8]) {
-        self.ram[..font_set.len()].clone_from_slice(&font_set);
+        self.ram[..font_set.len()].clone_from_slice(font_set);
     }
 }
 
