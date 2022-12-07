@@ -336,6 +336,10 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         };
     }
 
+    get icon(): string | undefined {
+        return require("../res/globe.png");
+    }
+
     get version(): Entry | undefined {
         return {
             text: info.version,
