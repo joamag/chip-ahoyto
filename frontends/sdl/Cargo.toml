@@ -2,7 +2,7 @@
 name = "chip-ahoyto-sdl"
 version = "0.4.1"
 authors = ["João Magalhães <joamag@gmail.com>"]
-description = "CHIP-8 Emulator SDL (Desktop) Application"
+description = "An SDL frontend for CHIP-Ahoyto"
 license = "Apache-2.0"
 keywords = ["chip-8", "emulator", "rust", "sdl"]
 edition = "2018"
