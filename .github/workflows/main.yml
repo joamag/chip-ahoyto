@@ -68,7 +68,9 @@ jobs:
         name: Install wasm-pack
       - run: wasm-pack build --release --target=web --out-dir=frontends/web/lib -- --features wasm
         name: Build WASM Web binary
-      - run: apt-get update && apt-get install -y -q nodejs npm
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.rust-version }}
         name: Install Node.js
       - run: cd frontends/web && npm install && npm run build && npm run lint
         name: Build and lint Web code
