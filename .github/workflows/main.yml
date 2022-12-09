@@ -50,6 +50,7 @@ jobs:
           "1.65.0",
           "latest"
         ]
+        node-version: ["16"]
     runs-on: ubuntu-latest
     container: rust:${{ matrix.rust-version }}
     steps:
