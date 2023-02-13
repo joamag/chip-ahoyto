@@ -356,6 +356,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
     get features(): Feature[] {
         return [
+            Feature.Themes,
             Feature.Palettes,
             Feature.Benchmark,
             Feature.Keyboard,
