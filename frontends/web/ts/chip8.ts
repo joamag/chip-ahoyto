@@ -86,7 +86,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     private paused = false;
     private nextTickTime = 0;
     private fps = 0;
-    private frameStart = new Date().getTime();
+    private frameStart = EmulatorBase.now();
     private frameCount = 0;
     private paletteIndex = 0;
 
@@ -117,7 +117,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
             // obtains the current time, this value is going
             // to be used to compute the need for tick computation
-            let currentTime = new Date().getTime();
+            let currentTime = EmulatorBase.now();
 
             try {
                 this.tick(currentTime);
@@ -163,7 +163,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
             // calculates the amount of time until the next draw operation
             // this is the amount of time that is going to be pending
-            currentTime = new Date().getTime();
+            currentTime = EmulatorBase.now();
             const pendingTime = Math.max(this.nextTickTime - currentTime, 0);
 
             // waits a little bit for the next frame to be draw,
@@ -225,7 +225,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         // has been reached calculates the number of FPS and
         // flushes the value to the screen
         if (this.frameCount === this.visualFrequency * FPS_SAMPLE_RATE) {
-            const currentTime = new Date().getTime();
+            const currentTime = EmulatorBase.now();
             const deltaTime = (currentTime - this.frameStart) / 1000;
             const fps = Math.round(this.frameCount / deltaTime);
             this.fps = fps;
@@ -468,7 +468,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
     resume() {
         this.paused = false;
-        this.nextTickTime = new Date().getTime();
+        this.nextTickTime = EmulatorBase.now();
     }
 
     reset() {
@@ -497,12 +497,12 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         let cycles = 0;
         this.pause();
         try {
-            const initial = Date.now();
+            const initial = EmulatorBase.now();
             for (let i = 0; i < count; i++) {
                 this.chip8?.clock_ws();
                 cycles += 1;
             }
-            const delta = (Date.now() - initial) / 1000;
+            const delta = (EmulatorBase.now() - initial) / 1000;
             const frequency_mhz = cycles / delta / 1000 / 1000;
             return {
                 delta: delta,
