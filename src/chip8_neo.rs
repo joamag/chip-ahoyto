@@ -420,7 +420,7 @@ impl Chip8Neo {
         display_blank!(self);
         self.regs[0xf] = 0;
         for y in 0..height {
-            let line_byte = self.ram[(addr + y)];
+            let line_byte = self.ram[addr + y];
             for x in 0..8 {
                 if line_byte & (0x80 >> x) == 0 {
                     continue;
