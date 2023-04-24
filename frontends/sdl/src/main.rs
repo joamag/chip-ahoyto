@@ -48,16 +48,16 @@ const LOGIC_DELTA: u32 = VISUAL_HZ;
 const SCREEN_SCALE: f32 = 10.0;
 
 /// The name of the font file to be used in the diagnostics.
-static FONT_NAME: &'static str = "RobotoMono-Bold.ttf";
+static FONT_NAME: &str = "RobotoMono-Bold.ttf";
 
 /// The size of the font in pixels to be used in the render.
 const FONT_SIZE: u16 = 13;
 
 /// The base title to be used in the window.
-static TITLE: &'static str = "CHIP-Ahoyto";
+static TITLE: &str = "CHIP-Ahoyto";
 
 /// The title that is going to be presented initially to the user.
-static TITLE_INITIAL: &'static str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
+static TITLE_INITIAL: &str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
 
 pub fn surface_from_bytes(bytes: &[u8]) -> Surface {
     unsafe {
@@ -129,7 +129,7 @@ pub struct State {
 impl State {
     pub fn new(system: Box<dyn Chip8>) -> Self {
         Self {
-            system: system,
+            system,
             logic_frequency: LOGIC_HZ,
             visual_frequency: VISUAL_HZ,
             idle_frequency: IDLE_HZ,
@@ -195,7 +195,7 @@ fn main() {
     // loads the font that is going to be used in the drawing
     // process cycle if necessary
     let mut font = ttf_context
-        .load_font(format!("./res/{}", FONT_NAME), FONT_SIZE)
+        .load_font(format!("./res/{FONT_NAME}"), FONT_SIZE)
         .unwrap();
     font.set_style(sdl2::ttf::FontStyle::BOLD);
     font.set_hinting(Hinting::Light);
@@ -308,9 +308,9 @@ fn main() {
                     keycode: Some(Keycode::P),
                     ..
                 } => {
-                    state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len() as usize;
+                    state.pixel_color_index = (state.pixel_color_index + 1) % COLORS.len();
                     state.pixel_color = COLORS[state.pixel_color_index];
-                    let diag_color_index = (state.pixel_color_index + 1) % COLORS.len() as usize;
+                    let diag_color_index = (state.pixel_color_index + 1) % COLORS.len();
                     state.diag_color = COLORS[diag_color_index];
                     None
                 }
@@ -469,7 +469,7 @@ fn main() {
             // creates a texture based on the RGB pixel buffer
             // and copies that to the canvas for presentation
             texture
-                .update(None, &rgb_pixels, DISPLAY_WIDTH as usize * 3)
+                .update(None, &rgb_pixels, DISPLAY_WIDTH * 3)
                 .unwrap();
             canvas.copy(&texture, None, None).unwrap();
 
@@ -489,7 +489,7 @@ fn main() {
                     state.system.sp()
                 );
 
-                let text_sequence = text.split("\n");
+                let text_sequence = text.split('\n');
                 for part in text_sequence {
                     let surface = font
                         .render(part)
