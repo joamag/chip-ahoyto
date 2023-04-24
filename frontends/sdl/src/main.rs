@@ -290,7 +290,10 @@ fn main() {
                     ..
                 } => {
                     if state.rom_loaded {
-                        save_snapshot(format!("{}.sv8", state.rom_name).as_str(), state.system.as_ref());
+                        save_snapshot(
+                            format!("{}.sv8", state.rom_name).as_str(),
+                            state.system.as_ref(),
+                        );
                     }
                     None
                 }
