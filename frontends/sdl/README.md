@@ -1,4 +1,4 @@
-# Desktop CHIP-8 Emulator
+# CHIP-Ahoyto SDL
 
 Utilizes the [`chip-ahoyto`](../../) crate and the [SDL crate](https://github.com/Rust-SDL2/rust-sdl2) to build a desktop application.
 
