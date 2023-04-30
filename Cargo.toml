@@ -26,8 +26,4 @@ lto = true
 opt-level = 3
 
 [workspace]
-members = [
-    ".",
-    "frontends/benchmark",
-    "frontends/sdl",
-]
+members = [".", "frontends/benchmark", "frontends/sdl"]
