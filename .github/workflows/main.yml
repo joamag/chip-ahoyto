@@ -38,6 +38,8 @@ jobs:
         run: cargo fmt --all -- --check
       - name: Verify Rust code linting
         run: cargo clippy -- -D warnings -A unknown-lints
+      - name: Run unit tests
+        run: cargo test
       - name: Build development version
         run: cargo build
       - name: Build release version
@@ -71,6 +73,8 @@ jobs:
         run: cargo fmt --all -- --check
       - name: Verify Rust code linting
         run: cargo clippy -- -D warnings -A unknown-lints
+      - name: Run unit tests
+        run: cargo test
       - name: Install wasm-pack
         run: cargo install wasm-pack
       - name: Build WASM Web binary
@@ -119,6 +123,8 @@ jobs:
         run: cd frontends/sdl && cargo fmt --all -- --check
       - name: Verify Rust code linting
         run: cd frontends/sdl && cargo clippy -- -D warnings -A unknown-lints
+      - name: Run unit tests
+        run: cd frontends/sdl && cargo test
       - name: Build development version
         run: cd frontends/sdl && cargo build
       - name: Build release version
