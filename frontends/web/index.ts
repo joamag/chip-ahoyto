@@ -20,6 +20,7 @@ const BACKGROUNDS = [
     // creates the emulator structure and initializes the
     // React app with both the parameters and the emulator
     const emulator = new Chip8Emulator();
+    await emulator.init();
     startApp("app", {
         emulator: emulator,
         backgrounds: BACKGROUNDS

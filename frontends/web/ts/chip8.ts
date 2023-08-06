@@ -12,7 +12,14 @@ import {
 } from "emukit";
 import { PALETTES, PALETTES_MAP } from "./palettes";
 
-import { default as wasm, Chip8Neo, Chip8Classic } from "../lib/chip_ahoyto";
+import {
+    default as wasm,
+    Chip8Neo,
+    Chip8Classic,
+    name,
+    version,
+    system
+} from "../lib/chip_ahoyto";
 import info from "../package.json";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,11 +101,13 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     private romData: Uint8Array | null = null;
     private romSize = 0;
 
-    async main({ romUrl }: { romUrl?: string }) {
+    async init() {
         // initializes the WASM module, this is required
         // so that the global symbols become available
         await wasm();
+    }
 
+    async main({ romUrl }: { romUrl?: string }) {
         // boots the emulator subsystem with the initial
         // ROM retrieved from a remote data source
         await this.boot({ loadRom: true, romPath: romUrl ?? undefined });
@@ -326,12 +335,12 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     get name(): string {
-        return "CHIP-Ahoyto";
+        return name() ?? info.name;
     }
 
     get device(): Entry {
         return {
-            text: "CHIP-8",
+            text: system(),
             url: "https://en.wikipedia.org/wiki/CHIP-8"
         };
     }
@@ -342,7 +351,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
     get version(): Entry | undefined {
         return {
-            text: info.version,
+            text: version() ?? info.version,
             url: "https://github.com/joamag/chip-ahoyto/blob/master/CHANGELOG.md"
         };
     }
