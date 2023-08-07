@@ -16,9 +16,7 @@ import {
     default as wasm,
     Chip8Neo,
     Chip8Classic,
-    name,
-    version,
-    system
+    Info
 } from "../lib/chip_ahoyto";
 import info from "../package.json";
 
@@ -335,12 +333,12 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     get name(): string {
-        return name() ?? info.name;
+        return Info.name() ?? info.name;
     }
 
     get device(): Entry {
         return {
-            text: system(),
+            text: Info.system(),
             url: "https://en.wikipedia.org/wiki/CHIP-8"
         };
     }
@@ -351,7 +349,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
     get version(): Entry | undefined {
         return {
-            text: version() ?? info.version,
+            text: Info.version() ?? info.version,
             url: "https://github.com/joamag/chip-ahoyto/blob/master/CHANGELOG.md"
         };
     }
