@@ -8,6 +8,7 @@ import {
     FrequencySpecs,
     PixelFormat,
     RomInfo,
+    SaveState,
     Size
 } from "emukit";
 import { PALETTES, PALETTES_MAP } from "./palettes";
@@ -273,9 +274,8 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         // in case a remote ROM loading operation has been
         // requested then loads it from the remote origin
         if (loadRom) {
-            ({ name: romName, data: romData } = await Chip8Emulator.fetchRom(
-                romPath
-            ));
+            ({ name: romName, data: romData } =
+                await Chip8Emulator.fetchRom(romPath));
         } else if (romName === null || romData === null) {
             [romName, romData] = [this.romName, this.romData];
         }
@@ -367,7 +367,8 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
             Feature.Palettes,
             Feature.Benchmark,
             Feature.Keyboard,
-            Feature.KeyboardChip8
+            Feature.KeyboardChip8,
+            Feature.SaveState
         ];
     }
 
@@ -492,6 +493,25 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         const keyCode = KEYS[key];
         if (!keyCode) return;
         this.chip8?.key_lift_ws(keyCode);
+    }
+
+    serializeState(): Uint8Array {
+        if (!this.chip8) throw new Error("Unable to serialize state");
+        return this.chip8.get_state_ws();
+    }
+
+    unserializeState(data: Uint8Array) {
+        if (!this.chip8) throw new Error("Unable to unserialize state");
+        this.chip8.set_state_ws(data);
+    }
+
+    buildState(index: number): SaveState {
+        return {
+            index: index,
+            timestamp: 0,
+            agent: "CHIP-Ahoyto",
+            model: "CHIP-8"
+        };
     }
 
     changePalette(): string {

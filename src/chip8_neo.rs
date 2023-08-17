@@ -457,6 +457,14 @@ impl Chip8Neo {
         }
     }
 
+    pub fn get_state_ws(&self) -> Vec<u8> {
+        self.get_state()
+    }
+
+    pub fn set_state_ws(&mut self, state: &[u8]) {
+        self.set_state(state)
+    }
+
     pub fn load_rom_ws(&mut self, rom: &[u8]) {
         self.load_rom(rom)
     }
