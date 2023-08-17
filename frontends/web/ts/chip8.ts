@@ -508,9 +508,8 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     buildState(index: number): SaveState {
         return {
             index: index,
-            timestamp: 0,
-            agent: "CHIP-Ahoyto",
-            model: "CHIP-8"
+            agent: `${Info.name()}/${Info.version()}`,
+            model: Info.system(),
         };
     }
 
