@@ -28,15 +28,15 @@ You can check a working version of the emulator at **[chip-ahoyto.joao.me](https
 
 ## Deployments
 
-| Provider  | Stable  | URL                                                                  |
-| --------- | ------- | -------------------------------------------------------------------- |
-| Cloudfare | `True`  | [chip-ahoyto.joao.me](https://chip-ahoyto.joao.me)                   |
-| Netlify   | `True`  | [chip-ahoyto.netlify.app](https://chip-ahoyto.netlify.app)           |
-| Cloudfare | `True`  | [chip-ahoyto.joao.me](https://chip-ahoyto.joao.me)                   |
-| Cloudfare | `True`  | [chip-ahoyto.pages.dev](https://chip-ahoyto.pages.dev)               |
-| Cloudfare | `True`  | [prod.chip-ahoyto.pages.dev](https://prod.chip-ahoyto.pages.dev)     |
-| Cloudfare | `True`  | [stable.chip-ahoyto.pages.dev](https://stable.chip-ahoyto.pages.dev) |
-| Cloudfare | `False` | [master.chip-ahoyto.pages.dev](https://master.chip-ahoyto.pages.dev) |
+| Provider   | Stable  | URL                                                                  |
+| ---------- | ------- | -------------------------------------------------------------------- |
+| Cloudflare | `True`  | [chip-ahoyto.joao.me](https://chip-ahoyto.joao.me)                   |
+| Netlify    | `True`  | [chip-ahoyto.netlify.app](https://chip-ahoyto.netlify.app)           |
+| Cloudflare | `True`  | [chip-ahoyto.joao.me](https://chip-ahoyto.joao.me)                   |
+| Cloudflare | `True`  | [chip-ahoyto.pages.dev](https://chip-ahoyto.pages.dev)               |
+| Cloudflare | `True`  | [prod.chip-ahoyto.pages.dev](https://prod.chip-ahoyto.pages.dev)     |
+| Cloudflare | `True`  | [stable.chip-ahoyto.pages.dev](https://stable.chip-ahoyto.pages.dev) |
+| Cloudflare | `False` | [master.chip-ahoyto.pages.dev](https://master.chip-ahoyto.pages.dev) |
 
 ## Crate Features
 
