@@ -322,7 +322,7 @@ impl Chip8Classic {
 #[cfg(feature = "wasm")]
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Chip8Classic {
-    pub fn registers_ws(&mut self) -> Registers {
+    pub fn registers_wa(&mut self) -> Registers {
         Registers {
             pc: self.pc,
             i: self.i,
@@ -332,63 +332,63 @@ impl Chip8Classic {
         }
     }
 
-    pub fn get_state_ws(&self) -> Vec<u8> {
+    pub fn get_state_wa(&self) -> Vec<u8> {
         self.get_state()
     }
 
-    pub fn set_state_ws(&mut self, state: &[u8]) {
+    pub fn set_state_wa(&mut self, state: &[u8]) {
         self.set_state(state)
     }
 
-    pub fn load_rom_ws(&mut self, rom: &[u8]) {
+    pub fn load_rom_wa(&mut self, rom: &[u8]) {
         self.load_rom(rom)
     }
 
-    pub fn reset_ws(&mut self) {
+    pub fn reset_wa(&mut self) {
         self.reset()
     }
 
-    pub fn reset_hard_ws(&mut self) {
+    pub fn reset_hard_wa(&mut self) {
         self.reset_hard()
     }
 
-    pub fn pause_ws(&mut self) {
+    pub fn pause_wa(&mut self) {
         self.pause()
     }
 
-    pub fn paused_ws(&mut self) -> bool {
+    pub fn paused_wa(&mut self) -> bool {
         self.paused()
     }
 
-    pub fn beep_ws(&self) -> bool {
+    pub fn beep_wa(&self) -> bool {
         self.beep()
     }
 
-    pub fn vram_ws(&self) -> Vec<u8> {
+    pub fn vram_wa(&self) -> Vec<u8> {
         self.vram()
     }
 
-    pub fn clock_ws(&mut self) {
+    pub fn clock_wa(&mut self) {
         self.clock()
     }
 
-    pub fn clock_dt_ws(&mut self) {
+    pub fn clock_dt_wa(&mut self) {
         self.clock_dt()
     }
 
-    pub fn clock_st_ws(&mut self) {
+    pub fn clock_st_wa(&mut self) {
         self.clock_st()
     }
 
-    pub fn key_press_ws(&mut self, key: u8) {
+    pub fn key_press_wa(&mut self, key: u8) {
         self.key_press(key)
     }
 
-    pub fn key_lift_ws(&mut self, key: u8) {
+    pub fn key_lift_wa(&mut self, key: u8) {
         self.key_lift(key)
     }
 
-    pub fn vblank_ws(&mut self) {
+    pub fn vblank_wa(&mut self) {
         self.vblank()
     }
 }

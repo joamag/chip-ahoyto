@@ -203,14 +203,14 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
         const ratioLogic = (this.logicFrequency / this.visualFrequency) * ticks;
         for (let i = 0; i < ratioLogic; i++) {
-            this.chip8?.clock_ws();
+            this.chip8?.clock_wa();
         }
 
         const ratioTimer = (this.timerFrequency / this.visualFrequency) * ticks;
         for (let i = 0; i < ratioTimer; i++) {
-            this.chip8?.clock_dt_ws();
-            this.chip8?.clock_st_ws();
-            beepFlag ||= this.chip8?.beep_ws() ?? false;
+            this.chip8?.clock_dt_wa();
+            this.chip8?.clock_st_wa();
+            beepFlag ||= this.chip8?.beep_wa() ?? false;
         }
 
         // in case the beep flag is active issue a sound during a bried
@@ -223,7 +223,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
         // marks the vertical blank interrupt effectively indicating
         // that a new frame can be drawn from a logical point of view
-        this.chip8?.vblank_ws();
+        this.chip8?.vblank_wa();
 
         // increments the number of frames rendered in the current
         // section, this value is going to be used to calculate FPS
@@ -306,8 +306,8 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
 
         // resets the CHIP-8 engine to restore it into
         // a valid state ready to be used
-        this.chip8.reset_hard_ws();
-        this.chip8.load_rom_ws(romData);
+        this.chip8.reset_hard_wa();
+        this.chip8.load_rom_wa(romData);
 
         // updates the name of the currently selected engine
         // to the one that has been provided (logic change)
@@ -399,7 +399,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     get imageBuffer(): Uint8Array {
         const bufferMapped: number[] = [];
         const palette = PALETTES[this.paletteIndex];
-        this.chip8?.vram_ws().forEach((value) => {
+        this.chip8?.vram_wa().forEach((value) => {
             if (value) {
                 bufferMapped.push(...palette.colors[0]);
             } else {
@@ -440,7 +440,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     }
 
     get registers(): Record<string, string | number> {
-        const registers = this.chip8?.registers_ws();
+        const registers = this.chip8?.registers_wa();
         if (!registers) return {};
         return {
             pc: registers.pc,
@@ -486,23 +486,23 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
     keyPress(key: string): void {
         const keyCode = KEYS[key];
         if (!keyCode) return;
-        this.chip8?.key_press_ws(keyCode);
+        this.chip8?.key_press_wa(keyCode);
     }
 
     keyLift(key: string): void {
         const keyCode = KEYS[key];
         if (!keyCode) return;
-        this.chip8?.key_lift_ws(keyCode);
+        this.chip8?.key_lift_wa(keyCode);
     }
 
     serializeState(): Uint8Array {
         if (!this.chip8) throw new Error("Unable to serialize state");
-        return this.chip8.get_state_ws();
+        return this.chip8.get_state_wa();
     }
 
     unserializeState(data: Uint8Array) {
         if (!this.chip8) throw new Error("Unable to unserialize state");
-        this.chip8.set_state_ws(data);
+        this.chip8.set_state_wa(data);
     }
 
     buildState(index: number): SaveState {
@@ -525,7 +525,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         try {
             const initial = EmulatorBase.now();
             for (let i = 0; i < count; i++) {
-                this.chip8?.clock_ws();
+                this.chip8?.clock_wa();
                 cycles += 1;
             }
             const delta = (EmulatorBase.now() - initial) / 1000;
