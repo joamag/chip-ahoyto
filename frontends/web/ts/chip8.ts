@@ -462,7 +462,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         this.paletteIndex = PALETTES.indexOf(paletteObj);
     }
 
-    toggleRunning() {
+    async toggleRunning() {
         if (this.paused) {
             this.resume();
         } else {
@@ -470,17 +470,17 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         }
     }
 
-    pause(): void {
+    async pause() {
         this.paused = true;
     }
 
-    resume() {
+    async resume() {
         this.paused = false;
         this.nextTickTime = EmulatorBase.now();
     }
 
-    reset() {
-        this.boot({ engine: null });
+    async reset() {
+        await this.boot({ engine: null });
     }
 
     keyPress(key: string): void {
@@ -509,7 +509,7 @@ export class Chip8Emulator extends EmulatorBase implements Emulator {
         return {
             index: index,
             agent: `${Info.name()}/${Info.version()}`,
-            model: Info.system(),
+            model: Info.system()
         };
     }
 
