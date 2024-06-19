@@ -25,5 +25,5 @@ const BACKGROUNDS = [
         emulator: emulator,
         backgrounds: BACKGROUNDS
     });
-    await emulator.main({ romUrl: romUrl });
+    await emulator.start({ romUrl: romUrl });
 })();
