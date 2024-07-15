@@ -87,6 +87,18 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
     private romData: Uint8Array | null = null;
     private romSize = 0;
 
+    /**
+     * Associative map for extra settings to be used in
+     * opaque local storage operations, associated setting
+     * name with its value as a string.
+     */
+    private extraSettings: Record<string, string | boolean> = {};
+
+    constructor(extraSettings = {}) {
+        super();
+        this.extraSettings = extraSettings;
+    }
+
     async init() {
         // initializes the WASM module, this is required
         // so that the global symbols become available
@@ -121,6 +133,11 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
         // triggers the frame event indicating that
         // a new frame is now available for drawing
         this.trigger("frame");
+
+        // triggers the tick event, indicating that a new tick
+        // operation has been performed and providing some information
+        // about the number of cycles that have been executed
+        this.trigger("tick", { cycles: ratioLogic });
 
         // marks the vertical blank interrupt effectively indicating
         // that a new frame can be drawn from a logical point of view
@@ -244,13 +261,18 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
 
     get features(): Feature[] {
         return [
-            Feature.Themes,
-            Feature.Palettes,
-            Feature.Benchmark,
-            Feature.Keyboard,
-            Feature.KeyboardChip8,
-            Feature.Framerate,
-            Feature.SaveState
+            ...[
+                Feature.Themes,
+                Feature.Palettes,
+                Feature.Benchmark,
+                Feature.Keyboard,
+                Feature.KeyboardChip8,
+                Feature.Framerate,
+                Feature.SaveState
+            ],
+            ...(this.extraSettings?.debug ?? false
+                ? [Feature.LoopMode, Feature.Cyclerate, Feature.EmulationSpeed]
+                : [])
         ];
     }
 
