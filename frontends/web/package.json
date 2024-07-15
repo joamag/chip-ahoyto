@@ -24,7 +24,7 @@
         "@typescript-eslint/eslint-plugin": "^7.16.0",
         "@typescript-eslint/parser": "^7.16.0",
         "emukit": "^0.10.2",
-        "eslint": "^9.7.0",
+        "eslint": "^8.57.0",
         "nodemon": "^3.1.4",
         "parcel": "^2.12.0",
         "prettier": "^3.3.3",
