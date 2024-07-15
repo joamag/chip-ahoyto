@@ -249,6 +249,7 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
             Feature.Benchmark,
             Feature.Keyboard,
             Feature.KeyboardChip8,
+            Feature.Framerate,
             Feature.SaveState
         ];
     }
