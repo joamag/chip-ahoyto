@@ -1,8 +1,7 @@
 use std::io::{Cursor, Read};
 
 use crate::{
-    chip8::Chip8,
-    chip8::{Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
+    chip8::{Chip8, Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
     clipping, display_blank, jumping, memory, shifting,
     util::random,
     vf_reset,

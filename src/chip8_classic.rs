@@ -1,6 +1,5 @@
 use crate::{
-    chip8::Chip8,
-    chip8::{Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
+    chip8::{Chip8, Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
     util::random,
 };
 

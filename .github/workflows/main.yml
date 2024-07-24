@@ -125,6 +125,8 @@ jobs:
         run: cd frontends/sdl && cargo clippy -- -D warnings -A unknown-lints
       - name: Run unit tests
         run: cd frontends/sdl && cargo test
+      - name: Run all unit tests
+        run: cargo test --all
       - name: Build development version
         run: cd frontends/sdl && cargo build
       - name: Build release version
