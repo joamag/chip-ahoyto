@@ -27,3 +27,4 @@ opt-level = 3
 
 [workspace]
 members = [".", "frontends/benchmark", "frontends/sdl"]
+package = { version = "0.4.2", authors = ["João Magalhães <joamag@gmail.com>"], edition = "2018" }
