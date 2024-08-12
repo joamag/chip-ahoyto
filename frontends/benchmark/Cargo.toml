@@ -5,7 +5,7 @@ authors = ["João Magalhães <joamag@gmail.com>"]
 description = "CHIP-8 Benchmark application"
 license = "Apache-2.0"
 keywords = ["chip-8", "emulator", "rust", "benchmark"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 time = { version = "0.3" }

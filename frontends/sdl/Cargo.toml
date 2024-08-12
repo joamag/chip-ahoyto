@@ -5,7 +5,7 @@ authors = ["João Magalhães <joamag@gmail.com>"]
 description = "An SDL frontend for CHIP-Ahoyto"
 license = "Apache-2.0"
 keywords = ["chip-8", "emulator", "rust", "sdl"]
-edition = "2018"
+edition = "2021"
 
 [dependencies.chip-ahoyto]
 path = "../.."

@@ -6,7 +6,7 @@ authors = ["João Magalhães <joamag@gmail.com>"]
 license = "Apache-2.0"
 repository = "https://gitlab.stage.hive.pt/joamag/chip-ahoyto"
 keywords = ["chip-8", "emulator", "rust"]
-edition = "2018"
+edition = "2021"
 exclude = ["/frontends", "/res/roms"]
 
 [lib]
@@ -27,4 +27,4 @@ opt-level = 3
 
 [workspace]
 members = [".", "frontends/benchmark", "frontends/sdl"]
-package = { version = "0.4.2", authors = ["João Magalhães <joamag@gmail.com>"], edition = "2018" }
+package = { version = "0.4.2", authors = ["João Magalhães <joamag@gmail.com>"], edition = "2021" }

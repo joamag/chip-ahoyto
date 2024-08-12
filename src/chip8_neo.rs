@@ -208,16 +208,13 @@ impl Chip8 for Chip8Neo {
         let byte = (instruction & 0x00ff) as u8;
 
         match opcode {
-            0x0000 => match byte {
+            0x00e0 => match byte {
                 0xe0 => self.clear_screen(),
                 0xee => {
                     self.sp -= 1;
                     self.pc = self.stack[self.sp as usize];
                 }
-                _ => panic!(
-                    "unimplemented instruction 0x0000, instruction 0x{:04x}",
-                    instruction
-                ),
+                _ => panic!("unimplemented instruction 0x0000, instruction 0x{instruction:04x}"),
             },
             0x1000 => self.pc = address,
             0x2000 => {
@@ -265,10 +262,7 @@ impl Chip8 for Chip8Neo {
                     self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
                     shifting!(self, x, y, <<);
                 }
-                _ => panic!(
-                    "unimplemented instruction 0x8000, instruction 0x{:04x}",
-                    instruction
-                ),
+                _ => panic!("unimplemented instruction 0x8000, instruction 0x{instruction:04x}"),
             },
             0x9000 => self.pc += if self.regs[x] != self.regs[y] { 2 } else { 0 },
             0xa000 => self.i = address,
@@ -293,10 +287,7 @@ impl Chip8 for Chip8Neo {
                     let key = self.regs[x] as usize;
                     self.pc += if !self.keys[key] { 2 } else { 0 }
                 }
-                _ => panic!(
-                    "unimplemented instruction 0xe000, instruction 0x{:04x}",
-                    instruction
-                ),
+                _ => panic!("unimplemented instruction 0xe000, instruction 0x{instruction:04x}"),
             },
             0xf000 => match byte {
                 0x07 => self.regs[x] = self.dt,
@@ -326,15 +317,9 @@ impl Chip8 for Chip8Neo {
                         .clone_from_slice(&self.ram[self.i as usize..self.i as usize + x + 1]);
                     memory!(self);
                 }
-                _ => panic!(
-                    "unimplemented instruction 0xf000, instruction 0x{:04x}",
-                    instruction
-                ),
+                _ => panic!("unimplemented instruction 0xf000, instruction 0x{instruction:04x}",),
             },
-            _ => panic!(
-                "unimplemented opcode 0x{:04x}, instruction 0x{:04x}",
-                opcode, instruction
-            ),
+            _ => panic!("unimplemented opcode 0x{opcode:04x}, instruction 0x{instruction:04x}",),
         }
     }
 
