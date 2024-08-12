@@ -208,7 +208,7 @@ impl Chip8 for Chip8Neo {
         let byte = (instruction & 0x00ff) as u8;
 
         match opcode {
-            0x00e0 => match byte {
+            0x0000 => match byte {
                 0xe0 => self.clear_screen(),
                 0xee => {
                     self.sp -= 1;

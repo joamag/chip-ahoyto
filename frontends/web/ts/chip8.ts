@@ -144,6 +144,14 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
         this.chip8.vblank_wa();
     }
 
+    async hardReset() {
+        await wasm(false);
+        await this.boot({
+            engine: this._engine || "neo",
+            restore: false
+        });
+    }
+
     /**
      * Starts the current machine, setting the internal structure in
      * a proper state to start drawing and receiving input.
@@ -270,7 +278,7 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
                 Feature.Framerate,
                 Feature.SaveState
             ],
-            ...(this.extraSettings?.debug ?? false
+            ...((this.extraSettings?.debug ?? false)
                 ? [Feature.LoopMode, Feature.Cyclerate, Feature.EmulationSpeed]
                 : [])
         ];
