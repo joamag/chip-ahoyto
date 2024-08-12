@@ -178,7 +178,7 @@ fn main() {
         match engine.as_str() {
             "neo" => system = Box::new(Chip8Neo::new()),
             "classic" => system = Box::new(Chip8Classic::new()),
-            _ => panic!("invalid system engine name '{}'", engine),
+            _ => panic!("invalid system engine name '{engine}'",),
         }
     } else {
         system = Box::new(Chip8Neo::new());

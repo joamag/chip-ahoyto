@@ -172,7 +172,7 @@ impl Chip8Classic {
             0x0000 => match byte {
                 0xe0 => self.vram = [0u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
                 0xee => self.return_subroutine(),
-                _ => panic!("unknown opcode 0x{:04x}", opcode),
+                _ => panic!("unknown opcode 0x{opcode:04x}"),
             },
             0x1000 => self.pc = addr,
             0x2000 => self.call_subroutine(addr),
@@ -191,7 +191,7 @@ impl Chip8Classic {
                 0x6 => self.shift_right(x),
                 0x7 => self.registers[x] = self.sub(y, x),
                 0xe => self.shift_left(x),
-                _ => panic!("unknown opcode 0x{:04x}", opcode),
+                _ => panic!("unknown opcode 0x{opcode:04x}"),
             },
             0x9000 => self.skip_if(self.registers[x] != self.registers[y]),
             0xa000 => self.i = addr,
@@ -205,7 +205,7 @@ impl Chip8Classic {
             0xe000 => match byte {
                 0x9e => self.skip_if(self.keys[self.registers[x] as usize]),
                 0xa1 => self.skip_if(!self.keys[self.registers[x] as usize]),
-                _ => panic!("unknown opcode 0x{:04x}", opcode),
+                _ => panic!("unknown opcode 0x{opcode:04x}"),
             },
             0xf000 => match byte {
                 0x07 => self.registers[x] = self.dt,
@@ -221,9 +221,9 @@ impl Chip8Classic {
                     self.registers[0..=x]
                         .clone_from_slice(&self.ram[self.i as usize..=self.i as usize + x]);
                 }
-                _ => panic!("unknown opcode 0x{:04x}", opcode),
+                _ => panic!("unknown opcode 0x{opcode:04x}"),
             },
-            _ => panic!("unknown opcode 0x{:04x}", opcode),
+            _ => panic!("unknown opcode 0x{opcode:04x}"),
         }
     }
 
