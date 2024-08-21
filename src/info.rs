@@ -13,6 +13,12 @@ impl Info {
         String::from("CHIP-Ahoyto")
     }
 
+    /// Obtains the name of the emulator in lowercase.
+    /// Useful for file paths and other cases where.
+    pub fn name_lower() -> String {
+        String::from("chip-ahoyto")
+    }
+
     /// Obtains the version of the emulator.
     pub fn version() -> String {
         String::from("0.4.2")

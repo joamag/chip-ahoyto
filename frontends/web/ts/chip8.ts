@@ -395,7 +395,7 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
     buildState(index: number): SaveState {
         return {
             index: index,
-            agent: `${Info.name()}/${Info.version()}`,
+            agent: `${Info.name_lower()}/${Info.version()}`,
             model: Info.system()
         };
     }
