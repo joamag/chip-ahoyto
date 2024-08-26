@@ -15,7 +15,7 @@ import {
 import { PALETTES, PALETTES_MAP } from "./palettes";
 
 import {
-    default as wasm,
+    default as _wasm,
     Chip8Neo,
     Chip8Classic,
     Info
@@ -457,4 +457,15 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
 const beep = async () => {
     sound.muted = false;
     await sound.play();
+};
+
+const wasm = async () => {
+    const isNeo = _wasm
+        .toString()
+        .startsWith("async function __wbg_init(module_or_path");
+    if (isNeo) {
+        await _wasm({ module_or_path: require("../lib/chip_ahoyto_bg.wasm") });
+    } else {
+        await _wasm();
+    }
 };
