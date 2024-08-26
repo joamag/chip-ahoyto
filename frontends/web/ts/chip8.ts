@@ -145,7 +145,7 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
     }
 
     async hardReset() {
-        await wasm(false);
+        await wasm();
         await this.boot({
             engine: this._engine || "neo",
             restore: false
