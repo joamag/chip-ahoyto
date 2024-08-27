@@ -12,15 +12,16 @@ import {
     SaveState,
     Size
 } from "emukit";
-import { PALETTES, PALETTES_MAP } from "./palettes";
 
 import {
     default as _wasm,
-    Chip8Neo,
     Chip8Classic,
+    Chip8Neo,
     Info
 } from "../lib/chip_ahoyto";
 import info from "../package.json";
+
+import { PALETTES, PALETTES_MAP } from "./palettes";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const require: any;

@@ -1,4 +1,5 @@
 import { startApp } from "emukit";
+
 import { Chip8Emulator } from "./ts";
 
 const BACKGROUNDS = [
