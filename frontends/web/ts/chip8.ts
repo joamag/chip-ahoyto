@@ -383,17 +383,17 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
         this.chip8?.key_lift_wa(keyCode);
     }
 
-    serializeState(): Uint8Array {
+    async serializeState(): Promise<Uint8Array> {
         if (!this.chip8) throw new Error("Unable to serialize state");
         return this.chip8.get_state_wa();
     }
 
-    unserializeState(data: Uint8Array) {
+    async unserializeState(data: Uint8Array) {
         if (!this.chip8) throw new Error("Unable to unserialize state");
         this.chip8.set_state_wa(data);
     }
 
-    buildState(index: number): SaveState {
+    async buildState(index: number): Promise<SaveState> {
         return {
             index: index,
             agent: `${Info.name_lower()}/${Info.version()}`,
