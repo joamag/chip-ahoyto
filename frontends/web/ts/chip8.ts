@@ -461,12 +461,13 @@ const beep = async () => {
 };
 
 const wasm = async () => {
-    const isNeo = _wasm
-        .toString()
-        .startsWith("async function __wbg_init(module_or_path");
-    if (isNeo) {
+    try {
         await _wasm({ module_or_path: require("../lib/chip_ahoyto_bg.wasm") });
-    } else {
-        await _wasm();
+    } catch (err) {
+        if (err instanceof TypeError) {
+            await _wasm();
+        } else {
+            throw err;
+        }
     }
 };
