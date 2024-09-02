@@ -10,7 +10,8 @@ import {
     PixelFormat,
     RomInfo,
     SaveState,
-    Size
+    Size,
+    TickParams
 } from "emukit";
 
 import {
@@ -106,7 +107,7 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
         await wasm();
     }
 
-    async tick() {
+    async tick(params: TickParams) {
         // in case the reference to the system is not set then
         // returns the control flow immediately (not possible to tick)
         if (!this.chip8) return;
@@ -115,12 +116,14 @@ export class Chip8Emulator extends EmulatorLogic implements Emulator {
         // is going to be issued
         let beepFlag = false;
 
-        const ratioLogic = this.logicFrequency / this.visualFrequency;
+        const ratioLogic =
+            (this.logicFrequency / this.visualFrequency) * params.visualRatio;
         for (let i = 0; i < ratioLogic; i++) {
             this.chip8.clock_wa();
         }
 
-        const ratioTimer = this.timerFrequency / this.visualFrequency;
+        const ratioTimer =
+            (this.timerFrequency / this.visualFrequency) * params.visualRatio;
         for (let i = 0; i < ratioTimer; i++) {
             this.chip8.clock_dt_wa();
             this.chip8.clock_st_wa();
