@@ -164,8 +164,8 @@ impl Chip8Classic {
         let id = opcode & 0xf000;
         let addr = opcode & 0x0fff;
         let nibble = (opcode & 0x000f) as u8;
-        let x = (opcode >> 8 & 0xf) as usize;
-        let y = (opcode >> 4 & 0xf) as usize;
+        let x = ((opcode >> 8) & 0xf) as usize;
+        let y = ((opcode >> 4) & 0xf) as usize;
         let byte = (opcode & 0x00ff) as u8;
 
         match id {
@@ -230,7 +230,7 @@ impl Chip8Classic {
     #[inline(always)]
     fn fetch_opcode(&mut self) -> u16 {
         let opcode =
-            (self.ram[self.pc as usize] as u16) << 8 | self.ram[self.pc as usize + 1] as u16;
+            ((self.ram[self.pc as usize] as u16) << 8) | self.ram[self.pc as usize + 1] as u16;
         self.pc += 2;
         opcode
     }

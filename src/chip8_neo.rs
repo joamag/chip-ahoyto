@@ -197,7 +197,7 @@ impl Chip8 for Chip8Neo {
         // fetches the current instruction and increments
         // the PC (program counter) accordingly
         let instruction =
-            (self.ram[self.pc as usize] as u16) << 8 | self.ram[self.pc as usize + 1] as u16;
+            ((self.ram[self.pc as usize] as u16) << 8) | self.ram[self.pc as usize + 1] as u16;
         self.pc += 2;
 
         let opcode = instruction & 0xf000;
