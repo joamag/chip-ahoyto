@@ -72,7 +72,7 @@ deploy-netlify-preview:
   script:
     - cd frontends/web/dist
     - cp -rp ../static/* .
-    - npm_config_yes=true npx --loglevel verbose --package=netlify-cli netlify deploy --dir=.
+    - npm_config_yes=true npx --loglevel verbose --package=netlify-cli netlify deploy --build --dir=.
   dependencies:
     - build-wasm
   only:
