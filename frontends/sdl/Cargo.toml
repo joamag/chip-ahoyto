@@ -6,7 +6,7 @@ description = "An SDL frontend for CHIP-Ahoyto"
 license = "Apache-2.0"
 keywords = ["chip-8", "emulator", "rust", "sdl"]
 edition = "2021"
-rust-version = "1.81"
+rust-version = "1.82"
 
 [dependencies.chip-ahoyto]
 path = "../.."

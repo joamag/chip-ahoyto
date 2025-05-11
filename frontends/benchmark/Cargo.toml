@@ -6,7 +6,7 @@ description = "CHIP-8 Benchmark application"
 license = "Apache-2.0"
 keywords = ["chip-8", "emulator", "rust", "benchmark"]
 edition = "2021"
-rust-version = "1.81"
+rust-version = "1.82"
 
 [dependencies]
 time = { version = "0.3" }
