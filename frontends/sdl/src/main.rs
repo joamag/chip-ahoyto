@@ -66,7 +66,7 @@ static TITLE: &str = "CHIP-Ahoyto";
 /// The title that is going to be presented initially to the user.
 static TITLE_INITIAL: &str = "CHIP-Ahoyto [Drag and drop the ROM file to play]";
 
-pub fn surface_from_bytes(bytes: &[u8]) -> Surface<_> {
+pub fn surface_from_bytes(bytes: &[u8]) -> Surface<'_> {
     unsafe {
         let rw_ops = RWops::from_bytes(bytes).unwrap();
         let raw_surface = image::IMG_Load_RW(rw_ops.raw(), 0);
