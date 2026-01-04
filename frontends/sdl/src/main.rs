@@ -1,5 +1,7 @@
 pub mod data;
 
+use std::{cmp, env::args, path::Path};
+
 use chip_ahoyto::{
     chip8::{Chip8, DISPLAY_HEIGHT, DISPLAY_WIDTH},
     chip8_classic::Chip8Classic,
@@ -18,7 +20,6 @@ use sdl2::{
     sys::image,
     ttf::Hinting,
 };
-use std::{cmp, env::args, path::Path};
 
 /// Generates a `Rect` from the provided arguments.
 macro_rules! rect(

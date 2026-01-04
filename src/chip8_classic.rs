@@ -1,13 +1,12 @@
-use crate::{
-    chip8::{Chip8, Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
-    util::random,
-};
-
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
 #[cfg(feature = "wasm")]
 use crate::chip8::Registers;
+use crate::{
+    chip8::{Chip8, Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
+    util::random,
+};
 
 /// The number of keys to be allocated to the machine.
 const NUM_KEYS: usize = 16;

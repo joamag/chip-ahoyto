@@ -1,17 +1,16 @@
 use std::io::{Cursor, Read};
 
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::*;
+
+#[cfg(feature = "wasm")]
+use crate::chip8::Registers;
 use crate::{
     chip8::{Chip8, Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
     clipping, display_blank, jumping, memory, shifting,
     util::random,
     vf_reset,
 };
-
-#[cfg(feature = "wasm")]
-use wasm_bindgen::prelude::*;
-
-#[cfg(feature = "wasm")]
-use crate::chip8::Registers;
 
 const RAM_SIZE: usize = 4096;
 const STACK_SIZE: usize = 16;

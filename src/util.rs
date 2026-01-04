@@ -1,8 +1,9 @@
-use getrandom::getrandom;
 use std::{
     fs::File,
     io::{Read, Write},
 };
+
+use getrandom::getrandom;
 
 use crate::chip8::Chip8;
 
