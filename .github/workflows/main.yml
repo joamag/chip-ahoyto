@@ -86,8 +86,12 @@ jobs:
     strategy:
       matrix:
         rust-version: [
-          "1.85.0",
-          "1.86.0",
+          "1.88.0",
+          "1.89.0",
+          "1.90.0",
+          "1.91.0",
+          "1.92.0",
+          "1.93.0",
           "latest"
         ]
     runs-on: ubuntu-latest
