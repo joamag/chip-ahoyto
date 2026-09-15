@@ -90,12 +90,33 @@ macro_rules! shifting {
     }
 }
 
+/// The register a shift reads from, which is where its flag comes from too.
+#[cfg(feature = "quirks")]
+#[macro_export]
+macro_rules! shift_source {
+    ( $self:expr, $x:expr, $y:expr ) => {
+        if $self.quirks.shifting {
+            $self.regs[$x]
+        } else {
+            $self.regs[$y]
+        }
+    };
+}
+
 #[cfg(not(feature = "quirks"))]
 #[macro_export]
 macro_rules! shifting {
     ( $self:expr, $x:expr, $y:expr, $shift:tt ) => {
         $self.regs[$x] = $self.regs[$y] $shift 1;
     }
+}
+
+#[cfg(not(feature = "quirks"))]
+#[macro_export]
+macro_rules! shift_source {
+    ( $self:expr, $x:expr, $y:expr ) => {
+        $self.regs[$y]
+    };
 }
 
 #[cfg(feature = "quirks")]

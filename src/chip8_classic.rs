@@ -39,8 +39,13 @@ pub struct Chip8Classic {
     sp: u8,
     beep: bool,
     last_key: u8,
+    /// The key seen going down while `Fx0A` waits, or `NO_KEY`;
+    /// the wait ends when that key comes back up.
+    wait_key: u8,
     keys: [bool; NUM_KEYS],
 }
+
+const NO_KEY: u8 = 0xff;
 
 impl Chip8 for Chip8Classic {
     fn name(&self) -> &str {
@@ -58,6 +63,7 @@ impl Chip8 for Chip8Classic {
         self.sp = 0;
         self.beep = false;
         self.last_key = 0x00;
+        self.wait_key = NO_KEY;
         self.keys = [false; NUM_KEYS];
         self.load_font(&FONT_SET);
     }
@@ -153,6 +159,7 @@ impl Chip8Classic {
             sp: 0,
             beep: false,
             last_key: 0x00,
+            wait_key: NO_KEY,
             keys: [false; NUM_KEYS],
         };
         chip8.load_font(&FONT_SET);
@@ -186,9 +193,9 @@ impl Chip8Classic {
                 0x2 => self.registers[x] &= self.registers[y],
                 0x3 => self.registers[x] ^= self.registers[y],
                 0x4 => self.add(x, y),
-                0x5 => self.registers[x] = self.sub(x, y),
+                0x5 => self.sub(x, x, y),
                 0x6 => self.shift_right(x),
-                0x7 => self.registers[x] = self.sub(y, x),
+                0x7 => self.sub(x, y, x),
                 0xe => self.shift_left(x),
                 _ => panic!("unknown opcode 0x{opcode:04x}"),
             },
@@ -202,8 +209,8 @@ impl Chip8Classic {
                 nibble as usize,
             ),
             0xe000 => match byte {
-                0x9e => self.skip_if(self.keys[self.registers[x] as usize]),
-                0xa1 => self.skip_if(!self.keys[self.registers[x] as usize]),
+                0x9e => self.skip_if(self.keys[(self.registers[x] & 0xf) as usize]),
+                0xa1 => self.skip_if(!self.keys[(self.registers[x] & 0xf) as usize]),
                 _ => panic!("unknown opcode 0x{opcode:04x}"),
             },
             0xf000 => match byte {
@@ -237,14 +244,18 @@ impl Chip8Classic {
     #[inline(always)]
     fn add(&mut self, x: usize, y: usize) {
         let (sum, overflow) = self.registers[x].overflowing_add(self.registers[y]);
-        self.registers[0xf] = overflow as u8;
+        // the flag goes in last so it survives when `x` is `0xf`
         self.registers[x] = sum;
+        self.registers[0xf] = overflow as u8;
     }
 
+    /// Stores `a - b` in register `dest`, wrapping like the hardware,
+    /// with `VF` set to 1 when there was no borrow (which includes `a == b`).
     #[inline(always)]
-    fn sub(&mut self, x: usize, y: usize) -> u8 {
-        self.registers[0xf] = (self.registers[x] > self.registers[y]) as u8;
-        self.registers[x].saturating_sub(self.registers[y])
+    fn sub(&mut self, dest: usize, a: usize, b: usize) {
+        let (result, borrow) = self.registers[a].overflowing_sub(self.registers[b]);
+        self.registers[dest] = result;
+        self.registers[0xf] = !borrow as u8;
     }
 
     #[inline(always)]
@@ -262,14 +273,16 @@ impl Chip8Classic {
 
     #[inline(always)]
     fn shift_right(&mut self, x: usize) {
-        self.registers[0xf] = self.registers[x] & 0x01;
+        let flag = self.registers[x] & 0x01;
         self.registers[x] >>= 1;
+        self.registers[0xf] = flag;
     }
 
     #[inline(always)]
     fn shift_left(&mut self, x: usize) {
-        self.registers[0xf] = (self.registers[x] & 0x80) >> 7;
+        let flag = (self.registers[x] & 0x80) >> 7;
         self.registers[x] <<= 1;
+        self.registers[0xf] = flag;
     }
 
     #[inline(always)]
@@ -286,10 +299,17 @@ impl Chip8Classic {
 
     #[inline(always)]
     fn wait_for_key(&mut self, x: usize) {
-        if self.keys[self.last_key as usize] {
-            self.registers[x] = self.last_key;
-        } else {
+        // the original hardware moves on when the key is released, not pressed
+        if self.wait_key == NO_KEY {
+            if let Some(key) = self.keys.iter().position(|&down| down) {
+                self.wait_key = key as u8;
+            }
             self.pc -= 2;
+        } else if self.keys[self.wait_key as usize] {
+            self.pc -= 2;
+        } else {
+            self.registers[x] = self.wait_key;
+            self.wait_key = NO_KEY;
         }
     }
 
