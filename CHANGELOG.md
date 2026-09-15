@@ -18,7 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-*
+* `8XY5` and `8XY7` reported a borrow on equal values, and the `classic` engine saturated the subtraction instead of wrapping it
+* `VF` was written before the result in the arithmetic and shift instructions, so the result overwrote the flag when `X` was `F`
+* The shift flag now comes from the register that is shifted, which is `VY` unless the shifting quirk is on
+* `FX0A` now completes when the key is released rather than when it goes down
+* `EX9E` and `EXA1` mask the register to a key number instead of indexing past the key array
 
 ## [0.4.2] - 2023-02-13
 

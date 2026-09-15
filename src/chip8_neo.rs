@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 use crate::chip8::Registers;
 use crate::{
     chip8::{Chip8, Quirk, DISPLAY_HEIGHT, DISPLAY_WIDTH, FONT_SET},
-    clipping, display_blank, jumping, memory, shifting,
+    clipping, display_blank, jumping, memory, shift_source, shifting,
     util::random,
     vf_reset,
 };
@@ -16,6 +16,7 @@ const RAM_SIZE: usize = 4096;
 const STACK_SIZE: usize = 16;
 const REGISTERS_SIZE: usize = 16;
 const KEYS_SIZE: usize = 16;
+const NO_KEY: u8 = 0xff;
 
 /// The starting address for the ROM loading, should be
 /// the initial PC position for execution.
@@ -50,6 +51,9 @@ pub struct Chip8Neo {
     st: u8,
     keys: [bool; KEYS_SIZE],
     last_key: u8,
+    /// The key seen going down while `Fx0A` waits, or `NO_KEY`;
+    /// the wait ends when that key comes back up.
+    wait_key: u8,
     paused: bool,
     wait_vblank: WaitVblank,
     quirks: QuirkFlags,
@@ -71,6 +75,7 @@ impl Chip8 for Chip8Neo {
         self.st = 0x0;
         self.keys = [false; KEYS_SIZE];
         self.last_key = 0x0;
+        self.wait_key = NO_KEY;
         self.paused = false;
         self.wait_vblank = WaitVblank::Waiting;
         self.load_default_font();
@@ -137,6 +142,7 @@ impl Chip8 for Chip8Neo {
         buffer.extend(self.st.to_le_bytes().iter());
         buffer.extend(self.keys.map(|v| v as u8).iter());
         buffer.extend(self.last_key.to_le_bytes().iter());
+        buffer.extend(self.wait_key.to_le_bytes().iter());
         buffer
     }
 
@@ -177,6 +183,8 @@ impl Chip8 for Chip8Neo {
             .clone_from_slice(keys_buffer.map(|v| v == 1).iter().as_slice());
         cursor.read_exact(&mut u8_buffer).unwrap();
         self.last_key = u8::from_le_bytes(u8_buffer);
+        cursor.read_exact(&mut u8_buffer).unwrap();
+        self.wait_key = u8::from_le_bytes(u8_buffer);
     }
 
     fn load_rom(&mut self, rom: &[u8]) {
@@ -240,26 +248,33 @@ impl Chip8 for Chip8Neo {
                     self.regs[x] ^= self.regs[y];
                     vf_reset!(self);
                 }
+                // in every one of these the flag goes in last, so it
+                // survives when `x` is `0xf`, and no borrow includes equality
                 0x4 => {
                     let (result, overflow) = self.regs[x].overflowing_add(self.regs[y]);
                     self.regs[x] = result;
                     self.regs[0xf] = overflow as u8;
                 }
                 0x5 => {
-                    self.regs[0xf] = (self.regs[x] > self.regs[y]) as u8;
-                    self.regs[x] = self.regs[x].wrapping_sub(self.regs[y]);
+                    let (result, borrow) = self.regs[x].overflowing_sub(self.regs[y]);
+                    self.regs[x] = result;
+                    self.regs[0xf] = !borrow as u8;
                 }
                 0x6 => {
-                    self.regs[0xf] = self.regs[x] & 0x01;
+                    // the flag is the bit shifted out of whichever register is shifted
+                    let flag = shift_source!(self, x, y) & 0x01;
                     shifting!(self, x, y, >>);
+                    self.regs[0xf] = flag;
                 }
                 0x7 => {
-                    self.regs[0xf] = (self.regs[y] > self.regs[x]) as u8;
-                    self.regs[x] = self.regs[y].wrapping_sub(self.regs[x]);
+                    let (result, borrow) = self.regs[y].overflowing_sub(self.regs[x]);
+                    self.regs[x] = result;
+                    self.regs[0xf] = !borrow as u8;
                 }
                 0xe => {
-                    self.regs[0xf] = (self.regs[x] & 0x80) >> 7;
+                    let flag = (shift_source!(self, x, y) & 0x80) >> 7;
                     shifting!(self, x, y, <<);
+                    self.regs[0xf] = flag;
                 }
                 _ => panic!("unimplemented instruction 0x8000, instruction 0x{instruction:04x}"),
             },
@@ -279,11 +294,11 @@ impl Chip8 for Chip8Neo {
             }
             0xe000 => match byte {
                 0x9e => {
-                    let key = self.regs[x] as usize;
+                    let key = (self.regs[x] & 0xf) as usize;
                     self.pc += if self.keys[key] { 2 } else { 0 }
                 }
                 0xa1 => {
-                    let key = self.regs[x] as usize;
+                    let key = (self.regs[x] & 0xf) as usize;
                     self.pc += if !self.keys[key] { 2 } else { 0 }
                 }
                 _ => panic!("unimplemented instruction 0xe000, instruction 0x{instruction:04x}"),
@@ -291,10 +306,17 @@ impl Chip8 for Chip8Neo {
             0xf000 => match byte {
                 0x07 => self.regs[x] = self.dt,
                 0x0a => {
-                    if self.keys[self.last_key as usize] {
-                        self.regs[x] = self.last_key;
-                    } else {
+                    // the original hardware moves on when the key is released, not pressed
+                    if self.wait_key == NO_KEY {
+                        if let Some(key) = self.keys.iter().position(|&down| down) {
+                            self.wait_key = key as u8;
+                        }
                         self.pc -= 2
+                    } else if self.keys[self.wait_key as usize] {
+                        self.pc -= 2
+                    } else {
+                        self.regs[x] = self.wait_key;
+                        self.wait_key = NO_KEY;
                     }
                 }
                 0x15 => self.dt = self.regs[x],
@@ -369,6 +391,7 @@ impl Chip8Neo {
             st: 0x0,
             keys: [false; KEYS_SIZE],
             last_key: 0x0,
+            wait_key: NO_KEY,
             paused: false,
             wait_vblank: WaitVblank::NotWaiting,
             quirks: QuirkFlags {
