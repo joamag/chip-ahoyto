@@ -112,6 +112,9 @@ jobs:
           rustup component add clippy
       - name: Print Rust information
         run: rustc --version
+      - name: Detect Linux distribution
+        id: distro
+        run: . /etc/os-release && echo "codename=$VERSION_CODENAME" >> "$GITHUB_OUTPUT"
       - name: Cache SDL build
         uses: actions/cache@v6
         with:
@@ -120,10 +123,10 @@ jobs:
             ~/.cache/vcpkg
             ~/vcpkg
             target/vcpkg
-          key: vcpkg-${{ runner.os }}-${{ matrix.rust-version }}-${{ hashFiles('frontends/sdl/Cargo.toml') }}
+          key: vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-${{ matrix.rust-version }}-${{ hashFiles('frontends/sdl/Cargo.toml') }}
           restore-keys: |
-            vcpkg-${{ runner.os }}-${{ matrix.rust-version }}-
-            vcpkg-${{ runner.os }}-
+            vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-${{ matrix.rust-version }}-
+            vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-
       - name: Install SDL dependencies
         run: cd frontends/sdl && cargo install cargo-vcpkg && cargo vcpkg -v build
       - name: Verify Rust code format
