@@ -115,6 +115,9 @@ jobs:
       - name: Detect Linux distribution
         id: distro
         run: . /etc/os-release && echo "codename=$VERSION_CODENAME" >> "$GITHUB_OUTPUT"
+      - name: Detect vcpkg revision
+        id: vcpkg
+        run: echo "rev=$(sed -n '/^\[package\.metadata\.vcpkg\]/,/^\[/ s/^rev = "\(.*\)"$/\1/p' frontends/sdl/Cargo.toml)" >> "$GITHUB_OUTPUT"
       - name: Cache SDL build
         uses: actions/cache@v6
         with:
@@ -123,10 +126,10 @@ jobs:
             ~/.cache/vcpkg
             ~/vcpkg
             target/vcpkg
-          key: vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-${{ matrix.rust-version }}-${{ hashFiles('frontends/sdl/Cargo.toml') }}
+          key: vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-${{ steps.vcpkg.outputs.rev }}-${{ matrix.rust-version }}-${{ hashFiles('frontends/sdl/Cargo.toml') }}
           restore-keys: |
-            vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-${{ matrix.rust-version }}-
-            vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-
+            vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-${{ steps.vcpkg.outputs.rev }}-${{ matrix.rust-version }}-
+            vcpkg-${{ runner.os }}-${{ steps.distro.outputs.codename }}-${{ steps.vcpkg.outputs.rev }}-
       - name: Install SDL dependencies
         run: cd frontends/sdl && cargo install cargo-vcpkg && cargo vcpkg -v build
       - name: Verify Rust code format

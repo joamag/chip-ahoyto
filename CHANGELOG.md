@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Web frontend builds in GitHub Actions after a new release of a build dependency rejected the cache location of the build containers
-* SDL frontend builds in GitHub Actions after cached native dependencies were reused across incompatible build containers
+* SDL frontend builds in GitHub Actions after cached native dependencies were reused across incompatible build containers and dependency revisions
 
 ## [0.4.2] - 2023-02-13
 
